@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   addMonths, applyDiscount, buildInstallments, classifyMatch, clubMatchScore, coachFit, creditBalance, formatSwimTime,
-  hourSlots, lessonDates, lessonEndDate, normalizeName, parseSwimTime, passedStandards, redeemKurus,
+  hourSlots, lessonDates, lessonEndDate, normalizeName, parseSwimTime, passedStandards, paymentSummary, redeemKurus,
 } from './rules';
 import { beepsBetween, buildSteps, jumpLane, laneElapsed, pauseLane, startLane, timerView, totalMs, type WorkoutSet } from './timer';
 
@@ -30,6 +30,21 @@ describe('ödeme', () => {
   });
   it('tek çekimde faiz uygulamaz', () => {
     expect(buildInstallments(100000, 1, 10, '2026-12-01').totalKurus).toBe(100000);
+  });
+});
+
+describe('ödeme özeti', () => {
+  const plan = [
+    { no: 1, dueDate: '2026-11-01', amountKurus: 1000, paidAt: '2026-11-01', method: 'Nakit' },
+    { no: 2, dueDate: '2026-12-01', amountKurus: 1000 },
+  ];
+  it('kalan borç ve vadeyi hesaplar', () => {
+    const s = paymentSummary(plan, '2026-11-23');
+    expect([s.paidKurus, s.remainingKurus, s.daysToDue, s.status]).toEqual([1000, 1000, 8, 'bekliyor']);
+  });
+  it('geciken ve biten planı ayırır', () => {
+    expect(paymentSummary(plan, '2026-12-02').status).toBe('gecikti');
+    expect(paymentSummary([plan[0]], '2026-12-02').status).toBe('odendi');
   });
 });
 

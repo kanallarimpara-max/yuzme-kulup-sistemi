@@ -33,6 +33,7 @@
   "dependencies": {
     "@capacitor/android": "^8.6.2",
     "@capacitor/core": "^8.6.2",
+    "dejavu-fonts-ttf": "^2.37.3",
     "firebase": "^13.4.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.9",

@@ -1,4 +1,4 @@
-import { Bell, BookOpen, CalendarCheck, CalendarDays, LayoutDashboard, LogOut, Settings, Timer, Waves } from 'lucide-react';
+import { Bell, BookOpen, CalendarCheck, CalendarDays, LayoutDashboard, LogOut, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
 import { NavLink, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { useSession } from './lib/session';
 import { ROLE_LABEL, type Role } from './lib/types';
@@ -10,6 +10,10 @@ import Lessons from './pages/admin/Lessons';
 import ClubSetup from './pages/admin/ClubSetup';
 import AvailabilityPage from './pages/coach/AvailabilityPage';
 import Notices from './pages/Notices';
+import PreRegister from './pages/PreRegister';
+import PreRegDesign from './pages/secretary/PreRegDesign';
+import Registrations from './pages/secretary/Registrations';
+import StudentsPayments from './pages/secretary/StudentsPayments';
 
 type NavItem = { to: string; label: string; icon: typeof Waves; roles: Role[] };
 
@@ -17,6 +21,9 @@ const NAV: NavItem[] = [
   { to: '/panel', label: 'Panel', icon: LayoutDashboard, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
   { to: '/dersler', label: 'Ders saatleri', icon: BookOpen, roles: ['admin'] },
   { to: '/kulup', label: 'Kulüp ayarları', icon: Settings, roles: ['admin'] },
+  { to: '/kayit', label: 'Kayıt', icon: UserPlus, roles: ['secretary'] },
+  { to: '/ogrenciler', label: 'Öğrenciler', icon: Users, roles: ['secretary', 'admin'] },
+  { to: '/on-kayit-ayar', label: 'Ön kayıt', icon: Palette, roles: ['secretary'] },
   { to: '/musaitlik', label: 'Müsaitlik', icon: CalendarCheck, roles: ['coach'] },
   { to: '/kronometre/kontrol', label: 'Kronometre', icon: Timer, roles: ['coach', 'admin'] },
   { to: '/duyurular', label: 'Duyurular', icon: Bell, roles: ['admin', 'secretary', 'coach', 'parent'] },
@@ -54,6 +61,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/giris" element={user ? <Navigate to="/panel" replace /> : <Login />} />
+      <Route path="/on-kayit/:slug" element={<PreRegister />} />
       <Route path="/kronometre/ekran" element={user ? <TimerDisplay /> : <Navigate to="/giris" replace />} />
       <Route element={<Shell />}>
         <Route path="/panel" element={<Dashboard />} />
@@ -62,6 +70,9 @@ export default function App() {
         <Route path="/kulup" element={<ClubSetup />} />
         <Route path="/musaitlik" element={<AvailabilityPage />} />
         <Route path="/duyurular" element={<Notices />} />
+        <Route path="/kayit" element={<Registrations />} />
+        <Route path="/ogrenciler" element={<StudentsPayments />} />
+        <Route path="/on-kayit-ayar" element={<PreRegDesign />} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/panel' : '/giris'} replace />} />
     </Routes>

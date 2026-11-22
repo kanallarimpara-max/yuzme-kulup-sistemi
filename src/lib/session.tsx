@@ -30,6 +30,20 @@ const authSdk = async () => {
   return { auth: auth.getAuth(app), ...auth };
 };
 
+const makeTag = (name: string) =>
+  `@${name.toLocaleLowerCase('tr-TR').replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u').replace(/[^a-z0-9]/g, '')}${Math.floor(1000 + Math.random() * 9000)}`;
+
+/** Şifre veritabanına yazılmaz. Demo modunda hiç saklanmaz, Firebase'de yalnız Auth'a gider. */
+export async function createParentAccount(clubId: string, name: string, email: string, password: string) {
+  const profile = { clubId, name, email, role: 'parent' as const, tag: makeTag(name), isPublic: false };
+  if (!firebaseEnabled) return db.add('users', profile);
+  const f = await authSdk();
+  const credential = await f.createUserWithEmailAndPassword(f.auth, email, password);
+  await db.put('users', credential.user.uid, { ...profile, createdAt: Date.now() });
+  await f.signOut(f.auth);
+  return credential.user.uid;
+}
+
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [userId, setUserId] = useState<string | null>(() => (firebaseEnabled ? null : sessionStorage.getItem(DEMO_KEY)));
   const [ready, setReady] = useState(!firebaseEnabled);

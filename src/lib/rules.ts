@@ -55,7 +55,18 @@ export function buildInstallments(netKurus: number, count: number, interestPerce
   return { totalKurus, installments };
 }
 
-export const redeemKurus = (credits: number, rateCredits: number, rateKurus: number) =>
+export type PaidInstallment = Installment & { paidAt?: IsoDate; method?: string };
+
+export function paymentSummary(installments: PaidInstallment[], today: IsoDate) {
+  const totalKurus = installments.reduce((s, i) => s + i.amountKurus, 0);
+  const paidKurus = installments.reduce((s, i) => s + (i.paidAt ? i.amountKurus : 0), 0);
+  const next = installments.filter((i) => !i.paidAt).sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0] ?? null;
+  const daysToDue = next ? Math.round((parse(next.dueDate).getTime() - parse(today).getTime()) / 86400000) : null;
+  const status: 'odendi' | 'gecikti' | 'bekliyor' = !next ? 'odendi' : (daysToDue as number) < 0 ? 'gecikti' : 'bekliyor';
+  return { totalKurus, paidKurus, remainingKurus: totalKurus - paidKurus, next, daysToDue, status };
+}
+
+export const redeemKurus =(credits: number, rateCredits: number, rateKurus: number) =>
   rateCredits > 0 ? Math.floor((credits * rateKurus) / rateCredits) : 0;
 
 export type LedgerEntry = { delta: number; status?: 'posted' | 'pending' | 'rejected' };

@@ -1,5 +1,6 @@
 import type { Row } from './store';
 import type { LaneClock, WorkoutSet } from './timer';
+import type { PaidInstallment } from './rules';
 
 export type Role = 'super' | 'admin' | 'secretary' | 'coach' | 'parent';
 
@@ -12,7 +13,21 @@ export const ROLE_LABEL: Record<Role, string> = {
 };
 
 export type User = Row & { name: string; email: string; role: Role; tag: string; isPublic: boolean; branchIds?: string[] };
-export type Club = Row & { name: string; logoUrl?: string; color: string; slug: string };
+export type PreRegLook = { eyebrow: string; color: string; title: string; description: string; logoUrl: string; videoUrl: string };
+export type Club = Row & {
+  name: string; logoUrl?: string; color: string; slug: string; paymentMethods?: string[]; preRegLook?: Partial<PreRegLook>;
+};
+export type DiscountCode = Row & { clubId: string; code: string; type: 'percent' | 'amount'; value: number; active: boolean };
+export type PreReg = Row & {
+  clubId: string; modelId: string; branchId: string; firstName: string; lastName: string; birthYear: number; gender: 'K' | 'E';
+  studentPhone: string; parentName: string; parentEmail: string; parentPhone: string; address: string; paymentMethod: string;
+  parentId: string; status: 'yeni' | 'kayitli';
+};
+export type Enrollment = Row & {
+  clubId: string; studentId: string; lessonId: string; coachId: string; listKurus: number; netKurus: number; totalKurus: number;
+  discountCode?: string; installments: PaidInstallment[];
+};
+export type Chat = Row & { clubId: string; name: string; lessonId?: string; memberIds: string[] };
 export type Branch = Row & { clubId: string; name: string };
 export type Lesson = Row & {
   clubId: string; branchId: string; coachIds: string[]; name: string; weekdays: number[]; startTime: string;

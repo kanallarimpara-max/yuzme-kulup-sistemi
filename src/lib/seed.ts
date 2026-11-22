@@ -7,7 +7,11 @@ const min = 60000;
 type SeedRow = Row & Record<string, unknown>;
 
 export const demoData: Record<string, SeedRow[]> = {
-  clubs: [{ id: clubId, name: 'Mavi Dalga Spor Kulübü', color: '#19b5c9', slug: 'mavi-dalga' }],
+  clubs: [{ id: clubId, name: 'Mavi Dalga Spor Kulübü', color: '#19b5c9', slug: 'mavi-dalga', paymentMethods: ['Kredi kartı', 'Nakit', 'EFT / Havale'] }],
+  discounts: [{ id: 'd1', clubId, code: 'KARDES10', type: 'percent', value: 10, active: true }],
+  prereg: [],
+  enrollments: [],
+  chats: [],
   branches: [
     { id: 'b1', clubId, name: 'Merkez Havuz' },
     { id: 'b2', clubId, name: 'Sahil Şubesi' },
@@ -20,8 +24,8 @@ export const demoData: Record<string, SeedRow[]> = {
     { id: 'u-parent', clubId, name: 'Selin Aydın', email: 'veli@demo.test', role: 'parent', tag: '@selinaydin', isPublic: false },
   ],
   lessons: [
-    { id: 'l1', clubId, branchId: 'b1', coachIds: ['u-coach'], name: 'Gelişim Grubu', weekdays: [1, 3, 5], startTime: '17:00', endTime: '18:00', startDate: '2026-11-02', endDate: '2027-01-29', capacity: 10, feeKurus: 350000, coachPayKurus: 1500000 },
-    { id: 'l2', clubId, branchId: 'b2', coachIds: ['u-coach'], name: 'Performans Takımı', weekdays: [2, 4, 6], startTime: '18:30', endTime: '20:00', startDate: '2026-11-03', endDate: '2027-01-30', capacity: 8, feeKurus: 500000, coachPayKurus: 2000000 },
+    { id: 'l1', clubId, modelId: 'm1', maxInstallments: 3, interestPercent: 10, branchId: 'b1', coachIds: ['u-coach'], name: 'Gelişim Grubu', weekdays: [1, 3, 5], startTime: '17:00', endTime: '18:00', startDate: '2026-11-02', endDate: '2027-01-29', capacity: 10, feeKurus: 350000, coachPayKurus: 1500000 },
+    { id: 'l2', clubId, modelId: 'm3', maxInstallments: 1, interestPercent: 0, branchId: 'b2', coachIds: ['u-coach'], name: 'Performans Takımı', weekdays: [2, 4, 6], startTime: '18:30', endTime: '20:00', startDate: '2026-11-03', endDate: '2027-01-30', capacity: 8, feeKurus: 500000, coachPayKurus: 2000000 },
   ],
   students: [
     { id: 's1', clubId, parentId: 'u-parent', lessonId: 'l1', coachId: 'u-coach', firstName: 'Mert', lastName: 'Aydın', birthYear: 2014, gender: 'E' },

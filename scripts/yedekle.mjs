@@ -19,7 +19,7 @@ durum = durum.replace(/(## Son kayıtlar\n\n)/, `$1- ${tarih}: ${yapilan}\n`);
 writeFileSync(yol, durum);
 
 git('add', '-A');
-if (git('status', '--porcelain')) git('commit', '-m', yapilan);
+if (git('status', '--porcelain')) git('commit', '-m', yapilan, '-m', 'Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>');
 
 try {
   git('push', '-u', 'origin', 'main');
