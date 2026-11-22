@@ -1,0 +1,42 @@
+import type { Row } from './store';
+
+// Yalnızca Firebase bağlı değilken kullanılan kurgusal örnek veri.
+const clubId = 'demo-club';
+const min = 60000;
+
+type SeedRow = Row & Record<string, unknown>;
+
+export const demoData: Record<string, SeedRow[]> = {
+  clubs: [{ id: clubId, name: 'Mavi Dalga Spor Kulübü', color: '#19b5c9', slug: 'mavi-dalga' }],
+  branches: [
+    { id: 'b1', clubId, name: 'Merkez Havuz' },
+    { id: 'b2', clubId, name: 'Sahil Şubesi' },
+  ],
+  users: [
+    { id: 'u-super', name: 'Sistem Yöneticisi', email: 'super@demo.test', role: 'super', tag: '@sistem', isPublic: false },
+    { id: 'u-admin', clubId, name: 'Deniz Kaya', email: 'admin@demo.test', role: 'admin', tag: '@denizkaya', isPublic: true },
+    { id: 'u-sec', clubId, name: 'Ece Yılmaz', email: 'sekreter@demo.test', role: 'secretary', tag: '@eceyilmaz', isPublic: true },
+    { id: 'u-coach', clubId, name: 'Can Demir', email: 'antrenor@demo.test', role: 'coach', tag: '@candemir', isPublic: true },
+    { id: 'u-parent', clubId, name: 'Selin Aydın', email: 'veli@demo.test', role: 'parent', tag: '@selinaydin', isPublic: false },
+  ],
+  lessons: [
+    { id: 'l1', clubId, branchId: 'b1', coachIds: ['u-coach'], name: 'Gelişim Grubu', weekdays: [1, 3, 5], startTime: '17:00', endTime: '18:00', startDate: '2026-11-02', endDate: '2027-01-29', capacity: 10, feeKurus: 350000, coachPayKurus: 1500000 },
+    { id: 'l2', clubId, branchId: 'b2', coachIds: ['u-coach'], name: 'Performans Takımı', weekdays: [2, 4, 6], startTime: '18:30', endTime: '20:00', startDate: '2026-11-03', endDate: '2027-01-30', capacity: 8, feeKurus: 500000, coachPayKurus: 2000000 },
+  ],
+  students: [
+    { id: 's1', clubId, parentId: 'u-parent', lessonId: 'l1', coachId: 'u-coach', firstName: 'Mert', lastName: 'Aydın', birthYear: 2014, gender: 'E' },
+    { id: 's2', clubId, parentId: 'u-parent', lessonId: 'l2', coachId: 'u-coach', firstName: 'Ada', lastName: 'Aydın', birthYear: 2012, gender: 'K' },
+  ],
+  workouts: [
+    { id: 'w1', clubId, coachId: 'u-coach', title: 'Aerobik Dayanıklılık', sets: [
+      { name: 'Isınma', reps: 2, distance: 100, stroke: 'Serbest', intervalMs: 2 * min, restMs: 30000 },
+      { name: 'Ana Set', reps: 6, distance: 100, stroke: 'Serbest', intervalMs: 95000, restMs: 60000 },
+      { name: 'Çıkış', reps: 1, distance: 200, stroke: 'Karışık', intervalMs: 4 * min, restMs: 0 },
+    ] },
+    { id: 'w2', clubId, coachId: 'u-coach', title: 'Sürat Serisi', sets: [
+      { name: 'Aktivasyon', reps: 4, distance: 25, stroke: 'Kelebek', intervalMs: 45000, restMs: 20000 },
+      { name: 'Sürat', reps: 8, distance: 50, stroke: 'Serbest', intervalMs: 60000, restMs: 45000 },
+    ] },
+  ],
+  timers: [],
+};

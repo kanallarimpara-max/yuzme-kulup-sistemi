@@ -87,6 +87,23 @@ export const pauseLane = (lane: LaneClock, now: number): LaneClock => ({ status:
 export const finishLane = (): LaneClock => ({ status: 'done', startedAt: null, offsetMs: 0 });
 export const jumpLane = (sets: WorkoutSet[], setIndex: number, now: number): LaneClock => ({ status: 'running', startedAt: now, offsetMs: setOffsetMs(sets, setIndex) });
 
+/** Tüm kulvarlara birebir eşit alan veren, ekrana en uygun satır-sütun düzenini seçer. */
+export function laneGrid(count: number, width: number, height: number) {
+  const n = Math.max(1, count);
+  let best = { cols: n, rows: 1 };
+  let bestScore = Infinity;
+  for (let cols = 1; cols <= n; cols += 1) {
+    if (n % cols) continue;
+    const rows = n / cols;
+    const score = Math.abs(Math.log((width / cols / (height / rows)) / 1.4));
+    if (score < bestScore) {
+      bestScore = score;
+      best = { cols, rows };
+    }
+  }
+  return best;
+}
+
 /** İki kare arasında geçilen sesli uyarıları döndürür. Kare atlansa da uyarı kaybolmaz. */
 export function beepsBetween(sets: WorkoutSet[], fromMs: number, toMs: number): Array<'short' | 'final'> {
   if (toMs <= fromMs) return [];
