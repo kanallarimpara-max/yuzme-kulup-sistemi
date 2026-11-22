@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Windows paketini doğrula. Workflow izni gelince Android APK'yı Actions ile derle. Sonra Firebase'i bağla ve kuralları emülatörde test et.
+Firebase bağla, firestore.rules emülatörde test et, kredi işlemleri için Cloudflare Worker yaz.
 
 ## Modüller
 
@@ -19,7 +19,7 @@ Windows paketini doğrula. Workflow izni gelince Android APK'yı Actions ile der
 | Veli | Ödeme, antrenman, devam, yarış, performans çalışıyor. Baraj ve canlı sonuç TYF modülünü bekliyor |
 | Sohbet, sesli arama, sosyal akış | Etiket, istek, grup, fotoğraf, akış, keşfet çalışıyor. Mikrofonla sesli mesaj ve arama iki gerçek cihazda test edilmedi |
 | TYF sonuç ve baraj aktarımı | PDF ile sonuç aktarımı ve 2.060 resmi baraj çalışıyor. Otomatik çekim Worker veya Actions + Firebase bekliyor |
-| Web, Windows, Android paketleri | Başlamadı |
+| Web, Windows, Android paketleri | Web yerelde çalışıyor. Windows klasör paketi derlendi ama bu PC imzasız exe dosyasını engelliyor, çalıştırılamadı. APK derlenmedi |
 
 ## Kullanıcıdan beklenenler
 
@@ -30,10 +30,14 @@ Windows paketini doğrula. Workflow izni gelince Android APK'yı Actions ile der
 
 - firestore.rules yazıldı ama emülatörde test edilmedi. Test edilmeden gerçek veri girilmemeli.
 - Kredi harcama ve antrenman kopyalama istemciden yazılıyor. Firebase'de güvenli olması için Cloudflare Worker'a taşınmalı.
+- Kredi harcama (market, antrenman pazarı) Firestore kurallarında kapalı, Cloudflare Worker yazılmalı.
+- Eksikler: gerçek AI modeli (şu an kural tabanlı analiz), TYF otomatik çekim, kapalı uygulamaya bildirim, reklamların ekranlarda gösterimi, süper admin tasarım yönetimi, grup sesli arama.
+- Windows Akıllı Uygulama Denetimi imzasız exe dosyasını engelliyor. Güvenlik ayarı değiştirilmez; ücretsiz seçenek PWA kurulumudur.
 - Kronometre farklı cihazlarda cihaz saatine bağlı, sunucu saat farkı düzeltmesi eklenmeli.
 
 ## Son kayıtlar
 
+- 2026-11-23: Paketleme durumu ve kalan eksikler kaydedildi
 - 2026-11-23: TYF sonuç aktarımı, resmi barajlar ve Firestore kuralları eklendi
 - 2026-11-23: TYF sonuç aktarımı, resmi barajlar, Firestore kuralları ve APK iş akışı eklendi
 - 2026-11-23: Etiketli sohbet, grup, medya, sesli arama altyapısı ve sosyal akış eklendi
