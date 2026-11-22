@@ -1,4 +1,4 @@
-import { Baby, BadgePlus, Banknote, Bell, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
+import { Camera, MessagesSquare, Baby, BadgePlus, Banknote, Bell, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useSession } from './lib/session';
 import { ROLE_LABEL, type Role } from './lib/types';
@@ -15,6 +15,8 @@ import MyStudents from './pages/coach/MyStudents';
 import ResultsEntry from './pages/coach/ResultsEntry';
 import WorkoutBuilder from './pages/coach/WorkoutBuilder';
 import Performance from './pages/Performance';
+import Chat from './pages/Chat';
+import Social from './pages/Social';
 import Finance from './pages/admin/Finance';
 import Staff from './pages/admin/Staff';
 import ParentHome from './pages/parent/ParentHome';
@@ -47,6 +49,8 @@ const NAV: NavItem[] = [
   { to: '/antrenman', label: 'Antrenman', icon: Dumbbell, roles: ['coach'] },
   { to: '/musaitlik', label: 'Müsaitlik', icon: CalendarCheck, roles: ['coach'] },
   { to: '/kronometre/kontrol', label: 'Kronometre', icon: Timer, roles: ['coach', 'admin'] },
+  { to: '/mesajlar', label: 'Mesajlar', icon: MessagesSquare, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
+  { to: '/sosyal', label: 'Sosyal', icon: Camera, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
   { to: '/duyurular', label: 'Duyurular', icon: Bell, roles: ['admin', 'secretary', 'coach', 'parent'] },
   { to: '/platform', label: 'Platform', icon: Building2, roles: ['super'] },
   { to: '/kredi-yonetimi', label: 'Kredi yönetimi', icon: Coins, roles: ['super'] },
@@ -99,6 +103,8 @@ export default function App() {
         <Route path="/kulup" element={<ClubSetup />} />
         <Route path="/musaitlik" element={<AvailabilityPage />} />
         <Route path="/duyurular" element={<Notices />} />
+        <Route path="/mesajlar" element={<Chat />} />
+        <Route path="/sosyal" element={<Social />} />
         <Route path="/finans" element={<Finance />} />
         <Route path="/personel" element={<Staff />} />
         <Route path="/sporcularim" element={<ParentHome />} />

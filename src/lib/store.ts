@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 // Ekranlar yalnızca bu dosyadaki API'yi bilir.
 
 export type Row = { id: string; clubId?: string; createdAt?: number };
-export type Scope = { clubId?: string };
+/** `id` tek belge, `contains` dizi alanı filtresidir. Ücretsiz okuma kotası için geniş dinleme yapılmaz. */
+export type Scope = { clubId?: string; id?: string; contains?: [field: string, value: string] };
 type Listener = (rows: Row[]) => void;
 
 export interface DataStore {
@@ -54,8 +55,15 @@ class LocalStore implements DataStore {
   }
 
   private rows(name: string, scope: Scope) {
-    const rows = this.data[name] ?? [];
-    return scope.clubId ? rows.filter((r) => r.clubId === scope.clubId) : [...rows];
+    return (this.data[name] ?? []).filter((r) => {
+      if (scope.id && r.id !== scope.id) return false;
+      if (scope.clubId && r.clubId !== scope.clubId) return false;
+      if (scope.contains) {
+        const list = (r as unknown as Record<string, unknown>)[scope.contains[0]];
+        if (!Array.isArray(list) || !list.includes(scope.contains[1])) return false;
+      }
+      return true;
+    });
   }
 
   private emit() {
@@ -127,10 +135,17 @@ class FirestoreStore implements DataStore {
     let closed = false;
     this.sdk.then((f) => {
       if (closed) return;
+      if (scope.id) {
+        stop = f.onSnapshot(f.doc(f.db, name, scope.id), (d) => listener(d.exists() ? [{ ...d.data(), id: d.id }] : []));
+        return;
+      }
       const ref = f.collection(f.db, name);
       // Kulüp filtresi hem veri izolasyonu hem de ücretsiz okuma kotası için zorunludur.
-      const target = scope.clubId ? f.query(ref, f.where('clubId', '==', scope.clubId)) : ref;
-      stop = f.onSnapshot(target, (snap) => listener(snap.docs.map((d) => ({ ...d.data(), id: d.id }))));
+      const filters = [
+        ...(scope.clubId ? [f.where('clubId', '==', scope.clubId)] : []),
+        ...(scope.contains ? [f.where(scope.contains[0], 'array-contains', scope.contains[1])] : []),
+      ];
+      stop = f.onSnapshot(f.query(ref, ...filters), (snap) => listener(snap.docs.map((d) => ({ ...d.data(), id: d.id }))));
     });
     return () => {
       closed = true;
@@ -164,6 +179,6 @@ export const db: DataStore = localStore ?? new FirestoreStore();
 
 export function useCollection<T extends Row>(name: string, scope: Scope = {}): T[] {
   const [rows, setRows] = useState<T[]>([]);
-  useEffect(() => db.watch(name, scope, (next) => setRows(next as T[])), [name, scope.clubId]);
+  useEffect(() => db.watch(name, scope, (next) => setRows(next as T[])), [name, scope.clubId, scope.id, scope.contains?.join('|')]);
   return rows;
 }

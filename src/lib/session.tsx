@@ -35,7 +35,8 @@ const makeTag = (name: string) =>
 
 /** Şifre veritabanına yazılmaz. Demo modunda hiç saklanmaz, Firebase'de yalnız Auth'a gider. */
 export async function createParentAccount(clubId: string, name: string, email: string, password: string) {
-  const profile = { clubId, name, email, role: 'parent' as const, tag: makeTag(name), isPublic: false };
+  // E-posta profile yazılmaz: profiller tag aramasında görünür, e-posta yalnız Auth'ta kalır.
+  const profile = { clubId, name, role: 'parent' as const, tag: makeTag(name), isPublic: false };
   if (!firebaseEnabled) return db.add('users', profile);
   const f = await authSdk();
   const credential = await f.createUserWithEmailAndPassword(f.auth, email, password);
@@ -46,7 +47,7 @@ export async function createParentAccount(clubId: string, name: string, email: s
 
 /** Yönetici personel açarken kendi oturumu kapanmasın diye Firebase'de ikinci uygulama örneği kullanılır. */
 export async function createStaffAccount(clubId: string, name: string, email: string, password: string, role: 'coach' | 'secretary') {
-  const profile = { clubId, name, email, role, tag: makeTag(name), isPublic: true };
+  const profile = { clubId, name, role, tag: makeTag(name), isPublic: true };
   if (!firebaseEnabled) return db.add('users', profile);
   const [{ deleteApp, getApp, initializeApp }, auth] = await Promise.all([import('firebase/app'), import('firebase/auth')]);
   const secondary = initializeApp(getApp().options, `staff-${Date.now()}`);
@@ -85,7 +86,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setUser(null);
       return;
     }
-    return db.watch('users', {}, (rows) => {
+    return db.watch('users', { id: userId }, (rows) => {
       setUser((rows.find((r) => r.id === userId) as User) ?? null);
       setLoadedFor(userId);
     });

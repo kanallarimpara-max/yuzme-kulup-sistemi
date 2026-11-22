@@ -13,7 +13,17 @@ export const ROLE_LABEL: Record<Role, string> = {
   parent: 'Veli',
 };
 
-export type User = Row & { name: string; email: string; role: Role; tag: string; isPublic: boolean; branchIds?: string[] };
+export type User = Row & { name: string; role: Role; tag: string; isPublic: boolean; branchIds?: string[]; bio?: string; avatarUrl?: string };
+export type Contact = Row & { fromId: string; toId: string; memberIds: string[]; status: 'bekliyor' | 'kabul' };
+export type Message = Row & { chatId: string; memberIds: string[]; senderId: string; kind: 'text' | 'image' | 'audio'; text?: string; url?: string };
+export type CallDoc = Row & {
+  chatId: string; memberIds: string[]; callerId: string; calleeId: string; status: 'caliyor' | 'bagli' | 'bitti';
+  offer: string; answer?: string;
+};
+export type Post = Row & {
+  authorId: string; imageUrl: string; caption: string; kind: 'foto' | 'derece' | 'madalya'; isPublic: boolean; audience: string[];
+  likes: string[]; comments: Array<{ userId: string; text: string; at: number }>;
+};
 export type PreRegLook = { eyebrow: string; color: string; title: string; description: string; logoUrl: string; videoUrl: string };
 export type Club = Row & {
   name: string; logoUrl?: string; color: string; slug: string; paymentMethods?: string[]; preRegLook?: Partial<PreRegLook>;
@@ -28,7 +38,7 @@ export type Enrollment = Row & {
   clubId: string; studentId: string; lessonId: string; coachId: string; listKurus: number; netKurus: number; totalKurus: number;
   discountCode?: string; installments: PaidInstallment[];
 };
-export type Chat = Row & { clubId: string; name: string; lessonId?: string; memberIds: string[] };
+export type Chat = Row & { clubId?: string; name: string; lessonId?: string; memberIds: string[]; direct?: boolean };
 export type Branch = Row & { clubId: string; name: string };
 export type Lesson = Row & {
   clubId: string; branchId: string; coachIds: string[]; name: string; weekdays: number[]; startTime: string;

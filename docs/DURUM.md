@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Sohbet: tag ile arkadaşlık, grup, fotoğraf, sesli mesaj, sesli arama. Sosyal: akış, keşfet, profil.
+TYF canlı sonuç ayrıştırıcı, kulüp eşleştirme, otomatik derece ve baraj sayfası.
 
 ## Modüller
 
@@ -17,7 +17,7 @@ Sohbet: tag ile arkadaşlık, grup, fotoğraf, sesli mesaj, sesli arama. Sosyal:
 | Antrenman ve kronometre | Antrenman yazma, paylaşma, kronometre ve kontrol çalışıyor. Satış yok |
 | Kredi ve market | Yükleme, dekont, bozdurma, market, antrenman pazarı demo modunda çalışıyor |
 | Veli | Ödeme, antrenman, devam, yarış, performans çalışıyor. Baraj ve canlı sonuç TYF modülünü bekliyor |
-| Sohbet, sesli arama, sosyal akış | Başlamadı |
+| Sohbet, sesli arama, sosyal akış | Etiket, istek, grup, fotoğraf, akış, keşfet çalışıyor. Mikrofonla sesli mesaj ve arama iki gerçek cihazda test edilmedi |
 | TYF sonuç ve baraj aktarımı | Başlamadı |
 | Web, Windows, Android paketleri | Başlamadı |
 
@@ -27,13 +27,13 @@ Sohbet: tag ile arkadaşlık, grup, fotoğraf, sesli mesaj, sesli arama. Sosyal:
 
 ## Bilinen riskler
 
-- session.tsx Firestore'da tüm users koleksiyonunu izliyor. Firebase bağlanmadan önce tek belge okumaya çevrilmeli.
 - firestore.rules henüz yok. Kurallar yazılmadan gerçek veri girilmemeli.
 - Kredi harcama ve antrenman kopyalama istemciden yazılıyor. Firebase'de güvenli olması için Cloudflare Worker'a taşınmalı.
 - Kronometre farklı cihazlarda cihaz saatine bağlı, sunucu saat farkı düzeltmesi eklenmeli.
 
 ## Son kayıtlar
 
+- 2026-11-23: Etiketli sohbet, grup, medya, sesli arama altyapısı ve sosyal akış eklendi
 - 2026-11-23: Finans, maaş, personel, indirim kodu ve veli ekranı eklendi
 - 2026-11-23: Süper admin, kredi, dekont, bozdurma, market ve antrenman pazarı eklendi
 - 2026-11-23: Antrenör yoklama, derece, yorum, antrenman, performans ve rol koruması eklendi

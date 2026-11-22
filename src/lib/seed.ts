@@ -50,6 +50,12 @@ export const demoData: Record<string, SeedRow[]> = {
   availability: [1, 3, 5].flatMap((weekday) => [9, 10, 11].map((hour) => ({
     id: `u-coach_b1_${weekday}_${hour}`, clubId, coachId: 'u-coach', branchId: 'b1', weekday, hour,
   }))),
+  contacts: [],
+  messages: [],
+  calls: [],
+  posts: [
+    { id: 'po1', authorId: 'u-coach', imageUrl: '', caption: 'Gelişim Grubu bu hafta harika çalıştı!', kind: 'foto', isPublic: true, audience: ['u-coach'], likes: [], comments: [] },
+  ],
   notices: [],
   settings: [{ id: 'platform', bank: 'Örnek Banka', holder: 'Örnek Hesap Sahibi', iban: 'TR00 0000 0000 0000 0000 0000 00', rateCredits: 1000, rateKurus: 5000 }],
   packages: [
