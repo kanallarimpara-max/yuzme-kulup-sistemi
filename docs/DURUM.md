@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kulüp admini: şube, eğitim modeli, ders saati açma (müsaitlik görerek) ekranlarını src/pages/admin altında kur.
+Sekreter: kulübe özel ön kayıt linki, ön kayıt görünümü, forma aktar, kayıt, taksit ve öğrenci ödeme ekranları.
 
 ## Modüller
 
@@ -11,9 +11,9 @@ Kulüp admini: şube, eğitim modeli, ders saati açma (müsaitlik görerek) ekr
 | Devam ve yedek düzeni | Tamam |
 | Uygulama iskeleti, giriş, roller | Demo modunda çalışıyor, Firebase bağlantısı bekliyor |
 | Süper admin | Başlamadı |
-| Kulüp admini | Başlamadı |
+| Kulüp admini | Kulüp, şube, model, ders açma, duyuru çalışıyor. Finans, indirim, personel atama yok |
 | Sekreter ve ön kayıt | Başlamadı |
-| Antrenör, yoklama, derece | Başlamadı |
+| Antrenör, yoklama, derece | Müsaitlik çalışıyor, diğerleri yok |
 | Antrenman ve kronometre | Kronometre ve kontrol ekranı çalışıyor, antrenman yazma ekranı yok |
 | Kredi ve market | Başlamadı |
 | Veli | Başlamadı |
@@ -27,6 +27,7 @@ Kulüp admini: şube, eğitim modeli, ders saati açma (müsaitlik görerek) ekr
 
 ## Son kayıtlar
 
+- 2026-11-23: Kulüp ayarları, eğitim modeli, müsaitlikli ders açma ve hedefli bildirim eklendi
 - 2026-11-23: Giriş, rol menüsü, panel ve çok kulvarlı kronometre çalışır hale getirildi
 - 2026-11-23: Proje altyapısı, iş kuralları ve kronometre motoru testlerle eklendi
 - 2026-11-22: Şartname, devam ve yedek düzenini kur

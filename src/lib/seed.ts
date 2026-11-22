@@ -38,5 +38,14 @@ export const demoData: Record<string, SeedRow[]> = {
       { name: 'Sürat', reps: 8, distance: 50, stroke: 'Serbest', intervalMs: 60000, restMs: 45000 },
     ] },
   ],
+  models: [
+    { id: 'm1', clubId, name: 'Grup Dersi', kind: 'grup', perCoach: 5 },
+    { id: 'm2', clubId, name: 'Özel Ders', kind: 'ozel', perCoach: 1 },
+    { id: 'm3', clubId, name: 'Sporcu Grubu', kind: 'sporcu', perCoach: 8 },
+  ],
+  availability: [1, 3, 5].flatMap((weekday) => [9, 10, 11].map((hour) => ({
+    id: `u-coach_b1_${weekday}_${hour}`, clubId, coachId: 'u-coach', branchId: 'b1', weekday, hour,
+  }))),
+  notices: [],
   timers: [],
 };

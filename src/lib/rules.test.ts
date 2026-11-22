@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
-  addMonths, applyDiscount, buildInstallments, classifyMatch, clubMatchScore, creditBalance, formatSwimTime,
-  lessonDates, lessonEndDate, normalizeName, parseSwimTime, passedStandards, redeemKurus,
+  addMonths, applyDiscount, buildInstallments, classifyMatch, clubMatchScore, coachFit, creditBalance, formatSwimTime,
+  hourSlots, lessonDates, lessonEndDate, normalizeName, parseSwimTime, passedStandards, redeemKurus,
 } from './rules';
 import { beepsBetween, buildSteps, jumpLane, laneElapsed, pauseLane, startLane, timerView, totalMs, type WorkoutSet } from './timer';
 
@@ -66,6 +66,24 @@ describe('barajlar', () => {
     expect(passedStandards(results, [standard], { gender: 'K', birthYear: 2014 }, 2026)[0].bestMs).toBe(69000);
     expect(passedStandards(results, [standard], { gender: 'E', birthYear: 2014 }, 2026)).toEqual([]);
     expect(passedStandards(results, [standard], { gender: 'K', birthYear: 2013 }, 2026)).toEqual([]);
+  });
+});
+
+describe('antrenör uygunluğu', () => {
+  const lesson = { coachIds: [], weekdays: [1], startTime: '17:30', endTime: '19:00', startDate: '2026-12-01', endDate: '2027-01-31' };
+  const slots = [17, 18].map((hour) => ({ coachId: 'c', branchId: 'b', weekday: 1, hour }));
+  it('saat dilimlerini kapsar', () => {
+    expect(hourSlots('17:30', '19:00')).toEqual([17, 18]);
+  });
+  it('müsaitlik, şube ve çakışmayı ayırt eder', () => {
+    expect(coachFit('c', 'b', lesson, slots, [])).toBe('uygun');
+    expect(coachFit('c', 'x', lesson, slots, [])).toBe('musait-degil');
+    expect(coachFit('c', 'b', lesson, slots.slice(0, 1), [])).toBe('musait-degil');
+    expect(coachFit('c', 'b', lesson, slots, [{ ...lesson, id: 'o', coachIds: ['c'], startTime: '18:30', endTime: '20:00' }])).toBe('cakisiyor');
+  });
+  it('biten dersle veya bitişik saatle çakışmaz', () => {
+    expect(coachFit('c', 'b', lesson, slots, [{ ...lesson, id: 'o', coachIds: ['c'], startDate: '2026-01-01', endDate: '2026-02-01' }])).toBe('uygun');
+    expect(coachFit('c', 'b', lesson, slots, [{ ...lesson, id: 'o', coachIds: ['c'], startTime: '19:00', endTime: '20:00' }])).toBe('uygun');
   });
 });
 

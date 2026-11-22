@@ -1,4 +1,4 @@
-import { CalendarDays, LayoutDashboard, LogOut, Timer, Waves } from 'lucide-react';
+import { Bell, BookOpen, CalendarCheck, CalendarDays, LayoutDashboard, LogOut, Settings, Timer, Waves } from 'lucide-react';
 import { NavLink, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { useSession } from './lib/session';
 import { ROLE_LABEL, type Role } from './lib/types';
@@ -6,12 +6,20 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import TimerDisplay from './pages/TimerDisplay';
 import TimerControl from './pages/TimerControl';
+import Lessons from './pages/admin/Lessons';
+import ClubSetup from './pages/admin/ClubSetup';
+import AvailabilityPage from './pages/coach/AvailabilityPage';
+import Notices from './pages/Notices';
 
 type NavItem = { to: string; label: string; icon: typeof Waves; roles: Role[] };
 
 const NAV: NavItem[] = [
   { to: '/panel', label: 'Panel', icon: LayoutDashboard, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
+  { to: '/dersler', label: 'Ders saatleri', icon: BookOpen, roles: ['admin'] },
+  { to: '/kulup', label: 'Kulüp ayarları', icon: Settings, roles: ['admin'] },
+  { to: '/musaitlik', label: 'Müsaitlik', icon: CalendarCheck, roles: ['coach'] },
   { to: '/kronometre/kontrol', label: 'Kronometre', icon: Timer, roles: ['coach', 'admin'] },
+  { to: '/duyurular', label: 'Duyurular', icon: Bell, roles: ['admin', 'secretary', 'coach', 'parent'] },
 ];
 
 function Shell() {
@@ -50,6 +58,10 @@ export default function App() {
       <Route element={<Shell />}>
         <Route path="/panel" element={<Dashboard />} />
         <Route path="/kronometre/kontrol" element={<TimerControl />} />
+        <Route path="/dersler" element={<Lessons />} />
+        <Route path="/kulup" element={<ClubSetup />} />
+        <Route path="/musaitlik" element={<AvailabilityPage />} />
+        <Route path="/duyurular" element={<Notices />} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/panel' : '/giris'} replace />} />
     </Routes>

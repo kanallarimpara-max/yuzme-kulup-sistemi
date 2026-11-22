@@ -131,7 +131,39 @@ export function formatSwimTime(ms: number): string {
   return `${min ? `${min}:${pad(sec)}` : sec}.${pad(rest)}`;
 }
 
-export type Stroke = 'serbest' | 'kelebek' | 'sirt' | 'kurbaga' | 'karisik';
+const minutes = (time: string) => {
+  const [h, m] = time.split(':').map(Number);
+  return h * 60 + m;
+};
+
+export const timesOverlap = (aStart: string, aEnd: string, bStart: string, bEnd: string) =>
+  minutes(aStart) < minutes(bEnd) && minutes(bStart) < minutes(aEnd);
+
+/** Dersin kapsadığı tam saat dilimleri: 17:30-19:00 -> 17, 18. */
+export function hourSlots(start: string, end: string): number[] {
+  const first = Math.floor(minutes(start) / 60);
+  const last = Math.ceil(minutes(end) / 60);
+  return Array.from({ length: Math.max(0, last - first) }, (_, i) => first + i);
+}
+
+export type AvailabilitySlot = { coachId: string; branchId: string; weekday: number; hour: number };
+export type LessonTime = {
+  id?: string; coachIds: string[]; weekdays: number[]; startTime: string; endTime: string; startDate: string; endDate: string;
+};
+export type CoachFit = 'uygun' | 'musait-degil' | 'cakisiyor';
+
+export function coachFit(coachId: string, branchId: string, lesson: LessonTime, slots: AvailabilitySlot[], others: LessonTime[]): CoachFit {
+  const busy = others.some((o) =>
+    o.id !== lesson.id && o.coachIds.includes(coachId) && o.weekdays.some((d) => lesson.weekdays.includes(d)) &&
+    o.startDate <= lesson.endDate && lesson.startDate <= o.endDate && timesOverlap(o.startTime, o.endTime, lesson.startTime, lesson.endTime));
+  if (busy) return 'cakisiyor';
+  const hours = hourSlots(lesson.startTime, lesson.endTime);
+  const free = lesson.weekdays.every((weekday) => hours.every((hour) =>
+    slots.some((s) => s.coachId === coachId && s.branchId === branchId && s.weekday === weekday && s.hour === hour)));
+  return free ? 'uygun' : 'musait-degil';
+}
+
+export type Stroke ='serbest' | 'kelebek' | 'sirt' | 'kurbaga' | 'karisik';
 export const EVENTS: Record<Stroke, number[]> = {
   serbest: [50, 100, 200, 400, 800, 1500],
   kelebek: [50, 100, 200],
