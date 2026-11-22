@@ -1,0 +1,15 @@
+node_modules/
+dist/
+dist-electron/
+release/
+android/app/build/
+android/.gradle/
+*.log
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+serviceAccount*.json
+.claude/settings.local.json
+.git-eski/
