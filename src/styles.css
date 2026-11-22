@@ -96,6 +96,7 @@ th { color: var(--muted); font-weight: 600; }
 input[type="color"] { padding: 3px; }
 tfoot th { color: var(--text); }
 
+.stats.finance { grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); }
 .stats.three { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
 .stats strong.fit { font-size: clamp(1.1rem, 2vw, 1.5rem); }
 .product-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); }

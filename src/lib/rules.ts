@@ -66,7 +66,36 @@ export function paymentSummary(installments: PaidInstallment[], today: IsoDate) 
   return { totalKurus, paidKurus, remainingKurus: totalKurus - paidKurus, next, daysToDue, status };
 }
 
-export const redeemKurus =(credits: number, rateCredits: number, rateKurus: number) =>
+export type FinanceInput = {
+  plans: Array<{ installments: PaidInstallment[] }>;
+  expenses: Array<{ date: IsoDate; amountKurus: number }>;
+  salaries: Array<{ date: IsoDate; amountKurus: number }>;
+};
+
+/** Kâr tahsilat esaslıdır: tahsil edilen - elle gider - ödenen maaş. */
+export function financeSummary({ plans, expenses, salaries }: FinanceInput) {
+  const items = plans.flatMap((p) => p.installments);
+  const sum = (rows: Array<{ amountKurus: number }>) => rows.reduce((s, r) => s + r.amountKurus, 0);
+  const revenueKurus = sum(items);
+  const collectedKurus = sum(items.filter((i) => i.paidAt));
+  const expenseKurus = sum(expenses);
+  const salaryKurus = sum(salaries);
+  const months = new Map<string, { month: string; collected: number; expense: number }>();
+  const bucket = (date: IsoDate) => {
+    const month = date.slice(0, 7);
+    if (!months.has(month)) months.set(month, { month, collected: 0, expense: 0 });
+    return months.get(month)!;
+  };
+  items.forEach((i) => { if (i.paidAt) bucket(i.paidAt).collected += i.amountKurus; });
+  [...expenses, ...salaries].forEach((e) => { bucket(e.date).expense += e.amountKurus; });
+  return {
+    revenueKurus, collectedKurus, receivableKurus: revenueKurus - collectedKurus, expenseKurus, salaryKurus,
+    profitKurus: collectedKurus - expenseKurus - salaryKurus,
+    monthly: [...months.values()].sort((a, b) => a.month.localeCompare(b.month)),
+  };
+}
+
+export const redeemKurus = (credits: number, rateCredits: number, rateKurus: number) =>
   rateCredits > 0 ? Math.floor((credits * rateKurus) / rateCredits) : 0;
 
 export type LedgerEntry = { delta: number; status?: 'posted' | 'pending' | 'rejected' };

@@ -44,6 +44,21 @@ export async function createParentAccount(clubId: string, name: string, email: s
   return credential.user.uid;
 }
 
+/** Yönetici personel açarken kendi oturumu kapanmasın diye Firebase'de ikinci uygulama örneği kullanılır. */
+export async function createStaffAccount(clubId: string, name: string, email: string, password: string, role: 'coach' | 'secretary') {
+  const profile = { clubId, name, email, role, tag: makeTag(name), isPublic: true };
+  if (!firebaseEnabled) return db.add('users', profile);
+  const [{ deleteApp, getApp, initializeApp }, auth] = await Promise.all([import('firebase/app'), import('firebase/auth')]);
+  const secondary = initializeApp(getApp().options, `staff-${Date.now()}`);
+  try {
+    const credential = await auth.createUserWithEmailAndPassword(auth.getAuth(secondary), email, password);
+    await db.put('users', credential.user.uid, { ...profile, createdAt: Date.now() });
+    return credential.user.uid;
+  } finally {
+    await deleteApp(secondary);
+  }
+}
+
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [userId, setUserId] = useState<string | null>(() => (firebaseEnabled ? null : sessionStorage.getItem(DEMO_KEY)));
   const [ready, setReady] = useState(!firebaseEnabled);

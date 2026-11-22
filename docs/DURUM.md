@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Admin finans, maaş, personel, indirim kodu ve veli ana ekranı.
+Sohbet: tag ile arkadaşlık, grup, fotoğraf, sesli mesaj, sesli arama. Sosyal: akış, keşfet, profil.
 
 ## Modüller
 
@@ -11,12 +11,12 @@ Admin finans, maaş, personel, indirim kodu ve veli ana ekranı.
 | Devam ve yedek düzeni | Tamam |
 | Uygulama iskeleti, giriş, roller | Demo modunda çalışıyor, Firebase bağlantısı bekliyor |
 | Süper admin | Satış, reklam, kredi, paket, EFT, oran, market çalışıyor. Tasarım yönetimi yok |
-| Kulüp admini | Kulüp, şube, model, ders açma, duyuru çalışıyor. Finans, indirim, personel atama yok |
+| Kulüp admini | Kulüp, şube, model, ders, duyuru, finans, maaş, personel, indirim çalışıyor |
 | Sekreter ve ön kayıt | Ön kayıt, görünüm, forma aktar, taksit, tahsilat, PDF çalışıyor |
-| Antrenör, yoklama, derece | Müsaitlik, yoklama, PDF, öğrencilerim, yorum, derece, performans çalışıyor. Maaş özeti yok |
+| Antrenör, yoklama, derece | Müsaitlik, yoklama, PDF, öğrencilerim, yorum, derece, performans ve maaş özeti çalışıyor |
 | Antrenman ve kronometre | Antrenman yazma, paylaşma, kronometre ve kontrol çalışıyor. Satış yok |
 | Kredi ve market | Yükleme, dekont, bozdurma, market, antrenman pazarı demo modunda çalışıyor |
-| Veli | Başlamadı |
+| Veli | Ödeme, antrenman, devam, yarış, performans çalışıyor. Baraj ve canlı sonuç TYF modülünü bekliyor |
 | Sohbet, sesli arama, sosyal akış | Başlamadı |
 | TYF sonuç ve baraj aktarımı | Başlamadı |
 | Web, Windows, Android paketleri | Başlamadı |
@@ -34,6 +34,7 @@ Admin finans, maaş, personel, indirim kodu ve veli ana ekranı.
 
 ## Son kayıtlar
 
+- 2026-11-23: Finans, maaş, personel, indirim kodu ve veli ekranı eklendi
 - 2026-11-23: Süper admin, kredi, dekont, bozdurma, market ve antrenman pazarı eklendi
 - 2026-11-23: Antrenör yoklama, derece, yorum, antrenman, performans ve rol koruması eklendi
 - 2026-11-23: Sekreter ön kayıt, kayıt, taksit, tahsilat ve Türkçe PDF akışı eklendi

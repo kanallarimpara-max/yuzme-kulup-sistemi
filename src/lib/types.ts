@@ -48,7 +48,9 @@ export type Notice = Row & {
 export type Workout = Row & {
   clubId: string; coachId: string; title: string; sets: WorkoutSet[]; lessonId?: string; date?: string; description?: string;
 };
-export type AttendanceMark = 'geldi' | 'gelmedi' | 'izinli';
+export type Expense = Row & { clubId: string; title: string; category: string; date: string; amountKurus: number };
+export type SalaryPayment = Row & { clubId: string; coachId: string; date: string; amountKurus: number; note?: string };
+export type AttendanceMark ='geldi' | 'gelmedi' | 'izinli';
 export type AttendanceDoc = Row & { clubId: string; lessonId: string; coachId: string; date: string; marks: Record<string, AttendanceMark> };
 export type SwimResult = Row & {
   clubId: string; studentId: string; stroke: Stroke; distance: number; timeMs: number; date: string;

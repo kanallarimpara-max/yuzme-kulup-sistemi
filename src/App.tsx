@@ -1,4 +1,4 @@
-import { Bell, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
+import { Baby, BadgePlus, Banknote, Bell, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useSession } from './lib/session';
 import { ROLE_LABEL, type Role } from './lib/types';
@@ -15,6 +15,9 @@ import MyStudents from './pages/coach/MyStudents';
 import ResultsEntry from './pages/coach/ResultsEntry';
 import WorkoutBuilder from './pages/coach/WorkoutBuilder';
 import Performance from './pages/Performance';
+import Finance from './pages/admin/Finance';
+import Staff from './pages/admin/Staff';
+import ParentHome from './pages/parent/ParentHome';
 import Platform from './pages/super/Platform';
 import CreditAdmin from './pages/super/CreditAdmin';
 import Market from './pages/Market';
@@ -30,6 +33,9 @@ type NavItem = { to: string; label: string; icon: typeof Waves; roles: Role[] };
 const NAV: NavItem[] = [
   { to: '/panel', label: 'Panel', icon: LayoutDashboard, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
   { to: '/dersler', label: 'Ders saatleri', icon: BookOpen, roles: ['admin'] },
+  { to: '/finans', label: 'Gelir gider', icon: Banknote, roles: ['admin'] },
+  { to: '/personel', label: 'Personel', icon: BadgePlus, roles: ['admin'] },
+  { to: '/sporcularim', label: 'Sporcularım', icon: Baby, roles: ['parent'] },
   { to: '/kulup', label: 'Kulüp ayarları', icon: Settings, roles: ['admin'] },
   { to: '/kayit', label: 'Kayıt', icon: UserPlus, roles: ['secretary'] },
   { to: '/ogrenciler', label: 'Öğrenciler', icon: Users, roles: ['secretary', 'admin'] },
@@ -93,6 +99,9 @@ export default function App() {
         <Route path="/kulup" element={<ClubSetup />} />
         <Route path="/musaitlik" element={<AvailabilityPage />} />
         <Route path="/duyurular" element={<Notices />} />
+        <Route path="/finans" element={<Finance />} />
+        <Route path="/personel" element={<Staff />} />
+        <Route path="/sporcularim" element={<ParentHome />} />
         <Route path="/platform" element={<Platform />} />
         <Route path="/kredi-yonetimi" element={<CreditAdmin />} />
         <Route path="/kredilerim" element={<Wallet />} />

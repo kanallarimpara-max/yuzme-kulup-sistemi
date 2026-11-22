@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  addMonths, analyzeAthlete, lessonsAt, applyDiscount, buildInstallments, classifyMatch, clubMatchScore, coachFit, creditBalance, formatSwimTime,
+  addMonths, financeSummary, analyzeAthlete, lessonsAt, applyDiscount, buildInstallments, classifyMatch, clubMatchScore, coachFit, creditBalance, formatSwimTime,
   hourSlots, lessonDates, lessonEndDate, normalizeName, parseSwimTime, passedStandards, paymentSummary, redeemKurus,
 } from './rules';
 import { beepsBetween, buildSteps, jumpLane, laneElapsed, pauseLane, startLane, timerView, totalMs, type WorkoutSet } from './timer';
@@ -45,6 +45,21 @@ describe('ödeme özeti', () => {
   it('geciken ve biten planı ayırır', () => {
     expect(paymentSummary(plan, '2026-12-02').status).toBe('gecikti');
     expect(paymentSummary([plan[0]], '2026-12-02').status).toBe('odendi');
+  });
+});
+
+describe('finans', () => {
+  it('ciro, tahsilat, alacak ve kârı ayırır', () => {
+    const f = financeSummary({
+      plans: [{ installments: [
+        { no: 1, dueDate: '2026-11-01', amountKurus: 10000, paidAt: '2026-11-02', method: 'Nakit' },
+        { no: 2, dueDate: '2026-12-01', amountKurus: 10000 },
+      ] }],
+      expenses: [{ date: '2026-11-05', amountKurus: 1500 }],
+      salaries: [{ date: '2026-12-01', amountKurus: 3000 }],
+    });
+    expect([f.revenueKurus, f.collectedKurus, f.receivableKurus, f.profitKurus]).toEqual([20000, 10000, 10000, 5500]);
+    expect(f.monthly).toEqual([{ month: '2026-11', collected: 10000, expense: 1500 }, { month: '2026-12', collected: 0, expense: 3000 }]);
   });
 });
 
