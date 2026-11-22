@@ -48,6 +48,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [userId, setUserId] = useState<string | null>(() => (firebaseEnabled ? null : sessionStorage.getItem(DEMO_KEY)));
   const [ready, setReady] = useState(!firebaseEnabled);
   const [user, setUser] = useState<User | null>(null);
+  // Profil gelmeden yönlendirme yapılırsa sayfa yenilemede kullanıcı panele atılır.
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
+  const profileReady = ready && (!userId || (loadedFor === userId && user?.id === userId) || (loadedFor === userId && !user));
   const clubs = useCollection<Club>('clubs');
 
   useEffect(() => {
@@ -67,13 +70,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setUser(null);
       return;
     }
-    return db.watch('users', {}, (rows) => setUser((rows.find((r) => r.id === userId) as User) ?? null));
+    return db.watch('users', {}, (rows) => {
+      setUser((rows.find((r) => r.id === userId) as User) ?? null);
+      setLoadedFor(userId);
+    });
   }, [userId]);
 
   const value = useMemo<Session>(() => ({
     user,
     club: clubs.find((c) => c.id === user?.clubId) ?? null,
-    ready,
+    ready: profileReady,
     signIn: async (email, password) => {
       if (!firebaseEnabled) throw new Error('Demo modunda rol kartlarından giriş yapın.');
       const f = await authSdk();
@@ -92,7 +98,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         setUserId(null);
       }
     },
-  }), [user, clubs, ready]);
+  }), [user, clubs, profileReady]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

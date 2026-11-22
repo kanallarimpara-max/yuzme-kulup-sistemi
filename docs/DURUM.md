@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Antrenör: dersler, otomatik yoklama ve PDF rapor, öğrencilerim, derece girişi, öğrenci yorumu, performans raporu.
+Kredi ve market: süper admin paket, ürün, EFT bilgisi, oran; antrenör satın alma, dekont, bozdurma, antrenman satışı.
 
 ## Modüller
 
@@ -13,8 +13,8 @@ Antrenör: dersler, otomatik yoklama ve PDF rapor, öğrencilerim, derece giriş
 | Süper admin | Başlamadı |
 | Kulüp admini | Kulüp, şube, model, ders açma, duyuru çalışıyor. Finans, indirim, personel atama yok |
 | Sekreter ve ön kayıt | Ön kayıt, görünüm, forma aktar, taksit, tahsilat, PDF çalışıyor |
-| Antrenör, yoklama, derece | Müsaitlik çalışıyor, diğerleri yok |
-| Antrenman ve kronometre | Kronometre ve kontrol ekranı çalışıyor, antrenman yazma ekranı yok |
+| Antrenör, yoklama, derece | Müsaitlik, yoklama, PDF, öğrencilerim, yorum, derece, performans çalışıyor. Maaş özeti yok |
+| Antrenman ve kronometre | Antrenman yazma, paylaşma, kronometre ve kontrol çalışıyor. Satış yok |
 | Kredi ve market | Başlamadı |
 | Veli | Başlamadı |
 | Sohbet, sesli arama, sosyal akış | Başlamadı |
@@ -25,8 +25,15 @@ Antrenör: dersler, otomatik yoklama ve PDF rapor, öğrencilerim, derece giriş
 
 - Firebase projesi, Cloudinary ve Cloudflare hesapları henüz bağlanmadı.
 
+## Bilinen riskler
+
+- session.tsx Firestore'da tüm users koleksiyonunu izliyor. Firebase bağlanmadan önce tek belge okumaya çevrilmeli.
+- firestore.rules henüz yok. Kurallar yazılmadan gerçek veri girilmemeli.
+- Kronometre farklı cihazlarda cihaz saatine bağlı, sunucu saat farkı düzeltmesi eklenmeli.
+
 ## Son kayıtlar
 
+- 2026-11-23: Antrenör yoklama, derece, yorum, antrenman, performans ve rol koruması eklendi
 - 2026-11-23: Sekreter ön kayıt, kayıt, taksit, tahsilat ve Türkçe PDF akışı eklendi
 - 2026-11-23: Kulüp ayarları, eğitim modeli, müsaitlikli ders açma ve hedefli bildirim eklendi
 - 2026-11-23: Giriş, rol menüsü, panel ve çok kulvarlı kronometre çalışır hale getirildi

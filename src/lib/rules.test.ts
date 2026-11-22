@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  addMonths, applyDiscount, buildInstallments, classifyMatch, clubMatchScore, coachFit, creditBalance, formatSwimTime,
+  addMonths, analyzeAthlete, lessonsAt, applyDiscount, buildInstallments, classifyMatch, clubMatchScore, coachFit, creditBalance, formatSwimTime,
   hourSlots, lessonDates, lessonEndDate, normalizeName, parseSwimTime, passedStandards, paymentSummary, redeemKurus,
 } from './rules';
 import { beepsBetween, buildSteps, jumpLane, laneElapsed, pauseLane, startLane, timerView, totalMs, type WorkoutSet } from './timer';
@@ -99,6 +99,26 @@ describe('antrenör uygunluğu', () => {
   it('biten dersle veya bitişik saatle çakışmaz', () => {
     expect(coachFit('c', 'b', lesson, slots, [{ ...lesson, id: 'o', coachIds: ['c'], startDate: '2026-01-01', endDate: '2026-02-01' }])).toBe('uygun');
     expect(coachFit('c', 'b', lesson, slots, [{ ...lesson, id: 'o', coachIds: ['c'], startTime: '19:00', endTime: '20:00' }])).toBe('uygun');
+  });
+});
+
+describe('yoklama ve analiz', () => {
+  const lesson = { id: 'l', weekdays: [1], startTime: '17:00', endTime: '18:00', startDate: '2026-11-01', endDate: '2026-12-31' };
+  it('sistem saatine göre aktif dersi bulur', () => {
+    expect(lessonsAt([lesson], new Date(2026, 10, 23, 17, 30)).active?.id).toBe('l');
+    expect(lessonsAt([lesson], new Date(2026, 10, 23, 18, 0)).active).toBeNull();
+    expect(lessonsAt([lesson], new Date(2026, 10, 24, 17, 30)).todays).toEqual([]);
+  });
+  it('gelişim ve gerilemeyi ölçer', () => {
+    const { trends, advice } = analyzeAthlete([
+      { stroke: 'serbest', distance: 100, timeMs: 70000, date: '2026-01-01' },
+      { stroke: 'serbest', distance: 100, timeMs: 63000, date: '2026-06-01' },
+      { stroke: 'sirt', distance: 50, timeMs: 40000, date: '2026-01-01' },
+      { stroke: 'sirt', distance: 50, timeMs: 42000, date: '2026-06-01' },
+    ]);
+    expect(trends[0].changePercent).toBe(10);
+    expect(trends[1].changePercent).toBe(-5);
+    expect(advice.join(' ')).toContain('geriledi');
   });
 });
 

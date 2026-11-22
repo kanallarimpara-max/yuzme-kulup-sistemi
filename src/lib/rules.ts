@@ -174,7 +174,49 @@ export function coachFit(coachId: string, branchId: string, lesson: LessonTime, 
   return free ? 'uygun' : 'musait-degil';
 }
 
-export type Stroke ='serbest' | 'kelebek' | 'sirt' | 'kurbaga' | 'karisik';
+type DatedLesson = { id: string; weekdays: number[]; startTime: string; endTime: string; startDate: string; endDate: string };
+
+/** Sistem saatine göre bugünkü dersler; şu an süren ders varsa `active` olur. */
+export function lessonsAt<T extends DatedLesson>(lessons: T[], now: Date) {
+  const today = toIso(now);
+  const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const todays = lessons
+    .filter((l) => l.weekdays.includes(now.getDay()) && l.startDate <= today && l.endDate >= today)
+    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+  return { today, todays, active: todays.find((l) => l.startTime <= time && time < l.endTime) ?? null };
+}
+
+export type DatedResult = Result & { date: IsoDate };
+export type EventTrend = { stroke: Stroke; distance: number; bestMs: number; firstMs: number; lastMs: number; count: number; changePercent: number };
+
+/** Sporcunun derecelerinden açıklanabilir gelişim özeti ve tavsiye üretir. */
+export function analyzeAthlete(results: DatedResult[]) {
+  const groups = new Map<string, DatedResult[]>();
+  results.forEach((r) => groups.set(`${r.stroke}-${r.distance}`, [...(groups.get(`${r.stroke}-${r.distance}`) ?? []), r]));
+  const trends: EventTrend[] = [...groups.values()].map((list) => {
+    const sorted = [...list].sort((a, b) => a.date.localeCompare(b.date));
+    const firstMs = sorted[0].timeMs;
+    const lastMs = sorted[sorted.length - 1].timeMs;
+    return {
+      stroke: sorted[0].stroke, distance: sorted[0].distance, firstMs, lastMs, count: sorted.length,
+      bestMs: Math.min(...sorted.map((r) => r.timeMs)),
+      changePercent: Math.round(((firstMs - lastMs) / firstMs) * 1000) / 10,
+    };
+  });
+  const measured = trends.filter((t) => t.count >= 2);
+  const improving = measured.filter((t) => t.changePercent > 0).sort((a, b) => b.changePercent - a.changePercent);
+  const declining = measured.filter((t) => t.changePercent < 0).sort((a, b) => a.changePercent - b.changePercent);
+  const advice: string[] = [];
+  if (!results.length) advice.push('Analiz için en az bir derece girilmeli.');
+  else if (!measured.length) advice.push('Gelişim ölçmek için aynı mesafe ve stilde ikinci bir derece girilmeli.');
+  if (improving[0]) advice.push(`En hızlı gelişim ${improving[0].distance} m ${improving[0].stroke}: %${improving[0].changePercent}. Bu branşta yarış temposu çalışmaları sürdürülebilir.`);
+  if (declining[0]) advice.push(`${declining[0].distance} m ${declining[0].stroke} son ölçümde %${Math.abs(declining[0].changePercent)} geriledi. Teknik ve toparlanma gözden geçirilmeli.`);
+  const untested = (Object.keys(EVENTS) as Stroke[]).filter((s) => !trends.some((t) => t.stroke === s));
+  if (results.length && untested.length) advice.push(`Henüz ölçülmeyen stiller: ${untested.join(', ')}.`);
+  return { trends, advice };
+}
+
+export type Stroke = 'serbest' | 'kelebek' | 'sirt' | 'kurbaga' | 'karisik';
 export const EVENTS: Record<Stroke, number[]> = {
   serbest: [50, 100, 200, 400, 800, 1500],
   kelebek: [50, 100, 200],

@@ -1,6 +1,7 @@
 import type { Row } from './store';
+export type { Standard } from './rules';
 import type { LaneClock, WorkoutSet } from './timer';
-import type { PaidInstallment } from './rules';
+import type { PaidInstallment, Stroke } from './rules';
 
 export type Role = 'super' | 'admin' | 'secretary' | 'coach' | 'parent';
 
@@ -44,6 +45,15 @@ export type Notice = Row & {
   clubId: string; senderId: string; kind: 'duyuru' | 'yaris' | 'ders'; title: string; body: string; date?: string;
   recipientIds: string[]; readBy: string[];
 };
-export type Workout =Row & { clubId: string; coachId: string; title: string; sets: WorkoutSet[] };
+export type Workout = Row & {
+  clubId: string; coachId: string; title: string; sets: WorkoutSet[]; lessonId?: string; date?: string; description?: string;
+};
+export type AttendanceMark = 'geldi' | 'gelmedi' | 'izinli';
+export type AttendanceDoc = Row & { clubId: string; lessonId: string; coachId: string; date: string; marks: Record<string, AttendanceMark> };
+export type SwimResult = Row & {
+  clubId: string; studentId: string; stroke: Stroke; distance: number; timeMs: number; date: string;
+  source: 'manuel' | 'tyf'; meet?: string; lapsMs?: number[];
+};
+export type CoachComment = Row & { clubId: string; studentId: string; coachId: string; text: string; date: string };
 export type TimerLane = { id: string; name: string; workoutId: string | null; clock: LaneClock };
 export type TimerDoc = Row & { clubId: string; lanes: TimerLane[] };
