@@ -9,7 +9,7 @@ if (!yapilan) {
 
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] }).trim();
 const yol = new URL('../docs/DURUM.md', import.meta.url);
-const tarih = new Date().toISOString().slice(0, 10);
+const tarih = new Date().toLocaleDateString('sv-SE');
 let durum = readFileSync(yol, 'utf8').replace(/\r\n/g, '\n');
 
 if (siradaki) {

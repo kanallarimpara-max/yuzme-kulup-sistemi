@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-React + TypeScript + Vite uygulamasını kur, giriş ve rol bazlı panel iskeletini çalıştır.
+src/lib/store.ts veri katmanını, girişi, rol menüsünü ve kronometre ekranlarını kur.
 
 ## Modüller
 
@@ -27,5 +27,6 @@ React + TypeScript + Vite uygulamasını kur, giriş ve rol bazlı panel iskelet
 
 ## Son kayıtlar
 
+- 2026-11-23: Proje altyapısı, iş kuralları ve kronometre motoru testlerle eklendi
 - 2026-11-22: Şartname, devam ve yedek düzenini kur
 - 2026-11-23: Yeni gizli depo ve devam düzeni kuruldu.
