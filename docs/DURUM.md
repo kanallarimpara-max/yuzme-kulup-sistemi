@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-TYF canlı sonuç ayrıştırıcı, kulüp eşleştirme, otomatik derece ve baraj sayfası.
+Windows paketini doğrula. Workflow izni gelince Android APK'yı Actions ile derle. Sonra Firebase'i bağla ve kuralları emülatörde test et.
 
 ## Modüller
 
@@ -18,21 +18,24 @@ TYF canlı sonuç ayrıştırıcı, kulüp eşleştirme, otomatik derece ve bara
 | Kredi ve market | Yükleme, dekont, bozdurma, market, antrenman pazarı demo modunda çalışıyor |
 | Veli | Ödeme, antrenman, devam, yarış, performans çalışıyor. Baraj ve canlı sonuç TYF modülünü bekliyor |
 | Sohbet, sesli arama, sosyal akış | Etiket, istek, grup, fotoğraf, akış, keşfet çalışıyor. Mikrofonla sesli mesaj ve arama iki gerçek cihazda test edilmedi |
-| TYF sonuç ve baraj aktarımı | Başlamadı |
+| TYF sonuç ve baraj aktarımı | PDF ile sonuç aktarımı ve 2.060 resmi baraj çalışıyor. Otomatik çekim Worker veya Actions + Firebase bekliyor |
 | Web, Windows, Android paketleri | Başlamadı |
 
 ## Kullanıcıdan beklenenler
 
 - Firebase projesi, Cloudinary ve Cloudflare hesapları henüz bağlanmadı.
+- GitHub oturumuna workflow izni verilmeli: gh auth refresh -h github.com -s workflow. Sonra .git/info/exclude içinden android.yml satırı silinip dosya commit edilmeli. APK ancak bundan sonra derlenir.
 
 ## Bilinen riskler
 
-- firestore.rules henüz yok. Kurallar yazılmadan gerçek veri girilmemeli.
+- firestore.rules yazıldı ama emülatörde test edilmedi. Test edilmeden gerçek veri girilmemeli.
 - Kredi harcama ve antrenman kopyalama istemciden yazılıyor. Firebase'de güvenli olması için Cloudflare Worker'a taşınmalı.
 - Kronometre farklı cihazlarda cihaz saatine bağlı, sunucu saat farkı düzeltmesi eklenmeli.
 
 ## Son kayıtlar
 
+- 2026-11-23: TYF sonuç aktarımı, resmi barajlar ve Firestore kuralları eklendi
+- 2026-11-23: TYF sonuç aktarımı, resmi barajlar, Firestore kuralları ve APK iş akışı eklendi
 - 2026-11-23: Etiketli sohbet, grup, medya, sesli arama altyapısı ve sosyal akış eklendi
 - 2026-11-23: Finans, maaş, personel, indirim kodu ve veli ekranı eklendi
 - 2026-11-23: Süper admin, kredi, dekont, bozdurma, market ve antrenman pazarı eklendi

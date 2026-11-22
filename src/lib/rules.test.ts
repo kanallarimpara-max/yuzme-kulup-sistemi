@@ -97,6 +97,14 @@ describe('barajlar', () => {
     expect(passedStandards(results, [standard], { gender: 'E', birthYear: 2014 }, 2026)).toEqual([]);
     expect(passedStandards(results, [standard], { gender: 'K', birthYear: 2013 }, 2026)).toEqual([]);
   });
+  it('havuz boyunu, yaş aralığını ve yarış yılını dikkate alır', () => {
+    const long = { ...standard, age: 16, maxAge: 18, pool: '50m' as const, when: '14-17 NİSAN 2027' };
+    const short = [{ stroke: 'serbest' as const, distance: 100, timeMs: 60000, pool: '25m' as const }];
+    const lcm = [{ ...short[0], pool: '50m' as const }];
+    expect(passedStandards(short, [long], { gender: 'K', birthYear: 2010 }, 2026)).toEqual([]);
+    expect(passedStandards(lcm, [long], { gender: 'K', birthYear: 2010 }, 2026)).toHaveLength(1);
+    expect(passedStandards(lcm, [long], { gender: 'K', birthYear: 2012 }, 2026)).toEqual([]);
+  });
 });
 
 describe('antrenör uygunluğu', () => {

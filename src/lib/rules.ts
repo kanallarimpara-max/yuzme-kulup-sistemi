@@ -258,11 +258,16 @@ export type Standard = {
   title: string;
   gender: 'K' | 'E';
   age: number;
+  maxAge?: number;
   stroke: Stroke;
   distance: number;
   timeMs: number;
+  pool?: '25m' | '50m';
+  kind?: 'katilim' | 'harcirah';
+  when?: string;
+  source?: string;
 };
-export type Result = { stroke: Stroke; distance: number; timeMs: number };
+export type Result = { stroke: Stroke; distance: number; timeMs: number; pool?: '25m' | '50m' };
 
 export function passedStandards(
   results: Result[],
@@ -270,11 +275,14 @@ export function passedStandards(
   athlete: { gender: 'K' | 'E'; birthYear: number },
   seasonYear: number,
 ) {
-  const age = seasonYear - athlete.birthYear;
   return standards.flatMap((standard) => {
-    if (standard.gender !== athlete.gender || standard.age !== age) return [];
+    // Yaş, barajın ait olduğu yarışın yılına göre hesaplanır.
+    const year = Number(standard.when?.match(/20\d{2}/)?.[0] ?? seasonYear);
+    const age = year - athlete.birthYear;
+    if (standard.gender !== athlete.gender || age < standard.age || age > (standard.maxAge ?? standard.age)) return [];
+    // 25 m ve 50 m havuz dereceleri birbirinin barajını geçmiş sayılmaz.
     const times = results
-      .filter((r) => r.stroke === standard.stroke && r.distance === standard.distance)
+      .filter((r) => r.stroke === standard.stroke && r.distance === standard.distance && (!standard.pool || r.pool === standard.pool))
       .map((r) => r.timeMs);
     if (!times.length) return [];
     const bestMs = Math.min(...times);

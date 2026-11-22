@@ -1,0 +1,165 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function me() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function isSuper() { return signedIn() && me().role == 'super'; }
+    function inClub(clubId) { return signedIn() && me().clubId == clubId; }
+    function hasRole(clubId, roles) { return inClub(clubId) && me().role in roles; }
+    function isMember() { return signedIn() && request.auth.uid in resource.data.memberIds; }
+    function willBeMember() { return signedIn() && request.auth.uid in request.resource.data.memberIds; }
+    function onlyChanges(fields) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields); }
+
+    // Profil: e-posta içermez. Kullanıcı rolünü, kulübünü veya etiketini kendisi değiştiremez.
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow create: if isSuper()
+        || (signedIn() && request.auth.uid == uid && request.resource.data.role == 'parent')
+        || (signedIn() && hasRole(request.resource.data.clubId, ['admin']) && request.resource.data.role in ['coach', 'secretary']);
+      allow update: if isSuper() || (signedIn() && request.auth.uid == uid && onlyChanges(['isPublic', 'bio', 'avatarUrl']));
+      allow delete: if isSuper();
+    }
+
+    // Ön kayıt formu kulüp adını ve ders seçeneklerini oturumsuz okur.
+    match /clubs/{clubId} {
+      allow read: if true;
+      allow create, delete: if isSuper();
+      allow update: if isSuper() || hasRole(clubId, ['admin'])
+        || (hasRole(clubId, ['secretary']) && onlyChanges(['preRegLook']));
+    }
+    match /branches/{id} {
+      allow read: if true;
+      allow write: if isSuper() || hasRole(request.resource.data.clubId, ['admin']);
+      allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
+    }
+    match /models/{id} {
+      allow read: if true;
+      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin']);
+      allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
+    }
+    match /lessons/{id} {
+      allow read: if true;
+      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin']);
+      allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
+    }
+
+    match /prereg/{id} {
+      allow create: if signedIn() && request.resource.data.parentId == request.auth.uid && request.resource.data.status == 'yeni';
+      allow read, update, delete: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary']);
+    }
+
+    match /students/{id} {
+      allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary'])
+        || (signedIn() && resource.data.coachId == request.auth.uid) || (signedIn() && resource.data.parentId == request.auth.uid);
+      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin', 'secretary']);
+      allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary']);
+    }
+    match /enrollments/{id} {
+      allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary'])
+        || (signedIn() && resource.data.parentId == request.auth.uid);
+      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin', 'secretary']);
+      allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
+    }
+    match /discounts/{id} {
+      allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary']);
+      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin']);
+      allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
+    }
+    match /expenses/{id} {
+      allow read, delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
+      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin']);
+    }
+    match /salaries/{id} {
+      allow read: if isSuper() || hasRole(resource.data.clubId, ['admin']) || (signedIn() && resource.data.coachId == request.auth.uid);
+      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin']);
+      allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
+    }
+
+    match /availability/{id} {
+      allow read: if inClub(resource.data.clubId) || isSuper();
+      allow create, update: if signedIn() && request.resource.data.coachId == request.auth.uid && inClub(request.resource.data.clubId);
+      allow delete: if signedIn() && resource.data.coachId == request.auth.uid;
+    }
+    match /attendance/{id} {
+      allow read: if inClub(resource.data.clubId) || isSuper();
+      allow create, update: if hasRole(request.resource.data.clubId, ['coach', 'admin']);
+    }
+    match /results/{id} {
+      allow read: if inClub(resource.data.clubId) || isSuper();
+      allow create, update: if hasRole(request.resource.data.clubId, ['coach', 'admin']);
+      allow delete: if hasRole(resource.data.clubId, ['coach', 'admin']);
+    }
+    match /comments/{id} {
+      allow read: if inClub(resource.data.clubId) || isSuper();
+      allow create: if hasRole(request.resource.data.clubId, ['coach']) && request.resource.data.coachId == request.auth.uid;
+    }
+    match /workouts/{id} {
+      allow read: if inClub(resource.data.clubId) || isSuper();
+      allow create, update: if hasRole(request.resource.data.clubId, ['coach']) && request.resource.data.coachId == request.auth.uid;
+      allow delete: if signedIn() && resource.data.coachId == request.auth.uid;
+    }
+    match /timers/{id} {
+      allow read: if inClub(resource.data.clubId);
+      allow write: if signedIn() && id == 'timer-' + request.auth.uid;
+    }
+    match /notices/{id} {
+      allow read: if isSuper() || (signedIn() && (request.auth.uid in resource.data.recipientIds || resource.data.senderId == request.auth.uid));
+      allow create: if isSuper() || hasRole(request.resource.data.clubId, ['admin', 'coach']);
+    }
+
+    // Sohbet yalnız üyelere açıktır.
+    match /contacts/{id} {
+      allow read: if isMember();
+      allow create: if willBeMember() && request.resource.data.fromId == request.auth.uid && request.resource.data.status == 'bekliyor';
+      allow update: if signedIn() && resource.data.toId == request.auth.uid && onlyChanges(['status']);
+      allow delete: if isMember();
+    }
+    match /chats/{id} {
+      allow read: if isMember();
+      allow create, update: if willBeMember() || isSuper() || hasRole(request.resource.data.clubId, ['admin', 'secretary']);
+    }
+    match /messages/{id} {
+      allow read: if isMember();
+      allow create: if willBeMember() && request.resource.data.senderId == request.auth.uid;
+    }
+    match /calls/{id} {
+      allow read, update: if isMember();
+      allow create: if willBeMember() && request.resource.data.callerId == request.auth.uid;
+    }
+    match /posts/{id} {
+      allow read: if signedIn() && (resource.data.isPublic == true || request.auth.uid in resource.data.audience);
+      allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if signedIn() && (resource.data.authorId == request.auth.uid || onlyChanges(['likes', 'comments']));
+      allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
+    }
+
+    // Kredi defterine istemci yazamaz: tek yetkili süper admin. Harcama için Worker gerekir.
+    match /ledger/{id} {
+      allow read: if isSuper() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if isSuper();
+    }
+    match /creditRequests/{id} {
+      allow read: if isSuper() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid && request.resource.data.status == 'bekliyor';
+      allow update: if isSuper();
+    }
+    match /settings/{id} { allow read: if signedIn(); allow write: if isSuper(); }
+    match /packages/{id} { allow read: if signedIn(); allow write: if isSuper(); }
+    match /products/{id} { allow read: if signedIn(); allow write: if isSuper(); }
+    match /ads/{id} { allow read: if signedIn(); allow write: if isSuper(); }
+    match /sales/{id} { allow read, write: if isSuper(); }
+    match /orders/{id} {
+      allow read: if isSuper() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid && request.resource.data.pay == 'tl';
+      allow update: if isSuper();
+    }
+    match /listings/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.sellerId == request.auth.uid;
+      allow delete: if signedIn() && resource.data.sellerId == request.auth.uid;
+    }
+    match /purchases/{id} {
+      allow read: if signedIn() && resource.data.buyerId == request.auth.uid;
+    }
+  }
+}

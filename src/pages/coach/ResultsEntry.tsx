@@ -9,6 +9,7 @@ export default function ResultsEntry() {
   const [lessonId, setLessonId] = useState('');
   const [stroke, setStroke] = useState<Stroke>('serbest');
   const [distance, setDistance] = useState(50);
+  const [pool, setPool] = useState<'25m' | '50m'>('25m');
   const [date, setDate] = useState(toIso(new Date()));
   const [times, setTimes] = useState<Record<string, string>>({});
   const [status, setStatus] = useState('');
@@ -25,7 +26,7 @@ export default function ResultsEntry() {
     if (!filled.length) return setError('En az bir derece girin.');
     if (bad) return setError(`${bad.s.firstName} ${bad.s.lastName} için süre geçersiz. Örnek: 1:02.34`);
     setError('');
-    await Promise.all(parsed.map(({ s, timeMs }) => db.add('results', { clubId, studentId: s.id, stroke, distance, timeMs, date, source: 'manuel' })));
+    await Promise.all(parsed.map(({ s, timeMs }) => db.add('results', { clubId, studentId: s.id, stroke, distance, timeMs, date, pool, source: 'manuel' })));
     setTimes({});
     setStatus(`${parsed.length} derece kaydedildi.`);
   };
@@ -38,6 +39,7 @@ export default function ResultsEntry() {
           <label>Grup<select value={lessonId} onChange={(e) => setLessonId(e.target.value)}><option value="">Tüm öğrencilerim</option>{lessons.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></label>
           <label>Stil<select value={stroke} onChange={(e) => { const next = e.target.value as Stroke; setStroke(next); setDistance(EVENTS[next][0]); }}>{(Object.keys(EVENTS) as Stroke[]).map((s) => <option key={s} value={s}>{STROKE_LABEL[s]}</option>)}</select></label>
           <label>Mesafe<select value={distance} onChange={(e) => setDistance(Number(e.target.value))}>{EVENTS[stroke].map((d) => <option key={d} value={d}>{d} m</option>)}</select></label>
+          <label>Havuz<select value={pool} onChange={(e) => setPool(e.target.value as '25m' | '50m')}><option value="25m">25 m</option><option value="50m">50 m</option></select></label>
           <label>Tarih<input type="date" required value={date} onChange={(e) => setDate(e.target.value)} /></label>
         </div>
         <ul className="simple-list">{rows.map((s) => (

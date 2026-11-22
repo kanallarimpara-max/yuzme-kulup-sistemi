@@ -4,7 +4,8 @@ import { useSession } from '../lib/session';
 import { useCollection } from '../lib/store';
 import { analyzeAthlete, formatSwimTime, passedStandards } from '../lib/rules';
 import { dateTr, STROKE_LABEL } from '../lib/format';
-import type { AttendanceDoc, CoachComment, Standard, Student, SwimResult } from '../lib/types';
+import { groupLabel, STANDARDS } from '../lib/standardData';
+import type { AttendanceDoc, CoachComment, Student, SwimResult } from '../lib/types';
 
 export default function Performance() {
   const { user } = useSession();
@@ -14,7 +15,6 @@ export default function Performance() {
   const results = useCollection<SwimResult>('results', scope);
   const comments = useCollection<CoachComment>('comments', scope);
   const attendance = useCollection<AttendanceDoc>('attendance', scope);
-  const standards = useCollection<Standard & { id: string }>('standards');
   const [picked, setPicked] = useState('');
   const [eventKey, setEventKey] = useState('');
 
@@ -28,7 +28,7 @@ export default function Performance() {
   const activeKey = analysis.trends.some((t) => `${t.stroke}-${t.distance}` === eventKey) ? eventKey : analysis.trends[0] ? `${analysis.trends[0].stroke}-${analysis.trends[0].distance}` : '';
   const chart = own.filter((r) => `${r.stroke}-${r.distance}` === activeKey).map((r) => ({ date: dateTr(r.date), ms: r.timeMs }));
   const season = new Date().getFullYear();
-  const passed = passedStandards(own, standards, student, season);
+  const passed = passedStandards(own, STANDARDS, student, season);
   const marks = attendance.flatMap((d) => (d.marks[student.id] ? [{ date: d.date, mark: d.marks[student.id] }] : []));
   const present = marks.filter((m) => m.mark === 'geldi').length;
   const notes = comments.filter((c) => c.studentId === student.id).sort((a, b) => b.date.localeCompare(a.date));
@@ -63,6 +63,12 @@ export default function Performance() {
         <section className="card"><h2>Otomatik analiz</h2><ul className="plain">{analysis.advice.map((a) => <li key={a}>{a}</li>)}</ul></section>
         <section className="card"><h2>Antrenör yorumları</h2>{notes.length === 0 ? <p className="muted">Henüz yorum yok.</p> : <ul className="plain">{notes.map((c) => <li key={c.id}>{c.text}<small>{dateTr(c.date)}</small></li>)}</ul>}</section>
       </div>
+      <section className="card"><h2>Geçilen barajlar</h2>
+        {passed.length === 0 ? <p className="muted">Yaşına uygun geçilen baraj henüz yok.</p> : <div className="table-wrap"><table>
+          <thead><tr><th>Yarış</th><th>Tür</th><th>Branş</th><th>Havuz</th><th>Baraj</th><th>En iyi</th></tr></thead>
+          <tbody>{passed.map(({ standard: b, bestMs }, i) => <tr key={i}><td>{groupLabel(b)}</td><td>{b.kind === 'harcirah' ? 'Harcırah' : 'Katılım'}</td><td>{b.distance} m {STROKE_LABEL[b.stroke]}</td><td>{b.pool}</td><td>{formatSwimTime(b.timeMs)}</td><td>{formatSwimTime(bestMs)}</td></tr>)}</tbody>
+        </table></div>}
+      </section>
       <section className="card"><h2>En iyi dereceler</h2><div className="table-wrap"><table>
         <thead><tr><th>Branş</th><th>En iyi</th><th>Son</th><th>Değişim</th><th>Ölçüm</th></tr></thead>
         <tbody>{analysis.trends.map((t) => <tr key={`${t.stroke}-${t.distance}`}><td>{t.distance} m {STROKE_LABEL[t.stroke]}</td><td>{formatSwimTime(t.bestMs)}</td><td>{formatSwimTime(t.lastMs)}</td><td>{t.count > 1 ? `%${t.changePercent}` : '—'}</td><td>{t.count}</td></tr>)}</tbody>
