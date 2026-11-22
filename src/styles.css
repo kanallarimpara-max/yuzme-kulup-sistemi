@@ -96,6 +96,17 @@ th { color: var(--muted); font-weight: 600; }
 input[type="color"] { padding: 3px; }
 tfoot th { color: var(--text); }
 
+.stats.three { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.stats strong.fit { font-size: clamp(1.1rem, 2vw, 1.5rem); }
+.product-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); }
+.product { align-content: start; display: grid; gap: 8px; }
+.product h2 { margin: 0; }
+.product-img { align-items: center; background: var(--panel-2); border-radius: 9px; color: var(--muted); display: flex; height: 140px; justify-content: center; overflow: hidden; }
+.product-img img { height: 100%; object-fit: cover; width: 100%; }
+.package { align-items: flex-start; flex-direction: column; gap: 2px; min-height: 84px; }
+.package.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.bank-box { background: var(--panel-2); border-radius: 10px; display: grid; gap: 4px; overflow-wrap: anywhere; padding: 12px; }
+.simple-list a { color: var(--accent); font-size: .85rem; }
 .wrap-row { flex-wrap: wrap; padding-block: 8px; }
 .chip.on.mark-geldi { background: var(--green); border-color: var(--green); color: #fff; }
 .chip.on.mark-gelmedi { background: var(--red); border-color: var(--red); color: #fff; }

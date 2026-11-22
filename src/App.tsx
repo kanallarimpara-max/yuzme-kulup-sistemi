@@ -1,4 +1,4 @@
-import { Bell, BookOpen, CalendarCheck, CalendarDays, ClipboardCheck, Dumbbell, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
+import { Bell, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useSession } from './lib/session';
 import { ROLE_LABEL, type Role } from './lib/types';
@@ -15,6 +15,11 @@ import MyStudents from './pages/coach/MyStudents';
 import ResultsEntry from './pages/coach/ResultsEntry';
 import WorkoutBuilder from './pages/coach/WorkoutBuilder';
 import Performance from './pages/Performance';
+import Platform from './pages/super/Platform';
+import CreditAdmin from './pages/super/CreditAdmin';
+import Market from './pages/Market';
+import Wallet from './pages/coach/Wallet';
+import WorkoutStore from './pages/coach/WorkoutStore';
 import PreRegister from './pages/PreRegister';
 import PreRegDesign from './pages/secretary/PreRegDesign';
 import Registrations from './pages/secretary/Registrations';
@@ -37,6 +42,11 @@ const NAV: NavItem[] = [
   { to: '/musaitlik', label: 'Müsaitlik', icon: CalendarCheck, roles: ['coach'] },
   { to: '/kronometre/kontrol', label: 'Kronometre', icon: Timer, roles: ['coach', 'admin'] },
   { to: '/duyurular', label: 'Duyurular', icon: Bell, roles: ['admin', 'secretary', 'coach', 'parent'] },
+  { to: '/platform', label: 'Platform', icon: Building2, roles: ['super'] },
+  { to: '/kredi-yonetimi', label: 'Kredi yönetimi', icon: Coins, roles: ['super'] },
+  { to: '/kredilerim', label: 'Kredilerim', icon: Wallet2, roles: ['coach'] },
+  { to: '/antrenman-pazari', label: 'Antrenman pazarı', icon: Store, roles: ['coach'] },
+  { to: '/market', label: 'Market', icon: ShoppingBag, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
 ];
 
 function Shell() {
@@ -83,6 +93,11 @@ export default function App() {
         <Route path="/kulup" element={<ClubSetup />} />
         <Route path="/musaitlik" element={<AvailabilityPage />} />
         <Route path="/duyurular" element={<Notices />} />
+        <Route path="/platform" element={<Platform />} />
+        <Route path="/kredi-yonetimi" element={<CreditAdmin />} />
+        <Route path="/kredilerim" element={<Wallet />} />
+        <Route path="/antrenman-pazari" element={<WorkoutStore />} />
+        <Route path="/market" element={<Market />} />
         <Route path="/yoklama" element={<Attendance />} />
         <Route path="/ogrencilerim" element={<MyStudents />} />
         <Route path="/derece" element={<ResultsEntry />} />

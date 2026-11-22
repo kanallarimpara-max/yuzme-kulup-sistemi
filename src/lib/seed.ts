@@ -51,5 +51,22 @@ export const demoData: Record<string, SeedRow[]> = {
     id: `u-coach_b1_${weekday}_${hour}`, clubId, coachId: 'u-coach', branchId: 'b1', weekday, hour,
   }))),
   notices: [],
+  settings: [{ id: 'platform', bank: 'Örnek Banka', holder: 'Örnek Hesap Sahibi', iban: 'TR00 0000 0000 0000 0000 0000 00', rateCredits: 1000, rateKurus: 5000 }],
+  packages: [
+    { id: 'p1', name: 'Başlangıç', credits: 500, priceKurus: 5000 },
+    { id: 'p2', name: 'Standart', credits: 1500, priceKurus: 12500 },
+    { id: 'p3', name: 'Profesyonel', credits: 5000, priceKurus: 35000 },
+  ],
+  products: [
+    { id: 'pr1', name: 'Yarış Gözlüğü', description: 'Aynalı camlı yarış gözlüğü', imageUrl: '', priceKurus: 89000, priceCredits: 900 },
+    { id: 'pr2', name: 'Kulüp Bonesi', description: 'Silikon yüzücü bonesi', imageUrl: '', priceKurus: 25000, priceCredits: 250 },
+  ],
+  ledger: [{ id: 'lg1', userId: 'u-coach', delta: 1000, reason: 'Açılış kredisi' }],
+  creditRequests: [],
+  orders: [],
+  listings: [],
+  purchases: [],
+  ads: [],
+  sales: [{ id: 'sa1', clubName: 'Mavi Dalga Spor Kulübü', date: '2026-09-01', plan: 'Yıllık', amountKurus: 2400000 }],
   timers: [],
 };

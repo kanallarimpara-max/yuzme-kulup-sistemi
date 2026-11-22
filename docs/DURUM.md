@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kredi ve market: süper admin paket, ürün, EFT bilgisi, oran; antrenör satın alma, dekont, bozdurma, antrenman satışı.
+Admin finans, maaş, personel, indirim kodu ve veli ana ekranı.
 
 ## Modüller
 
@@ -10,12 +10,12 @@ Kredi ve market: süper admin paket, ürün, EFT bilgisi, oran; antrenör satın
 | --- | --- |
 | Devam ve yedek düzeni | Tamam |
 | Uygulama iskeleti, giriş, roller | Demo modunda çalışıyor, Firebase bağlantısı bekliyor |
-| Süper admin | Başlamadı |
+| Süper admin | Satış, reklam, kredi, paket, EFT, oran, market çalışıyor. Tasarım yönetimi yok |
 | Kulüp admini | Kulüp, şube, model, ders açma, duyuru çalışıyor. Finans, indirim, personel atama yok |
 | Sekreter ve ön kayıt | Ön kayıt, görünüm, forma aktar, taksit, tahsilat, PDF çalışıyor |
 | Antrenör, yoklama, derece | Müsaitlik, yoklama, PDF, öğrencilerim, yorum, derece, performans çalışıyor. Maaş özeti yok |
 | Antrenman ve kronometre | Antrenman yazma, paylaşma, kronometre ve kontrol çalışıyor. Satış yok |
-| Kredi ve market | Başlamadı |
+| Kredi ve market | Yükleme, dekont, bozdurma, market, antrenman pazarı demo modunda çalışıyor |
 | Veli | Başlamadı |
 | Sohbet, sesli arama, sosyal akış | Başlamadı |
 | TYF sonuç ve baraj aktarımı | Başlamadı |
@@ -29,10 +29,12 @@ Kredi ve market: süper admin paket, ürün, EFT bilgisi, oran; antrenör satın
 
 - session.tsx Firestore'da tüm users koleksiyonunu izliyor. Firebase bağlanmadan önce tek belge okumaya çevrilmeli.
 - firestore.rules henüz yok. Kurallar yazılmadan gerçek veri girilmemeli.
+- Kredi harcama ve antrenman kopyalama istemciden yazılıyor. Firebase'de güvenli olması için Cloudflare Worker'a taşınmalı.
 - Kronometre farklı cihazlarda cihaz saatine bağlı, sunucu saat farkı düzeltmesi eklenmeli.
 
 ## Son kayıtlar
 
+- 2026-11-23: Süper admin, kredi, dekont, bozdurma, market ve antrenman pazarı eklendi
 - 2026-11-23: Antrenör yoklama, derece, yorum, antrenman, performans ve rol koruması eklendi
 - 2026-11-23: Sekreter ön kayıt, kayıt, taksit, tahsilat ve Türkçe PDF akışı eklendi
 - 2026-11-23: Kulüp ayarları, eğitim modeli, müsaitlikli ders açma ve hedefli bildirim eklendi
