@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Firebase bağla, firestore.rules emülatörde test et, kredi işlemleri için Cloudflare Worker yaz.
+Kullanıcı firebase login işlemini bitirince proje ve web uygulamasını bağla. Sonra sorguları kurallarla uyumlu yap: veli ve antrenör clubId ile students/enrollments listeleyemez, enrollments içine parentId yazılmalı. Emülatör testi için Java gerekir.
 
 ## Modüller
 
@@ -37,6 +37,7 @@ Firebase bağla, firestore.rules emülatörde test et, kredi işlemleri için Cl
 
 ## Son kayıtlar
 
+- 2026-11-23: Firebase CLI projeye eklendi
 - 2026-11-23: Paketleme durumu ve kalan eksikler kaydedildi
 - 2026-11-23: TYF sonuç aktarımı, resmi barajlar ve Firestore kuralları eklendi
 - 2026-11-23: TYF sonuç aktarımı, resmi barajlar, Firestore kuralları ve APK iş akışı eklendi
