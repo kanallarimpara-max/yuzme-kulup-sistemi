@@ -6,6 +6,12 @@
       "runtimeExecutable": "C:\\Program Files\\nodejs\\npm.cmd",
       "runtimeArgs": ["run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "e2e",
+      "runtimeExecutable": "powershell.exe",
+      "runtimeArgs": ["-NoProfile", "-Command", "$env:Path=[Environment]::GetEnvironmentVariable('Path','Machine')+';'+[Environment]::GetEnvironmentVariable('Path','User'); $jdk=(Get-ChildItem \"$env:LOCALAPPDATA\\yuzme-tools\" -Directory -Filter 'jdk-21*' | Select-Object -First 1).FullName; $env:JAVA_HOME=$jdk; $env:Path=\"$jdk\\bin;$env:Path\"; $env:E2E_MS='3000000'; npm.cmd run e2e"],
+      "port": 5175
     }
   ]
 }

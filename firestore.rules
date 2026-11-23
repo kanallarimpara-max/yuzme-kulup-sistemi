@@ -253,7 +253,7 @@ service cloud.firestore {
       }
       function commentOnly() {
         let size = resource.data.comments.size();
-        return onlyChanges(['comments']) && p().comments.size() == size + 1 && p().comments[0:size] == resource.data.comments
+        return onlyChanges(['comments']) && p().comments.size() == size + 1 && (size == 0 || p().comments[0:size] == resource.data.comments)
           && p().comments[size].keys().hasOnly(['userId', 'text', 'at']) && p().comments[size].userId == request.auth.uid
           && p().comments[size].text is string && p().comments[size].text.size() > 0 && p().comments[size].text.size() <= 500;
       }

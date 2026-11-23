@@ -4,6 +4,7 @@ import { useSession } from './lib/session';
 import { AdSlot, useAppDesign } from './lib/design';
 import { pushAvailable, usePushToggle } from './lib/push';
 import { ROLE_LABEL, type Role } from './lib/types';
+import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import TimerDisplay from './pages/TimerDisplay';
@@ -99,7 +100,7 @@ function Shell() {
           <button className="ghost icon" onClick={signOut} aria-label="Çıkış yap" title="Çıkış yap"><LogOut size={18} /></button>
         </div>
       </aside>
-      <main className="content">{AD_SLOT[pathname] && <AdSlot slot={AD_SLOT[pathname]} />}<Outlet /></main>
+      <main className="content">{user.role !== 'super' && AD_SLOT[pathname] && <AdSlot slot={AD_SLOT[pathname]} />}<Outlet /></main>
     </div>
   );
 }
@@ -112,6 +113,7 @@ export default function App() {
   if (!ready && !pathname.startsWith('/on-kayit/')) return <div className="center-screen">Yükleniyor…</div>;
   return (
     <Routes>
+      <Route path="/" element={user ? <Navigate to="/panel" replace /> : <Landing />} />
       <Route path="/giris" element={user ? <Navigate to="/panel" replace /> : <Login />} />
       <Route path="/on-kayit/:slug" element={<PreRegister />} />
       <Route path="/kronometre/ekran" element={user?.role === 'coach' || user?.role === 'admin' ? <TimerDisplay /> : <Navigate to="/giris" replace />} />
@@ -143,7 +145,7 @@ export default function App() {
         <Route path="/ogrenciler" element={<StudentsPayments />} />
         <Route path="/on-kayit-ayar" element={<PreRegDesign />} />
       </Route>
-      <Route path="*" element={<Navigate to={user ? '/panel' : '/giris'} replace />} />
+      <Route path="*" element={<Navigate to={user ? '/panel' : '/'} replace />} />
     </Routes>
   );
 }

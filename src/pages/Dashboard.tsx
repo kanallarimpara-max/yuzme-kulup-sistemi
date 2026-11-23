@@ -4,8 +4,14 @@ import { salaryScope, studentScope } from '../lib/access';
 import { toIso } from '../lib/rules';
 import { money } from '../lib/format';
 import { ROLE_LABEL, type Branch, type Lesson, type LessonPay, type SalaryPayment, type Student } from '../lib/types';
+import OwnerDashboard from './super/OwnerDashboard';
 
 export default function Dashboard() {
+  const { user } = useSession();
+  return user?.role === 'super' ? <OwnerDashboard /> : <ClubDashboard />;
+}
+
+function ClubDashboard() {
   const { user, club } = useSession();
   const scope = { clubId: user?.clubId };
   const lessons = useCollection<Lesson>('lessons', scope);
@@ -32,7 +38,7 @@ export default function Dashboard() {
     <div className="page">
       <header className="page-head">
         <div>{club?.logoUrl && <img src={club.logoUrl} alt={`${club.name} logosu`} style={{ borderRadius: 10, height: 48, marginBottom: 8, width: 48, objectFit: 'cover' }} />}<p className="eyebrow">{ROLE_LABEL[user.role]}</p><h1>Merhaba, {user.name.split(' ')[0]}</h1></div>
-        <p className="muted">{club?.name ?? 'Platform yönetimi'} · {now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' })}</p>
+        <p className="muted">{club?.name} ·{now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' })}</p>
       </header>
       <section className="stats">
         <article><span>Bugünkü ders</span><strong>{todays.length}<small> · {todays.reduce((s, l) => s + countFor(l.id), 0)} kişi</small></strong></article>

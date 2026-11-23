@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici yeniden girince worker/index.js AI modelini canli dene, sonra telefonla bildirim, sesli mesaj ve aramayi dene
+Android ve Windows derlemelerini kontrol et, sonra canlida AI modeli, bildirim ve sesli ozellikleri dene
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Kullanici yeniden girince worker/index.js AI modelini canli dene, sonra telefonl
 
 ## Son kayıtlar
 
+- 2026-11-23: Super admin sistem sahibi ekrani, tanitim sayfasi, ilk yorum kural hatasi duzeltmesi ve Windows is akisi eklendi. Web yayinlandi, tum roller emulatorde gezildi, 160/160 kural testi gecti
 - 2026-11-23: AI modeli Turkce icin mistral-small-3.1 yapildi ve yayinlandi, bu model canli yanitla henuz dogrulanmadi cunku oturum kapandi
 - 2026-11-23: Canli denendi: super admin girisi, gorsel ve PDF yukleme (Cloudinary PDF teslimi acildi, imzasiz 401), AI analiz. Kaldirilmis AI modeli llama-3.3 ile degistirildi
 - 2026-11-23: Firestore kurallari ve site kullanici onayiyla yayinlandi. 37 test, kural testleri ve build gecti. Canli giris henuz denenmedi
