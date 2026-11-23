@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Canli sitede super admin girisi, AI, dekont yukleme, bildirim ve sesli ozellikleri dene
+Telefon ve bilgisayarla kapali uygulama bildirimi, sesli mesaj ve sesli aramayi dene, gecici hesabi sil
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Canli sitede super admin girisi, AI, dekont yukleme, bildirim ve sesli ozellikle
 
 ## Son kayıtlar
 
+- 2026-11-23: Canli denendi: super admin girisi, gorsel ve PDF yukleme (Cloudinary PDF teslimi acildi, imzasiz 401), AI analiz. Kaldirilmis AI modeli llama-3.3 ile degistirildi
 - 2026-11-23: Firestore kurallari ve site kullanici onayiyla yayinlandi. 37 test, kural testleri ve build gecti. Canli giris henuz denenmedi
 - 2026-11-23: GitHub Actions APK derleme sonucu kontrol edildi
 - 2026-11-23: APK is akisi GitHub'a eklendi, Firebase Android kaydi ve depo ayarlari tamamlandi
