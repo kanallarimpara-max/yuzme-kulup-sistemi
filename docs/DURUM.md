@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici Cloudinary cloud name, API key ve secret degerlerini wrangler secret put ile girsin, sonra gercek yukleme denensin
+Kullanici worker-sir aracina uc Cloudinary degerini girsin, secret list ile dogrula; sonra Firebase projesinin sahibi olan Google hesabiyla servis anahtari al
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Kullanici Cloudinary cloud name, API key ve secret degerlerini wrangler secret p
 
 ## Son kayıtlar
 
+- 2026-11-23: Cloudinary ve Firebase anahtarlarini gizli kaydeden kurulum araclari eklendi. Worker secret listesi hala bos
 - 2026-11-23: Dosyalar Worker imzasiyla ozel yukleniyor, gunluk 30 yukleme siniri eklendi, Worker yayinlandi. 27 Worker testi, 37 test, build gecti. Cloudinary anahtarlari henuz Worker'a girilmedi
 - 2026-11-23: Cloudflare hesabi acildi, Worker yayinda ve oturumsuz istekleri 401 ile reddediyor. Servis anahtari henuz eklenmedi, AI ve bildirim kapali
 - 2026-11-23: Site guvenlik basliklari yerel sunucuda dogrulandi: satir ici script engelleniyor, giris ekrani ihlalsiz aciliyor
