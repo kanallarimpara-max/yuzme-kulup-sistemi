@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici Cloudflare ve Cloudinary hesabini acinca: imzali dekont yukleme, hiz siniri, ilk super admin kurulumu, Worker yayini. Site yayini en son ve acik onayla
+Cloudinary hesabini ac, Worker uzerinden imzali ozel dosya yuklemesini yaz
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Kullanici Cloudflare ve Cloudinary hesabini acinca: imzali dekont yukleme, hiz s
 
 ## Son kayıtlar
 
+- 2026-11-23: Cloudflare hesabi acildi, Worker yayinda ve oturumsuz istekleri 401 ile reddediyor. Servis anahtari henuz eklenmedi, AI ve bildirim kapali
 - 2026-11-23: Site guvenlik basliklari yerel sunucuda dogrulandi: satir ici script engelleniyor, giris ekrani ihlalsiz aciliyor
 - 2026-11-23: Tum roller gercek kurallarla emulatorde gezildi, on kayit basari mesaji hatasi duzeltildi, e2e komutu eklendi. 37 test, 22 Worker testi, 159/159 kural testi, build gecti
 - 2026-11-23: Electron, site guvenlik basliklari, AI gunluk kotasi, atomik kayit ve yoklama, personel sube atama ve kulupten cikarma, antrenor dersler ekrani eklendi
