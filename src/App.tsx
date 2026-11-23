@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { isRinging } from './lib/call';
 import { useSession } from './lib/session';
+import { useLiveImport } from './lib/useLiveImport';
 import { useCollection } from './lib/store';
 import { AdSlot, useAppDesign } from './lib/design';
 import { pushAvailable, usePushToggle } from './lib/push';
@@ -109,6 +110,7 @@ function ErrorToast() {
 
 function Shell() {
   const { user, club, signOut } = useSession();
+  useLiveImport();
   const { pathname } = useLocation();
   const design = useAppDesign();
   const [menuOpen, setMenuOpen] = useState(false);

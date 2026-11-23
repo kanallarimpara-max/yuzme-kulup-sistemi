@@ -68,7 +68,18 @@ export function parseMeetPage(html: string, pageUrl: string): LiveMeet {
   return { title, info, sessions: sessions.filter((s) => s.events.length) };
 }
 
-export const meetIdsFrom = (html: string) => [...new Set([...html.matchAll(/data-section="yarisma_info" data-id="(\d+)"/g)].map((m) => m[1]))];
+/** Sonuç dosyaları ve sürümleri değişmedikçe aynı kalır. */
+export const meetVersion = (html: string) => [...new Set([...html.matchAll(/ResultList_(\d+)\.pdf(?:\?v=(\d+))?/g)].map((m) => `${m[1]}:${m[2] ?? ''}`))].sort().join(',');
+
+/** "Ankara | 21.11.2026 - 22.11.2026 | 50 Metre Havuz" bilgisinden yarış tarihlerini alır. */
+export function meetDates(info: string) {
+  const dates = [...info.matchAll(/(\d{2})\.(\d{2})\.(\d{4})/g)].map((m) => `${m[3]}-${m[2]}-${m[1]}`);
+  return { startDate: dates[0] ?? '', endDate: dates[1] ?? dates[0] ?? '' };
+}
+
+export const meetPool = (info: string): '25m' | '50m' => (/\b25\s*Metre/i.test(info) ? '25m' : '50m');
+
+export const meetIdsFrom =(html: string) => [...new Set([...html.matchAll(/data-section="yarisma_info" data-id="(\d+)"/g)].map((m) => m[1]))];
 
 /** Yarış sayfasındaki tüm sonuç PDF bağlantılarını tekrarsız döndürür. */
 export function resultLinks(html: string, pageUrl: string) {

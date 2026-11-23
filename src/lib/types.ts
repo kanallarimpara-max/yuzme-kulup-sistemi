@@ -70,7 +70,8 @@ export type SwimResult = Row & {
 };
 /** Eski kayıtlarda tür yoktur, onlar yarış derecesi sayılır. Baraj yalnız yarış derecesiyle geçilir. */
 export const isRaceResult = (r: Pick<SwimResult, 'kind'>) => r.kind !== 'antrenman';
-export type TyfMeet = Row & { url: string; title: string; info: string; startDate: string };
+export type TyfMeet = Row & { url: string; title: string; info: string; startDate: string; endDate?: string; version?: string; updatedAt?: string };
+export const isMeetLive = (m: Pick<TyfMeet, 'startDate' | 'endDate'>, today: string) => Boolean(m.startDate) && m.startDate <= today && (m.endDate || m.startDate) >= today;
 export type CoachComment = Row & { clubId: string; studentId: string; parentId?: string; coachId: string; text: string; date: string };
 export type TimerLane = { id: string; name: string; workoutId: string | null; clock: LaneClock; muted?: boolean };
 export type TimerDoc = Row & { clubId: string; lanes: TimerLane[]; touchLocked?: boolean };

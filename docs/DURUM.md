@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Gunluk baraj isini, Android ve Windows son surumunu dogrula
+Tum rolleri ve ozellikleri denetle
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Gunluk baraj isini, Android ve Windows son surumunu dogrula
 
 ## Son kayıtlar
 
+- 2026-11-24: Canli sonuc gercek Worker'da duzeltildi: TYF cekimi yonlendirme hatasi giderildi, yeni yarislar 30 dakikada bir, aktif yarislar dakikada bir kontrol edilir, admin acikken dereceler otomatik islenir
 - 2026-11-24: Antrenor yapilan yorumlari gorur, sosyal paylasim hata mesajlari ve fotograf kucultme duzeltildi, barajlar her gun TYF sayfasindan otomatik guncellenir. 173 kural, 55 test, 30 Worker testi gecti
 - 2026-11-24: Kronometre kontrolune canli kulvar panosu, sonraki cikis ve bitis saati, dokunma kilidi ve kulvar basina cikis sesi eklendi. Iki cihazla denendi, 53 test gecti
 - 2026-11-24: Telefon alt menusundeki kaydirma cubugu kaldirildi, deneme sunucusu suresi uzatildi

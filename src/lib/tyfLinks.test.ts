@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isLivePdfUrl, isResultPdfUrl, meetIdsFrom, normalizeMeetUrl, parseMeetPage, resultLinks } from './tyfLinks';
+import { isLivePdfUrl, isResultPdfUrl, meetDates, meetIdsFrom, meetPool, meetVersion, normalizeMeetUrl, parseMeetPage, resultLinks } from './tyfLinks';
 
 const page = 'https://canli.tyf.gov.tr/live/2026/1005927/';
 
@@ -32,6 +32,15 @@ describe('TYF canlı sonuç bağlantıları', () => {
     expect([meet.title, meet.info, meet.sessions[0].title]).toEqual(['Kurgu Yarışı', 'Ankara | 21.11.2026', '1. GÜN SABAH']);
     expect(meet.sessions[0].events[0]).toMatchObject({ no: '1', name: '50m Serbest', gender: 'Kadınlar', resultUrl: `${page}ResultList_7.pdf?v=2`, startUrl: `${page}StartList_7.pdf?v=1` });
     expect(meet.sessions[0].events[1].resultUrl).toBe('');
+  });
+  it('yarış tarihini, havuzu ve sonuç sürümünü okur', () => {
+    expect(meetDates('Ankara | 21.11.2026 - 22.11.2026 | 50 Metre Havuz')).toEqual({ startDate: '2026-11-21', endDate: '2026-11-22' });
+    expect(meetDates('İzmir | 05.12.2026 | 25 Metre Havuz')).toEqual({ startDate: '2026-12-05', endDate: '2026-12-05' });
+    expect(meetPool('Ankara | 25 Metre Havuz')).toBe('25m');
+    expect(meetPool('Ankara | 50 Metre Havuz')).toBe('50m');
+    const a = meetVersion('<a href="ResultList_2.pdf?v=5"><a href="ResultList_1.pdf?v=3"><a href="ResultList_1.pdf?v=3">');
+    expect(a).toBe('1:3,2:5');
+    expect(meetVersion('<a href="ResultList_2.pdf?v=6"><a href="ResultList_1.pdf?v=3">')).not.toBe(a);
   });
   it('start listesi yalnız TYF adresinden açılır ve yarış numaraları tekrarsızdır', () => {
     expect(isLivePdfUrl(`${page}StartList_1.pdf?v=1`)).toBe(true);

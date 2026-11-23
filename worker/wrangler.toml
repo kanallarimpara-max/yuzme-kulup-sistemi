@@ -10,6 +10,6 @@ GITHUB_REPOSITORY = "kanallarimpara-max/yuzme-kulup-sistemi"
 [ai]
 binding = "AI"
 
-# Yeni TYF yarışlarını yarım saatte bir bulur.
+# Yeni yarışları yarım saatte bir arar, devam eden yarışı dakikada bir kontrol eder.
 [triggers]
-crons = ["*/30 * * * *"]
+crons = ["* * * * *"]

@@ -2,11 +2,11 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { ArrowLeft, FileText, RefreshCw, Search } from 'lucide-react';
 import { useSession } from '../lib/session';
 import { useCollection } from '../lib/store';
-import { classifyMatch, clubMatchScore, formatSwimTime } from '../lib/rules';
+import { classifyMatch, clubMatchScore, formatSwimTime, toIso } from '../lib/rules';
 import { drawPdf, readResultPdf, type TyfEvent } from '../lib/tyf';
 import { normalizeMeetUrl, type LiveEvent, type LiveMeet } from '../lib/tyfLinks';
 import { liveMeet, meetPdf, workerEnabled } from '../lib/worker';
-import type { TyfMeet } from '../lib/types';
+import { isMeetLive, type TyfMeet } from '../lib/types';
 
 const REFRESH_MS = 60000;
 
@@ -31,12 +31,15 @@ export default function LiveResults() {
   const event: LiveEvent | undefined = detail?.sessions.flatMap((s) => s.events).find((e) => e.no === eventNo);
   const pdfUrl = event ? event.resultUrl || event.startUrl : '';
 
-  // Program dakikada bir yenilenir; sekme arka plandayken TYF'ye istek gitmez.
+  const tracked = meets.find((m) => m.url === meetUrl);
+  const today = toIso(new Date());
+
+  // Takip edilen yarışta yeni sonuç sunucudan anında gelir. Listede olmayan yarış dakikada bir yenilenir.
   useEffect(() => {
     if (!meetUrl) return;
     let alive = true;
     const load = async () => {
-      if (document.hidden) return;
+      if (document.hidden && detail) return;
       try {
         const next = await liveMeet(meetUrl);
         if (!alive) return;
@@ -48,9 +51,15 @@ export default function LiveResults() {
       }
     };
     void load();
-    const timer = window.setInterval(load, REFRESH_MS);
-    return () => { alive = false; window.clearInterval(timer); };
-  }, [meetUrl]);
+    const timer = tracked ? 0 : window.setInterval(load, REFRESH_MS);
+    const onVisible = () => { if (!document.hidden) void load(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [meetUrl, Boolean(tracked), tracked?.version]);
 
   // PDF adresindeki sürüm değişince seçili yarış kendiliğinden güncellenir.
   useEffect(() => {
@@ -122,7 +131,7 @@ export default function LiveResults() {
         <section className="card stack">
           <h2>Yarışlar</h2>
           {sorted.length === 0 ? <p className="muted">Canlı sonuç sayfası açılan yarışlar burada görünür.</p> : (
-            <ul className="live-list">{sorted.map((m) => <li key={m.id}><button onClick={() => openMeet(m.url)}><span><strong>{m.title}</strong><small>{m.info}</small></span></button></li>)}</ul>
+            <ul className="live-list">{sorted.map((m) => <li key={m.id}><button onClick={() => openMeet(m.url)}><span><strong>{m.title}</strong><small>{m.info}</small></span>{isMeetLive(m, today) && <em className="badge good">Canlı</em>}</button></li>)}</ul>
           )}
         </section>
         <section className="card stack">
@@ -134,7 +143,7 @@ export default function LiveResults() {
       {meetUrl && !detail && !error && <section className="card"><p className="muted" role="status">Yarış programı yükleniyor…</p></section>}
 
       {detail && !event && <>
-        {updated && <p className="muted live-updated"><RefreshCw size={14} />Son güncelleme {updated} · dakikada bir yenilenir</p>}
+        {updated && <p className="muted live-updated"><RefreshCw size={14} />Son güncelleme {updated} · {tracked && isMeetLive(tracked, today) ? 'yeni sonuçlar otomatik gelir' : tracked ? 'yarış tamamlandı' : 'dakikada bir yenilenir'}</p>}
         {detail.sessions.length === 0 && <section className="card"><p className="muted">Bu yarışın programı henüz yayınlanmadı.</p></section>}
         {detail.sessions.map((s) => (
           <section className="card stack" key={s.title}>

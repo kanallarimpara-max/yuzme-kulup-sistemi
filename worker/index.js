@@ -44,7 +44,7 @@ export async function verifyToken(request, env) {
 async function meet(url) {
   const page = normalizeMeetUrl(url ?? '');
   if (!page) return json({ error: 'Geçerli bir TYF canlı sonuç adresi girin.' }, 400);
-  const res = await fetch(page, { redirect: 'error' });
+  const res = await fetch(page, { redirect: 'manual' });
   if (!res.ok) return json({ error: 'TYF sayfası açılamadı.' }, 502);
   return json({ links: resultLinks(await res.text(), page) });
 }
@@ -53,18 +53,19 @@ async function meet(url) {
 async function meetDetail(url, env) {
   const page = normalizeMeetUrl(url ?? '');
   if (!page) return json({ error: 'Geçerli bir TYF canlı sonuç adresi girin.' }, 400);
-  const res = await fetch(page, { redirect: 'error', cf: { cacheEverything: true, cacheTtl: 60 } });
+  const res = await fetch(page, { redirect: 'manual', cf: { cacheEverything: true, cacheTtl: 15 } });
   if (res.status === 404) return json({ error: 'Bu yarışın canlı sonuç sayfası henüz açılmadı.' }, 404);
   if (!res.ok) return json({ error: 'TYF sayfası açılamadı.' }, 502);
-  const detail = parseMeetPage(await res.text(), page);
-  await saveMeet(env, page, detail).catch(() => undefined);
+  const html = await res.text();
+  const detail = parseMeetPage(html, page);
+  await saveMeet(env, page, detail, html).catch(() => undefined);
   return json({ url: page, ...detail });
 }
 
 async function pdf(url) {
   if (!isLivePdfUrl(url ?? '')) return json({ error: 'Geçersiz PDF adresi.' }, 400);
   // Adresteki sürüm değeri PDF değişince değişir, bu yüzden kısa önbellek güncel sonucu geciktirmez.
-  const res = await fetch(url, { redirect: 'error', cf: { cacheEverything: true, cacheTtl: 60 } });
+  const res = await fetch(url, { redirect: 'manual', cf: { cacheEverything: true, cacheTtl: 60 } });
   if (!res.ok) return json({ error: 'PDF indirilemedi.' }, 502);
   const data = await res.arrayBuffer();
   if (data.byteLength > MAX_PDF_BYTES) return json({ error: 'PDF çok büyük.' }, 413);
@@ -123,7 +124,7 @@ export default {
     }
     return json({ error: 'Bulunamadı.' }, 404);
   },
-  scheduled(_event, env, ctx) {
-    ctx.waitUntil(syncMeets(env));
+  scheduled(event, env, ctx) {
+    ctx.waitUntil(syncMeets(env, event.scheduledTime));
   },
 };
