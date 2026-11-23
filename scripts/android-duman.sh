@@ -7,11 +7,12 @@ adb install -r -g android/app/build/outputs/apk/debug/app-debug.apk
 adb shell dumpsys package "$APP" | grep -q 'android.permission.RECORD_AUDIO: granted=true'
 adb shell am start -W -n "$APP/.MainActivity"
 found=0
-for _ in $(seq 1 30); do
+for _ in $(seq 1 40); do
   sleep 3
   adb shell uiautomator dump /sdcard/ekran.xml >/dev/null 2>&1 || continue
   adb pull /sdcard/ekran.xml duman/ekran.xml >/dev/null 2>&1 || continue
-  if grep -Eq 'Giriş|Yüzme|Kulüp' duman/ekran.xml; then found=1; break; fi
+  # Yükleniyor yazısı başarı sayılmaz; tanıtım ekranındaki giriş düğmesi görünmeli.
+  if grep -q 'Giriş yap' duman/ekran.xml && ! grep -q 'Yükleniyor' duman/ekran.xml; then found=1; break; fi
 done
 adb exec-out screencap -p > duman/android.png
 adb logcat -d -s chromium:E Capacitor:E AndroidRuntime:E > duman/log.txt || true

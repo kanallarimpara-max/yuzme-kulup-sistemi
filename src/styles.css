@@ -260,3 +260,21 @@ input[type='color'] { cursor: pointer; min-height: 42px; padding: 4px; }
   .landing { scroll-behavior: auto; }
   .pool-swimmer { animation: none; }
 }
+
+/* Canlı sonuçlar */
+.live-list { display: grid; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.live-list button { align-items: center; display: flex; gap: 12px; justify-content: space-between; min-height: 56px; text-align: left; width: 100%; }
+.live-list button > span { min-width: 0; overflow-wrap: anywhere; }
+.live-list button:disabled { cursor: default; opacity: .6; }
+.live-updated { align-items: center; display: flex; font-size: .84rem; gap: 6px; }
+.live-tools { align-items: center; display: flex; flex-wrap: wrap; gap: 8px; }
+.live-search { align-items: center; display: flex; flex: 1 1 220px; gap: 8px; }
+.live-table tr.ours td { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.live-table td small { white-space: normal; }
+.live-pdf { display: grid; gap: 10px; }
+.live-pdf canvas { background: #fff; border-radius: 6px; display: block; height: auto; max-width: 100%; }
+.live-table { min-width: 0; table-layout: auto; width: 100%; }
+.live-table th, .live-table td { white-space: normal; }
+.live-table th:first-child, .live-table td:first-child { width: 44px; }
+.live-table th:last-child, .live-table td:last-child { text-align: right; width: 104px; }
+.live-table td small { overflow-wrap: anywhere; }

@@ -1,7 +1,8 @@
 // Ücretsiz Cloudflare Worker: AI analizi ve TYF sonuç çekme. Yalnız geçerli Firebase oturumuyla çalışır.
-import { isResultPdfUrl, normalizeMeetUrl, resultLinks } from '../src/lib/tyfLinks.ts';
+import { isLivePdfUrl, normalizeMeetUrl, parseMeetPage, resultLinks } from '../src/lib/tyfLinks.ts';
 import { consumeAiQuota, handlePush } from './push.js';
 import { handleUpload } from './files.js';
+import { saveMeet, syncMeets } from './tyfMeets.js';
 
 const JWK_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 const AI_MODEL = '@cf/mistralai/mistral-small-3.1-24b-instruct';
@@ -47,9 +48,22 @@ async function meet(url) {
   return json({ links: resultLinks(await res.text(), page) });
 }
 
+/** Yarış programı uygulama içinde gösterilir. TYF'ye yük binmesin diye bir dakika önbelleklenir. */
+async function meetDetail(url, env) {
+  const page = normalizeMeetUrl(url ?? '');
+  if (!page) return json({ error: 'Geçerli bir TYF canlı sonuç adresi girin.' }, 400);
+  const res = await fetch(page, { redirect: 'error', cf: { cacheEverything: true, cacheTtl: 60 } });
+  if (res.status === 404) return json({ error: 'Bu yarışın canlı sonuç sayfası henüz açılmadı.' }, 404);
+  if (!res.ok) return json({ error: 'TYF sayfası açılamadı.' }, 502);
+  const detail = parseMeetPage(await res.text(), page);
+  await saveMeet(env, page, detail).catch(() => undefined);
+  return json({ url: page, ...detail });
+}
+
 async function pdf(url) {
-  if (!isResultPdfUrl(url ?? '')) return json({ error: 'Geçersiz PDF adresi.' }, 400);
-  const res = await fetch(url, { redirect: 'error' });
+  if (!isLivePdfUrl(url ?? '')) return json({ error: 'Geçersiz PDF adresi.' }, 400);
+  // Adresteki sürüm değeri PDF değişince değişir, bu yüzden kısa önbellek güncel sonucu geciktirmez.
+  const res = await fetch(url, { redirect: 'error', cf: { cacheEverything: true, cacheTtl: 60 } });
   if (!res.ok) return json({ error: 'PDF indirilemedi.' }, 502);
   const data = await res.arrayBuffer();
   if (data.byteLength > MAX_PDF_BYTES) return json({ error: 'PDF çok büyük.' }, 413);
@@ -97,11 +111,15 @@ export default {
       if (request.method === 'POST' && url.pathname === '/push/notify') return await handlePush(request, env, uid, json);
       if (request.method === 'POST' && url.pathname === '/files/upload') return await handleUpload(request, env, uid, json);
       if (request.method === 'GET' && url.pathname === '/tyf/meet') return await meet(url.searchParams.get('url'));
+      if (request.method === 'GET' && url.pathname === '/tyf/meet-detail') return await meetDetail(url.searchParams.get('url'), env);
       if (request.method === 'GET' && url.pathname === '/tyf/pdf') return await pdf(url.searchParams.get('url'));
       if (request.method === 'POST' && url.pathname === '/ai/analyze') return await analyze(request, env, uid);
     } catch {
       return json({ error: 'İşlem tamamlanamadı.' }, 502);
     }
     return json({ error: 'Bulunamadı.' }, 404);
+  },
+  scheduled(_event, env, ctx) {
+    ctx.waitUntil(syncMeets(env));
   },
 };

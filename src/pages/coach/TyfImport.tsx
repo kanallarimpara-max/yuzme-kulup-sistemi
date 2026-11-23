@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { normalizeMeetUrl } from '../../lib/tyfLinks';
 import { meetPdf, meetPdfLinks, workerEnabled } from '../../lib/worker';
-import { ExternalLink } from 'lucide-react';
+import { Radio } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useSession } from '../../lib/session';
 import { db, useCollection } from '../../lib/store';
 import { studentScope } from '../../lib/access';
@@ -83,7 +84,7 @@ export default function TyfImport() {
     const chosen = found.filter((f) => f.selected);
     await Promise.all(chosen.map(({ event, match, key }) => db.put('results', key, {
       clubId, studentId: match.athlete.id, parentId: students.find((s) => s.id === match.athlete.id)?.parentId ?? '', stroke: event.stroke, distance: event.distance, timeMs: match.row.timeMs,
-      date: event.date, pool, source: 'tyf', meet: event.meet, lapsMs: match.row.lapsMs,
+      date: event.date, pool, source: 'tyf', kind: 'yaris', meet: event.meet, lapsMs: match.row.lapsMs,
     })));
     setFound((list) => list.map((f) => (f.selected ? { ...f, selected: false, exists: true } : f)));
     setSummary(`${chosen.length} derece sporcu profillerine aktarıldı.`);
@@ -91,7 +92,7 @@ export default function TyfImport() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">TYF</p><h1>Yarış sonuçlarını aktar</h1></div><a className="button" href="https://www.tyf.gov.tr/canli-sonuc/" target="_blank" rel="noreferrer"><ExternalLink size={15} />Canlı sonuçlar</a></header>
+      <header className="page-head"><div><p className="eyebrow">TYF</p><h1>Yarış sonuçlarını aktar</h1></div><Link className="button" to="/canli-sonuclar"><Radio size={15} />Canlı sonuçlar</Link></header>
       <section className="card stack">
         <p className="muted">TYF yarış sayfasındaki "Sonuçlar" PDF dosyalarını seçin. Kulübünüz, doğum yılı, cinsiyet ve yıldızlı ad birlikte eşleşirse derece hazırlanır.</p>
         <div className="form-grid">

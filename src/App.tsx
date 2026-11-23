@@ -1,5 +1,5 @@
 import { Camera, FileUp, MessagesSquare, Target, Baby, BadgePlus, Banknote, Bell, BellOff, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
-import { Menu, Phone, X } from 'lucide-react';
+import { Menu, Phone, Radio, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { isRinging } from './lib/call';
@@ -24,6 +24,7 @@ import WorkoutBuilder from './pages/coach/WorkoutBuilder';
 import Performance from './pages/Performance';
 import Chat from './pages/Chat';
 import Standards from './pages/Standards';
+import LiveResults from './pages/LiveResults';
 import TyfImport from './pages/coach/TyfImport';
 import Social from './pages/Social';
 import Finance from './pages/admin/Finance';
@@ -53,10 +54,12 @@ const NAV: NavItem[] = [
   { to: '/on-kayit-ayar', label: 'Ön kayıt', icon: Palette, roles: ['secretary'] },
   { to: '/yoklama', label: 'Yoklama', icon: ClipboardCheck, roles: ['coach'] },
   { to: '/ogrencilerim', label: 'Öğrencilerim', icon: Users, roles: ['coach'] },
-  { to: '/derece', label: 'Derece girişi', icon: Medal, roles: ['coach'] },
+  { to: '/derece', label: 'Antrenman derecesi', icon: Medal, roles: ['coach'] },
+  { to: '/derece', label: 'Yarış derecesi', icon: Medal, roles: ['admin'] },
+  { to: '/canli-sonuclar', label: 'Canlı sonuçlar', icon: Radio, roles: ['admin', 'secretary', 'coach', 'parent'] },
   { to: '/performans', label: 'Performans', icon: LineChartIcon, roles: ['coach', 'admin', 'parent'] },
   { to: '/barajlar', label: 'Barajlar', icon: Target, roles: ['admin', 'coach', 'parent'] },
-  { to: '/tyf', label: 'TYF aktarım', icon: FileUp, roles: ['admin', 'coach'] },
+  { to: '/tyf', label: 'TYF aktarım', icon: FileUp, roles: ['admin'] },
   { to: '/antrenman', label: 'Antrenman', icon: Dumbbell, roles: ['coach'] },
   { to: '/musaitlik', label: 'Dersler ve müsaitlik', icon: CalendarCheck, roles: ['coach'] },
   { to: '/kronometre/kontrol', label: 'Kronometre', icon: Timer, roles: ['coach', 'admin'] },
@@ -123,7 +126,7 @@ function Shell() {
         </div>
         <nav className={menuOpen ? 'open' : ''}>
           {items.map(({ to, label, icon: Icon }) => (
-            <NavLink key={to} to={to}><Icon size={18} /><span>{label}</span></NavLink>
+            <NavLink key={`${to}-${label}`} to={to}><Icon size={18} /><span>{label}</span></NavLink>
           ))}
         </nav>
         <div className="sidebar-foot">
@@ -161,6 +164,7 @@ export default function App() {
         <Route path="/duyurular" element={<Notices />} />
         <Route path="/barajlar" element={<Standards />} />
         <Route path="/tyf" element={<TyfImport />} />
+        <Route path="/canli-sonuclar" element={<LiveResults />} />
         <Route path="/mesajlar" element={<Chat />} />
         <Route path="/sosyal" element={<Social />} />
         <Route path="/finans" element={<Finance />} />

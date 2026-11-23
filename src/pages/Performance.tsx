@@ -8,7 +8,7 @@ import { aiAnalysis, workerEnabled } from '../lib/worker';
 import { analyzeAthlete, formatSwimTime, passedStandards } from '../lib/rules';
 import { dateTr, STROKE_LABEL } from '../lib/format';
 import { groupLabel, STANDARDS } from '../lib/standardData';
-import type { CoachComment, Student, SwimResult } from '../lib/types';
+import { isRaceResult, type CoachComment, type Student, type SwimResult } from '../lib/types';
 
 export default function Performance() {
   const { user } = useSession();
@@ -18,6 +18,7 @@ export default function Performance() {
   const attendance = useAttendance(user);
   const [picked, setPicked] = useState('');
   const [eventKey, setEventKey] = useState('');
+  const [mode, setMode] = useState<'yaris' | 'antrenman'>('yaris');
   const [ai, setAi] = useState({ studentId: '', text: '' });
   const [aiBusy, setAiBusy] = useState(false);
   const [aiError, setAiError] = useState('');
@@ -25,14 +26,16 @@ export default function Performance() {
   // Veli yalnız kendi çocuğunu, antrenör yalnız kendi öğrencisini görür.
   const students = allStudents.filter((s) => (user?.role === 'parent' ? s.parentId === user.id : user?.role === 'coach' ? s.coachId === user.id : true));
   const student = students.find((s) => s.id === picked) ?? students[0];
-  const own = useMemo(() => results.filter((r) => r.studentId === student?.id).sort((a, b) => a.date.localeCompare(b.date)), [results, student?.id]);
+  const allOwn = useMemo(() => results.filter((r) => r.studentId === student?.id).sort((a, b) => a.date.localeCompare(b.date)), [results, student?.id]);
+  const own = useMemo(() => allOwn.filter((r) => isRaceResult(r) === (mode === 'yaris')), [allOwn, mode]);
   const analysis = useMemo(() => analyzeAthlete(own), [own]);
   if (!student) return <div className="page"><h1>Performans</h1><section className="card"><p className="muted">Görüntülenecek sporcu yok.</p></section></div>;
 
   const activeKey = analysis.trends.some((t) => `${t.stroke}-${t.distance}` === eventKey) ? eventKey : analysis.trends[0] ? `${analysis.trends[0].stroke}-${analysis.trends[0].distance}` : '';
   const chart = own.filter((r) => `${r.stroke}-${r.distance}` === activeKey).map((r) => ({ date: dateTr(r.date), ms: r.timeMs }));
   const season = new Date().getFullYear();
-  const passed = passedStandards(own, STANDARDS, student, season);
+  // Antrenman derecesi baraj geçirmez.
+  const passed = passedStandards(allOwn.filter(isRaceResult), STANDARDS, student, season);
   const marks = attendance.flatMap((d) => (d.marks[student.id] ? [{ date: d.date, mark: d.marks[student.id] }] : []));
   const present = marks.filter((m) => m.mark === 'geldi').length;
   const notes = comments.filter((c) => c.studentId === student.id).sort((a, b) => b.date.localeCompare(a.date));
@@ -45,6 +48,7 @@ export default function Performance() {
       const text = await aiAnalysis({
         age: season - student.birthYear,
         gender: student.gender,
+        timeType: mode === 'yaris' ? 'yarış' : 'antrenman',
         attendancePercent: marks.length ? Math.round((present / marks.length) * 100) : null,
         passedStandards: passed.length,
         events: analysis.trends.map((t) => ({ stroke: t.stroke, distance: t.distance, bestMs: t.bestMs, lastMs: t.lastMs, changePercent: t.changePercent, count: t.count })).slice(0, 18),
@@ -70,7 +74,7 @@ export default function Performance() {
         <article><span>Geçilen baraj</span><strong>{passed.length}</strong></article>
       </section>
       <section className="card">
-        <div className="page-head"><h2>Gelişim</h2>{analysis.trends.length > 0 && <select aria-label="Branş" className="auto" value={activeKey} onChange={(e) => setEventKey(e.target.value)}>{analysis.trends.map((t) => <option key={`${t.stroke}-${t.distance}`} value={`${t.stroke}-${t.distance}`}>{t.distance} m {STROKE_LABEL[t.stroke]}</option>)}</select>}</div>
+        <div className="page-head"><h2>Gelişim</h2><select aria-label="Derece türü" className="auto" value={mode} onChange={(e) => setMode(e.target.value as 'yaris' | 'antrenman')}><option value="yaris">Yarış dereceleri</option><option value="antrenman">Antrenman dereceleri</option></select>{analysis.trends.length > 0 && <select aria-label="Branş" className="auto" value={activeKey} onChange={(e) => setEventKey(e.target.value)}>{analysis.trends.map((t) => <option key={`${t.stroke}-${t.distance}`} value={`${t.stroke}-${t.distance}`}>{t.distance} m {STROKE_LABEL[t.stroke]}</option>)}</select>}</div>
         {chart.length === 0 ? <p className="muted">Henüz derece yok.</p> : (
           <div className="chart"><ResponsiveContainer width="100%" height="100%">
             <LineChart data={chart} margin={{ left: 8, right: 16, top: 10 }}>

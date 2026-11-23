@@ -66,8 +66,11 @@ export type AttendanceMark ='geldi' | 'gelmedi' | 'izinli';
 export type AttendanceDoc = Row & { clubId: string; lessonId: string; coachId: string; date: string; marks: Record<string, AttendanceMark> };
 export type SwimResult = Row & {
   clubId: string; studentId: string; parentId?: string; stroke: Stroke; distance: number; timeMs: number; date: string;
-  source: 'manuel' | 'tyf'; meet?: string; lapsMs?: number[]; pool?: '25m' | '50m';
+  source: 'manuel' | 'tyf'; kind?: 'yaris' | 'antrenman'; meet?: string; lapsMs?: number[]; pool?: '25m' | '50m';
 };
+/** Eski kayıtlarda tür yoktur, onlar yarış derecesi sayılır. Baraj yalnız yarış derecesiyle geçilir. */
+export const isRaceResult = (r: Pick<SwimResult, 'kind'>) => r.kind !== 'antrenman';
+export type TyfMeet = Row & { url: string; title: string; info: string; startDate: string };
 export type CoachComment = Row & { clubId: string; studentId: string; parentId?: string; coachId: string; text: string; date: string };
 export type TimerLane = { id: string; name: string; workoutId: string | null; clock: LaneClock };
 export type TimerDoc = Row & { clubId: string; lanes: TimerLane[] };

@@ -137,8 +137,18 @@ service cloud.firestore {
     }
     match /results/{id} {
       allow read: if isSuper() || isStaff(resource.data.clubId) || (signedIn() && resource.data.parentId == request.auth.uid);
-      allow create, update: if canWrite(['coach', 'admin']) && validAthleteRecord();
-      allow delete: if hasRole(resource.data.clubId, ['coach', 'admin']);
+      // Yarış derecesini yalnız admin, antrenman derecesini antrenör veya admin yazar.
+      function training() { return request.resource.data.get('kind', '') == 'antrenman' && request.resource.data.get('source', '') == 'manuel'; }
+      function validKind() { return request.resource.data.get('kind', '') in ['yaris', 'antrenman']; }
+      allow create: if validAthleteRecord() && ((canWrite(['admin']) && validKind()) || (canWrite(['coach']) && training()));
+      allow update: if validAthleteRecord() && ((canWrite(['admin']) && validKind())
+        || (canWrite(['coach']) && resource.data.get('kind', 'yaris') == 'antrenman' && training()));
+      allow delete: if hasRole(resource.data.clubId, ['admin'])
+        || (hasRole(resource.data.clubId, ['coach']) && resource.data.get('kind', 'yaris') == 'antrenman');
+    }
+    // Herkese açık TYF yarış listesi; yalnız Worker'ın servis hesabı yazar.
+    match /tyfMeets/{id} {
+      allow read: if true;
     }
     match /comments/{id} {
       allow read: if isSuper() || isStaff(resource.data.clubId) || (signedIn() && resource.data.parentId == request.auth.uid);

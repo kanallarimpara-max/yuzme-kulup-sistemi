@@ -14,7 +14,10 @@ export default function ResultsEntry() {
   const [times, setTimes] = useState<Record<string, string>>({});
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
+  const [meet, setMeet] = useState('');
   if (!user) return null;
+  // Yarış derecesini yalnız admin, antrenman derecesini antrenör girer. Asıl denetim Firestore kurallarındadır.
+  const isRace = user.role === 'admin';
 
   const rows = students.filter((s) => !lessonId || s.lessonId === lessonId);
   const submit = async (e: FormEvent) => {
@@ -26,17 +29,19 @@ export default function ResultsEntry() {
     if (!filled.length) return setError('En az bir derece girin.');
     if (bad) return setError(`${bad.s.firstName} ${bad.s.lastName} için süre geçersiz. Örnek: 1:02.34`);
     setError('');
-    await Promise.all(parsed.map(({ s, timeMs }) => db.add('results', { clubId, studentId: s.id, parentId: s.parentId, stroke, distance, timeMs, date, pool, source: 'manuel' })));
+    const label = isRace ? { kind: 'yaris', meet: meet.trim() } : { kind: 'antrenman' };
+    await Promise.all(parsed.map(({ s, timeMs }) => db.add('results', { clubId, studentId: s.id, parentId: s.parentId, stroke, distance, timeMs, date, pool, source: 'manuel', ...label })));
     setTimes({});
-    setStatus(`${parsed.length} derece kaydedildi.`);
+    setStatus(`${parsed.length} ${isRace ? 'yarış' : 'antrenman'} derecesi kaydedildi.`);
   };
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Antrenör</p><h1>Derece girişi</h1></div></header>
+      <header className="page-head"><div><p className="eyebrow">{isRace ? 'Kulüp yöneticisi' : 'Antrenör'}</p><h1>{isRace ? 'Yarış derecesi' : 'Antrenman derecesi'}</h1></div></header>
       <form className="card stack" onSubmit={submit}>
         <div className="form-grid">
-          <label>Grup<select value={lessonId} onChange={(e) => setLessonId(e.target.value)}><option value="">Tüm öğrencilerim</option>{lessons.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></label>
+          {isRace && <label>Yarış adı *<input required maxLength={160} value={meet} onChange={(e) => setMeet(e.target.value)} /></label>}
+          <label>Grup<select value={lessonId} onChange={(e) => setLessonId(e.target.value)}><option value="">{isRace ? 'Tüm sporcular' : 'Tüm öğrencilerim'}</option>{lessons.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></label>
           <label>Stil<select value={stroke} onChange={(e) => { const next = e.target.value as Stroke; setStroke(next); setDistance(EVENTS[next][0]); }}>{(Object.keys(EVENTS) as Stroke[]).map((s) => <option key={s} value={s}>{STROKE_LABEL[s]}</option>)}</select></label>
           <label>Mesafe<select value={distance} onChange={(e) => setDistance(Number(e.target.value))}>{EVENTS[stroke].map((d) => <option key={d} value={d}>{d} m</option>)}</select></label>
           <label>Havuz<select value={pool} onChange={(e) => setPool(e.target.value as '25m' | '50m')}><option value="25m">25 m</option><option value="50m">50 m</option></select></label>

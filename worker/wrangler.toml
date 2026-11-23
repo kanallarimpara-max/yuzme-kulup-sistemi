@@ -8,3 +8,7 @@ CLOUDINARY_CLOUD_NAME = "aziqimvl"
 
 [ai]
 binding = "AI"
+
+# Yeni TYF yarışlarını yarım saatte bir bulur.
+[triggers]
+crons = ["*/30 * * * *"]

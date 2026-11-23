@@ -28,7 +28,13 @@ const authSdk = async () => {
     appId: env.VITE_FIREBASE_APP_ID,
     messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   });
-  const instance = auth.getAuth(app);
+  // Uygulama paketlerinde açılış, yalnız yönlendirmeli giriş için gereken dış sayfayı beklememeli.
+  let instance: ReturnType<typeof auth.getAuth>;
+  try {
+    instance = auth.initializeAuth(app, { persistence: [auth.indexedDBLocalPersistence, auth.browserLocalPersistence] });
+  } catch {
+    instance = auth.getAuth(app);
+  }
   if (import.meta.env.DEV && env.VITE_USE_EMULATOR === '1' && !instance.emulatorConfig) {
     auth.connectAuthEmulator(instance, 'http://127.0.0.1:9099', { disableWarnings: true });
   }
@@ -116,13 +122,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!firebaseEnabled) return;
     let stop = () => {};
+    // Oturum servisi yanıt vermezse kullanıcı sonsuz yükleme ekranında kalmaz.
+    const timer = window.setTimeout(() => setReady(true), 10000);
     authSdk().then((f) => {
       stop = f.onAuthStateChanged(f.auth, (u) => {
+        window.clearTimeout(timer);
         setUserId(u?.uid ?? null);
         setReady(true);
       });
-    });
-    return () => stop();
+    }).catch(() => setReady(true));
+    return () => {
+      window.clearTimeout(timer);
+      stop();
+    };
   }, []);
 
   useEffect(() => {

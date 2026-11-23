@@ -15,6 +15,7 @@ await env.clearFirestore();
 const extra = {
   enrollments: [{ id: 'e1', clubId: 'demo-club', studentId: 's1', parentId: 'u-parent', lessonId: 'l1', coachId: 'u-coach', listKurus: 350000, netKurus: 350000, totalKurus: 350000, discountCode: '', installments: [{ no: 1, dueDate: '2026-12-01', amountKurus: 350000 }] }],
   results: [{ id: 'r1', clubId: 'demo-club', studentId: 's1', parentId: 'u-parent', stroke: 'serbest', distance: 50, timeMs: 32000, date: '2026-11-01', pool: '25m', source: 'manuel' }],
+  tyfMeets: [{ id: '2026-1005927', url: 'https://canli.tyf.gov.tr/live/2026/1005927/', title: 'Deneme TYF yarışı', info: 'Ankara | 21.11.2026 - 22.11.2026 | 50 Metre Havuz', startDate: '2026-11-21' }],
   comments: [{ id: 'y1', clubId: 'demo-club', studentId: 's1', parentId: 'u-parent', coachId: 'u-coach', text: 'Kurgusal yorum', date: '2026-11-02' }],
   attendance: [{ id: 'a1', clubId: 'demo-club', lessonId: 'l1', coachId: 'u-coach', date: '2026-11-02', marks: { s1: 'geldi' } }],
   attendanceMarks: [{ id: 'a1_s1', clubId: 'demo-club', studentId: 's1', parentId: 'u-parent', lessonId: 'l1', date: '2026-11-02', mark: 'geldi' }],

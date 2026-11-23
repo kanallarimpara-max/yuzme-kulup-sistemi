@@ -108,6 +108,25 @@ export function matchAthletes(event: TyfEvent, clubName: string, athletes: Athle
 export const resultKey = (studentId: string, e: Pick<TyfEvent, 'date' | 'stroke' | 'distance'>) =>
   normalizeName(`tyf ${studentId} ${e.date} ${e.stroke} ${e.distance}`).replace(/ /g, '-');
 
+/** Bayrak ve start listesi gibi tabloya çevrilemeyen resmi PDF'i uygulamanın içinde çizer. */
+export async function drawPdf(data: ArrayBuffer, host: HTMLElement) {
+  const pdfjs = await import('pdfjs-dist');
+  const worker = await import('pdfjs-dist/build/pdf.worker.min.mjs?url');
+  pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
+  const doc = await pdfjs.getDocument({ data }).promise;
+  host.replaceChildren();
+  for (let n = 1; n <= doc.numPages; n += 1) {
+    const page = await doc.getPage(n);
+    const viewport = page.getViewport({ scale: 1.6 });
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+    canvas.setAttribute('aria-label', `Resmi liste sayfa ${n}`);
+    host.append(canvas);
+    await page.render({ canvas, canvasContext: canvas.getContext('2d')!, viewport }).promise;
+  }
+}
+
 /** Tarayıcıda seçilen sonuç PDF'ini okur. */
 export async function readResultPdf(data: ArrayBuffer): Promise<TyfEvent | null> {
   const pdfjs = await import('pdfjs-dist');

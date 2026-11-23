@@ -34,6 +34,8 @@ async function accessToken(env) {
   return cached.token;
 }
 
+export const firestoreToken = accessToken;
+
 const value = (field) => {
   if (!field) return undefined;
   if ('stringValue' in field) return field.stringValue;
