@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici Firestore API ve E-posta/Sifre girisini acinca: firestore:databases:create (default) --location europe-west3, sonra sorgulari kurallarla uyumlu yap
+Kullanici onaylarsa bos (default) veritabanini silip europe-west3 konumunda yeniden olustur, sonra sorgulari kurallarla uyumlu yap
 
 ## Modüller
 
@@ -37,6 +37,7 @@ Kullanici Firestore API ve E-posta/Sifre girisini acinca: firestore:databases:cr
 
 ## Son kayıtlar
 
+- 2026-11-23: E-posta/sifre girisi ve Firestore acildi. DIKKAT: veritabani CLI ile otomatik nam5 (ABD) konumunda olustu, bos
 - 2026-11-23: Firebase projesi yuzme-kulup-sistemi ve web uygulamasi olusturuldu, yerel .env yazildi (repoya girmez)
 - 2026-11-23: Firebase CLI projeye eklendi
 - 2026-11-23: Paketleme durumu ve kalan eksikler kaydedildi
