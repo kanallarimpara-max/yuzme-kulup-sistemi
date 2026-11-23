@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Cloudinary dekontlarini imzali yuklemeye tasi, hiz siniri ekle, ilk super admin kurulum betigini yaz, CSP basliklarini hosting emulatorunde dogrula
+Kullanici Cloudflare ve Cloudinary hesabini acinca: imzali dekont yukleme, hiz siniri, ilk super admin kurulumu, Worker yayini. Site yayini en son ve acik onayla
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Cloudinary dekontlarini imzali yuklemeye tasi, hiz siniri ekle, ilk super admin 
 
 ## Son kayıtlar
 
+- 2026-11-23: Site guvenlik basliklari yerel sunucuda dogrulandi: satir ici script engelleniyor, giris ekrani ihlalsiz aciliyor
 - 2026-11-23: Tum roller gercek kurallarla emulatorde gezildi, on kayit basari mesaji hatasi duzeltildi, e2e komutu eklendi. 37 test, 22 Worker testi, 159/159 kural testi, build gecti
 - 2026-11-23: Electron, site guvenlik basliklari, AI gunluk kotasi, atomik kayit ve yoklama, personel sube atama ve kulupten cikarma, antrenor dersler ekrani eklendi
 - 2026-11-23: Guvenlik denetimi: 36 gercek acik kapatildi (kulupler arasi yazma, acik maas, sohbet ele gecirme, sahte kayit, kullanici listeleme). Benzersiz etiket, lessonPay, parentAccess eklendi. 37 test, 151/151 kural testi gecti
