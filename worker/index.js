@@ -4,7 +4,7 @@ import { consumeAiQuota, handlePush } from './push.js';
 import { handleUpload } from './files.js';
 
 const JWK_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
-const AI_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast';
+const AI_MODEL = '@cf/mistralai/mistral-small-3.1-24b-instruct';
 const MAX_PDF_BYTES = 15_000_000;
 const MAX_SUMMARY_CHARS = 4000;
 const CORS = {
