@@ -1,6 +1,7 @@
 // Ücretsiz Cloudflare Worker: AI analizi ve TYF sonuç çekme. Yalnız geçerli Firebase oturumuyla çalışır.
 import { isResultPdfUrl, normalizeMeetUrl, resultLinks } from '../src/lib/tyfLinks.ts';
 import { consumeAiQuota, handlePush } from './push.js';
+import { handleSign } from './files.js';
 
 const JWK_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 const AI_MODEL = '@cf/meta/llama-3.1-8b-instruct';
@@ -78,6 +79,7 @@ export default {
     if (!uid) return json({ error: 'Oturum gerekli.' }, 401);
     try {
       if (request.method === 'POST' && url.pathname === '/push/notify') return await handlePush(request, env, uid, json);
+      if (request.method === 'POST' && url.pathname === '/files/sign') return await handleSign(request, env, uid, json);
       if (request.method === 'GET' && url.pathname === '/tyf/meet') return await meet(url.searchParams.get('url'));
       if (request.method === 'GET' && url.pathname === '/tyf/pdf') return await pdf(url.searchParams.get('url'));
       if (request.method === 'POST' && url.pathname === '/ai/analyze') return await analyze(request, env, uid);

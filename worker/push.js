@@ -59,7 +59,9 @@ export function pushTarget(collection, row) {
 const AI_DAILY_LIMIT = 10;
 
 /** Ücretsiz AI kotasını tek kullanıcının tüketmesini önler. Sayaç sunucuda atomik artar. */
-export async function consumeAiQuota(env, uid) {
+export const consumeAiQuota = (env, uid) => consumeQuota(env, uid, AI_DAILY_LIMIT);
+
+export async function consumeQuota(env, key, limit) {
   if (!env.FIREBASE_SERVICE_ACCOUNT) return false;
   const day = new Date().toISOString().slice(0, 10);
   const base = `projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents`;
@@ -67,13 +69,13 @@ export async function consumeAiQuota(env, uid) {
     method: 'POST',
     headers: { Authorization: `Bearer ${await accessToken(env)}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ writes: [{ transform: {
-      document: `${base}/aiQuota/${uid}_${day}`,
+      document: `${base}/aiQuota/${key}_${day}`,
       fieldTransforms: [{ fieldPath: 'count', increment: { integerValue: '1' } }],
     } }] }),
   });
   if (!res.ok) return false;
   const count = Number((await res.json()).writeResults?.[0]?.transformResults?.[0]?.integerValue ?? Infinity);
-  return count <= AI_DAILY_LIMIT;
+  return count <= limit;
 }
 
 export async function handlePush(request, env, uid, json) {

@@ -1,6 +1,8 @@
 // Worker'ı Cloudflare hesabı olmadan, ağ çağrılarını taklit ederek dener: npm run test:worker
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import worker from './index.js';
+import { signParams } from './files.js';
 
 const PROJECT = 'test-projesi';
 const pair = await crypto.subtle.generateKey({ name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' }, true, ['sign', 'verify']);
@@ -96,6 +98,8 @@ const call = async (path, t, init = {}) => worker.fetch(new Request(`https://w.t
 const meetPath = `/tyf/meet?url=${encodeURIComponent(page)}`;
 const valid = await token();
 const notify = (collection, id, t = valid) => call('/push/notify', t, { method: 'POST', body: JSON.stringify({ collection, id }) });
+const sign = (kind, t = valid) => call('/files/sign', t, { method: 'POST', body: JSON.stringify({ kind }) });
+const cloudinary = { CLOUDINARY_CLOUD_NAME: 'bulut', CLOUDINARY_API_KEY: 'anahtar', CLOUDINARY_API_SECRET: 'cok-gizli-deger' };
 
 const checks = [
   ['oturumsuz istek reddedilir', async () => assert.equal((await call(meetPath)).status, 401)],
@@ -164,6 +168,32 @@ const checks = [
     assert.equal(responses.length, 3);
     assert.equal(new Set(sent.map((m) => m.token)).size, 45);
     assert.equal(sent.length, 45);
+  }],
+  ['oturumsuz dosya imzası alınamaz', async () => assert.equal((await sign('image', null)).status, 401)],
+  ['Cloudinary ayarı yoksa imza verilmez', async () => assert.equal((await sign('image')).status, 503)],
+  ['izinsiz dosya türüne imza verilmez', async () => {
+    Object.assign(env, cloudinary);
+    aiCount = 0;
+    for (const kind of ['exe', 'constructor', '__proto__']) assert.equal((await sign(kind)).status, 400);
+    assert.equal(aiCount, 0);
+  }],
+  ['dosya özel yüklenir, imza doğrudur, gizli anahtar sızmaz', async () => {
+    const res = await sign('pdf');
+    const raw = await res.clone().text();
+    const { url, fields } = await res.json();
+    assert.equal(url, 'https://api.cloudinary.com/v1_1/bulut/image/upload');
+    assert.equal(fields.type, 'authenticated');
+    assert.equal(fields.allowed_formats, 'pdf');
+    assert.ok(!raw.includes(cloudinary.CLOUDINARY_API_SECRET));
+    assert.ok(!fields.public_id.includes('u1'));
+    const { signature, api_key: _key, ...signed } = fields;
+    assert.equal(signature, await signParams(signed, cloudinary.CLOUDINARY_API_SECRET));
+    // Cloudinary belgesindeki örnek imza.
+    assert.equal(await signParams({ timestamp: '1315060510', public_id: 'sample' }, 'abcd'), createHash('sha1').update('public_id=sample&timestamp=1315060510abcd').digest('hex'));
+  }],
+  ['günlük yükleme hakkı aşılamaz', async () => {
+    aiCount = 30;
+    assert.equal((await sign('image')).status, 429);
   }],
 ];
 

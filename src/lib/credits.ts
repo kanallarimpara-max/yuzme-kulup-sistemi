@@ -79,19 +79,13 @@ export function buyListing(buyerId: string, listing: { id: string; sellerId: str
 
 const MAX_INLINE = 1_500_000;
 
-/** Cloudinary ayarlıysa oraya yükler. Demo modunda küçük dosyayı tarayıcıda tutar. */
+/** Canlıda Worker imzasıyla özel olarak yükler. Demo modunda küçük dosyayı tarayıcıda tutar. */
 export async function uploadFile(file: File): Promise<string> {
-  const cloud = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-  const preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-  if (cloud && preset) {
-    const body = new FormData();
-    body.append('file', file);
-    body.append('upload_preset', preset);
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloud}/auto/upload`, { method: 'POST', body });
-    if (!res.ok) throw new Error('Dosya yüklenemedi');
-    return (await res.json()).secure_url as string;
+  if (firebaseEnabled) {
+    const { signedUpload, workerEnabled } = await import('./worker');
+    if (!workerEnabled) throw new Error('Dosya yükleme henüz ayarlanmadı. Yöneticiye bildirin.');
+    return signedUpload(file);
   }
-  if (firebaseEnabled) throw new Error('Dosya yükleme henüz ayarlanmadı. Yöneticiye bildirin.');
   if (file.size > MAX_INLINE) throw new Error('Demo modunda dosya en fazla 1,5 MB olabilir.');
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

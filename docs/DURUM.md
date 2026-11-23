@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Cloudinary hesabini ac, Worker uzerinden imzali ozel dosya yuklemesini yaz
+Kullanici Cloudinary cloud name, API key ve secret degerlerini wrangler secret put ile girsin, sonra gercek yukleme denensin
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Cloudinary hesabini ac, Worker uzerinden imzali ozel dosya yuklemesini yaz
 
 ## Son kayıtlar
 
+- 2026-11-23: Dosyalar Worker imzasiyla ozel yukleniyor, gunluk 30 yukleme siniri eklendi, Worker yayinlandi. 27 Worker testi, 37 test, build gecti. Cloudinary anahtarlari henuz Worker'a girilmedi
 - 2026-11-23: Cloudflare hesabi acildi, Worker yayinda ve oturumsuz istekleri 401 ile reddediyor. Servis anahtari henuz eklenmedi, AI ve bildirim kapali
 - 2026-11-23: Site guvenlik basliklari yerel sunucuda dogrulandi: satir ici script engelleniyor, giris ekrani ihlalsiz aciliyor
 - 2026-11-23: Tum roller gercek kurallarla emulatorde gezildi, on kayit basari mesaji hatasi duzeltildi, e2e komutu eklendi. 37 test, 22 Worker testi, 159/159 kural testi, build gecti
