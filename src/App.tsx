@@ -107,7 +107,9 @@ function Shell() {
 export default function App() {
   const { ready, user } = useSession();
   useAppDesign();
-  if (!ready) return <div className="center-screen">Yükleniyor…</div>;
+  const { pathname } = useLocation();
+  // Ön kayıt sırasında hesap açılıp kapanır; form yeniden yüklenirse başarı mesajı kaybolur.
+  if (!ready && !pathname.startsWith('/on-kayit/')) return <div className="center-screen">Yükleniyor…</div>;
   return (
     <Routes>
       <Route path="/giris" element={user ? <Navigate to="/panel" replace /> : <Login />} />

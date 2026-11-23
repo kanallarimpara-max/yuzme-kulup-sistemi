@@ -163,7 +163,10 @@ class FirestoreStore implements DataStore {
       appId: env.VITE_FIREBASE_APP_ID,
       messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
     });
-    return { db: firestore.getFirestore(app), ...firestore };
+    const database = firestore.getFirestore(app);
+    // Yalnız geliştirmede; yayın derlemesine girmez.
+    if (import.meta.env.DEV && env.VITE_USE_EMULATOR === '1') firestore.connectFirestoreEmulator(database, '127.0.0.1', 8080);
+    return { db: database, ...firestore };
   })();
 
   watch(name: string, scope: Scope, listener: Listener) {

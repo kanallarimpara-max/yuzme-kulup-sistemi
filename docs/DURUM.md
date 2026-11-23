@@ -2,41 +2,44 @@
 
 ## Sıradaki tek görev
 
-Tum rollerde ekran regresyon testi, CSP dogrulama, ilk super admin kurulum betigi
+Cloudinary dekontlarini imzali yuklemeye tasi, hiz siniri ekle, ilk super admin kurulum betigini yaz, CSP basliklarini hosting emulatorunde dogrula
 
 ## Modüller
 
 | Modül | Durum |
 | --- | --- |
 | Devam ve yedek düzeni | Tamam |
-| Uygulama iskeleti, giriş, roller | Demo modunda çalışıyor, Firebase bağlantısı bekliyor |
-| Süper admin | Satış, reklam, kredi, paket, EFT, oran, market çalışıyor. Tasarım yönetimi yok |
-| Kulüp admini | Kulüp, şube, model, ders, duyuru, finans, maaş, personel, indirim çalışıyor |
-| Sekreter ve ön kayıt | Ön kayıt, görünüm, forma aktar, taksit, tahsilat, PDF çalışıyor |
-| Antrenör, yoklama, derece | Müsaitlik, yoklama, PDF, öğrencilerim, yorum, derece, performans ve maaş özeti çalışıyor |
-| Antrenman ve kronometre | Antrenman yazma, paylaşma, kronometre ve kontrol çalışıyor. Satış yok |
-| Kredi ve market | Yükleme, dekont, bozdurma, market, antrenman pazarı demo modunda çalışıyor |
-| Veli | Ödeme, antrenman, devam, yarış, performans çalışıyor. Baraj ve canlı sonuç TYF modülünü bekliyor |
-| Sohbet, sesli arama, sosyal akış | Etiket, istek, grup, fotoğraf, akış, keşfet çalışıyor. Mikrofonla sesli mesaj ve arama iki gerçek cihazda test edilmedi |
-| TYF sonuç ve baraj aktarımı | PDF ile sonuç aktarımı ve 2.060 resmi baraj çalışıyor. Otomatik çekim Worker veya Actions + Firebase bekliyor |
-| Web, Windows, Android paketleri | Web yerelde çalışıyor. Windows klasör paketi derlendi ama bu PC imzasız exe dosyasını engelliyor, çalıştırılamadı. APK derlenmedi |
+| Firebase | Proje, Auth ve Firestore (europe-west3) hazır. Kurallar ve site YAYINLANMADI, kullanıcı yayını en son istiyor |
+| Güvenlik kuralları | 159 senaryo emülatörde geçiyor (`npm run test:rules`, JAVA_HOME = LOCALAPPDATA/yuzme-tools/jdk-21*) |
+| Rollerin uçtan uca testi | `npm run e2e` emülatörde 5175 portunda açar. Tüm roller ve ana yazma akışları gerçek kurallarla denendi |
+| Süper admin | Kulüp ve admin açma, tasarım, satış, reklam, kredi, paket, market, tüm profillerle sohbet çalışıyor |
+| Kulüp admini | Kulüp, şube, model, ders, duyuru, finans, maaş, personel, şube atama, çıkarma, indirim çalışıyor |
+| Sekreter ve ön kayıt | Ön kayıt, görünüm, forma aktar (atomik), taksit, tahsilat, PDF çalışıyor |
+| Antrenör | Dersler, müsaitlik, yoklama, PDF, öğrenciler, yorum, derece, performans, maaş, antrenman, satış çalışıyor |
+| Kronometre | Çok kulvar, uzaktan kontrol, ses, sunucu saati eşitleme çalışıyor |
+| Kredi ve market | Bakiye `wallets`, atomik işlem ve kurallarla korunuyor, Worker gerekmez |
+| Veli | Yalnız kendi çocuğunun verisi, ödeme, antrenman, devam, yarış, baraj, performans, TYF bağlantısı |
+| Sohbet ve sosyal | Etiket, istek, grup, medya, sesli arama, grup araması (6 kişi), sosyal akış. Sesli işlevler iki gerçek cihazda denenmedi |
+| Worker (`worker/`) | AI, TYF otomatik çekim, kapalı uygulama bildirimi yazıldı, 22 testle doğrulandı. YAYINLANMADI |
+| Paketler | Web ve PWA hazır. APK için workflow izni gerekli. Windows exe bu PC'de Uygulama Denetimine takılıyor |
 
 ## Kullanıcıdan beklenenler
 
-- Firebase projesi, Cloudinary ve Cloudflare hesapları henüz bağlanmadı.
-- GitHub oturumuna workflow izni verilmeli: gh auth refresh -h github.com -s workflow. Sonra .git/info/exclude içinden android.yml satırı silinip dosya commit edilmeli. APK ancak bundan sonra derlenir.
+- Ücretsiz Cloudflare ve Cloudinary hesabı.
+- Firebase servis hesabı anahtarı (yalnız `wrangler secret`, repoya yazılmaz) ve FCM web anahtarı.
+- GitHub workflow izni: gh auth refresh -h github.com -s workflow. Sonra .git/info/exclude içinden android.yml satırı silinip commit edilir, GitHub vars girilir.
+- Açık yayın onayı: firebase deploy --only firestore:rules,hosting. Sonra ilk süper admin kurulur.
 
 ## Bilinen riskler
 
-- firestore.rules yazıldı ama emülatörde test edilmedi. Test edilmeden gerçek veri girilmemeli.
-- Kredi harcama ve antrenman kopyalama istemciden yazılıyor. Firebase'de güvenli olması için Cloudflare Worker'a taşınmalı.
-- Kredi harcama (market, antrenman pazarı) Firestore kurallarında kapalı, Cloudflare Worker yazılmalı.
-- Eksikler: gerçek AI modeli (şu an kural tabanlı analiz), TYF otomatik çekim, kapalı uygulamaya bildirim, reklamların ekranlarda gösterimi, süper admin tasarım yönetimi, grup sesli arama.
+- Cloudinary imzasız yüklemede dekont ve sohbet fotoğrafı bağlantıyı bilen herkese açıktır. Gerçek dekont alınmadan imzalı yükleme Worker'a taşınmalı.
+- Toplu sahte hesap ve ön kayıt için App Check veya hız sınırı yok.
+- İlk süper admin için kurulum adımı henüz yazılmadı; kurallar istemciden süper admin açılmasına izin vermez.
 - Windows Akıllı Uygulama Denetimi imzasız exe dosyasını engelliyor. Güvenlik ayarı değiştirilmez; ücretsiz seçenek PWA kurulumudur.
-- Kronometre farklı cihazlarda cihaz saatine bağlı, sunucu saat farkı düzeltmesi eklenmeli.
 
 ## Son kayıtlar
 
+- 2026-11-23: Tum roller gercek kurallarla emulatorde gezildi, on kayit basari mesaji hatasi duzeltildi, e2e komutu eklendi. 37 test, 22 Worker testi, 159/159 kural testi, build gecti
 - 2026-11-23: Electron, site guvenlik basliklari, AI gunluk kotasi, atomik kayit ve yoklama, personel sube atama ve kulupten cikarma, antrenor dersler ekrani eklendi
 - 2026-11-23: Guvenlik denetimi: 36 gercek acik kapatildi (kulupler arasi yazma, acik maas, sohbet ele gecirme, sahte kayit, kullanici listeleme). Benzersiz etiket, lessonPay, parentAccess eklendi. 37 test, 151/151 kural testi gecti
 - 2026-11-23: Kapali uygulama bildirimi yazildi: FCM, Worker gonderimi, web service worker, Android eklentisi, cihaz kaydi kurallari. APK is akisi gercek Firebase ayarlarini alacak sekilde duzeltildi (yerelde, workflow izni bekliyor). 37 test, 21 Worker testi, 93/93 kural testi, build gecti. Gercek cihazda bildirim denenmedi

@@ -27,7 +27,11 @@ const authSdk = async () => {
     appId: env.VITE_FIREBASE_APP_ID,
     messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   });
-  return { auth: auth.getAuth(app), ...auth };
+  const instance = auth.getAuth(app);
+  if (import.meta.env.DEV && env.VITE_USE_EMULATOR === '1' && !instance.emulatorConfig) {
+    auth.connectAuthEmulator(instance, 'http://127.0.0.1:9099', { disableWarnings: true });
+  }
+  return { auth: instance, ...auth };
 };
 
 const makeTag = (name: string) =>
@@ -82,6 +86,9 @@ export async function createStaffAccount(clubId: string, name: string, email: st
   const [{ deleteApp, getApp, initializeApp }, auth] = await Promise.all([import('firebase/app'), import('firebase/auth')]);
   const secondary = initializeApp(getApp().options, `staff-${Date.now()}`);
   try {
+    if (import.meta.env.DEV && import.meta.env.VITE_USE_EMULATOR === '1') {
+      auth.connectAuthEmulator(auth.getAuth(secondary), 'http://127.0.0.1:9099', { disableWarnings: true });
+    }
     const credential = await auth.createUserWithEmailAndPassword(auth.getAuth(secondary), email, password);
     try {
       await saveProfile(credential.user.uid, profile);

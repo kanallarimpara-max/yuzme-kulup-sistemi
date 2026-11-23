@@ -11,6 +11,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "test": "vitest run",
+    "e2e": "firebase emulators:exec --only auth,firestore --project demo-yuzme-e2e \"node scripts/e2e-sunucu.mjs\"",
     "test:worker": "node worker/worker-testi.mjs",
     "test:rules": "firebase emulators:exec --only firestore --project demo-yuzme-kural \"node scripts/kural-testi.mjs\"",
     "devam": "node scripts/devam.mjs",
