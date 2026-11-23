@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Tanitim filmi ve rol videolarini uret
+Kullanici giris yapinca canli rol, dekont ve telefon bildirimi denemelerini yap, sahte kayit korumasini karara bagla
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Tanitim filmi ve rol videolarini uret
 
 ## Son kayıtlar
 
+- 2026-11-24: Tum roller 168 sayfa, form ve dugme denetiminden gecti. Baraj sayfasi bos acilma hatasi duzeltildi, tanitim filmi ve 5 rol videosu uretildi, son surum yayinlandi. 173 kural, 56 test, 30 Worker testi gecti
 - 2026-11-24: Karanlik ve aydinlik mod eklendi, cihaz ayarini izler, secim saklanir. Tum sayfalar iki temada kontrast testinden gecti
 - 2026-11-24: Canli sonuc gercek Worker'da duzeltildi: TYF cekimi yonlendirme hatasi giderildi, yeni yarislar 30 dakikada bir, aktif yarislar dakikada bir kontrol edilir, admin acikken dereceler otomatik islenir
 - 2026-11-24: Antrenor yapilan yorumlari gorur, sosyal paylasim hata mesajlari ve fotograf kucultme duzeltildi, barajlar her gun TYF sayfasindan otomatik guncellenir. 173 kural, 55 test, 30 Worker testi gecti
