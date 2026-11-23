@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Android acilis testinin Yukleniyor ekranini gecip gecmedigini kontrol et
+Android ve Windows paketlerini son surumle dogrula
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Android acilis testinin Yukleniyor ekranini gecip gecmedigini kontrol et
 
 ## Son kayıtlar
 
+- 2026-11-24: Yoklama telefon tarih ve saatine baglandi: ders disinda Suan dersiniz gorunmuyor, ders saatinde otomatik acilir, altta kaydet. Rapor ogrenci sayfasinda 1. 2. ders tablosu ve Yoklama girilmedi. 52 test gecti
 - 2026-11-24: Canli sonuclar uygulama icine alindi: TYF yarislari otomatik bulunur, tablo, kulup filtresi, resmi liste. Yaris derecesi yalniz admin, antrenor yalniz antrenman derecesi. Baraj yalniz yaris derecesiyle. 171 kural, 51 test gecti
 - 2026-11-24: Windows paketi CI'da acildi ve giris ekrani dogrulandi. Android acilis testinde emulator disk alani ve APK kaydi duzeltildi
 - 2026-11-24: Sesli arama, grup aramasi ve kayit iki kullaniciyla denendi. Android mikrofon izni eklendi, cevapsiz ve kopuk arama uyarisi, AI kisa Turkce yanit, 18 gercek TYF dosyasi dogrulandi, Android ve Windows acilis testi CI'a eklendi

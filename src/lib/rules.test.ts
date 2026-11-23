@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   addMonths, financeSummary, analyzeAthlete, lessonsAt, applyDiscount, buildInstallments, classifyMatch, clubMatchScore, coachFit, creditBalance, formatSwimTime,
-  hourSlots, lessonDates, lessonEndDate, normalizeName, parseSwimTime, passedStandards, paymentSummary, redeemKurus,
+  hourSlots, lessonDates, lessonEndDate, normalizeName, parseSwimTime, passedStandards, paymentSummary, redeemKurus, sessionDates, sessionState,
 } from './rules';
 import { beepsBetween, buildSteps, jumpLane, laneElapsed, pauseLane, startLane, timerView, totalMs, type WorkoutSet } from './timer';
 
@@ -131,6 +131,15 @@ describe('yoklama ve analiz', () => {
     expect(lessonsAt([lesson], new Date(2026, 10, 23, 17, 30)).active?.id).toBe('l');
     expect(lessonsAt([lesson], new Date(2026, 10, 23, 18, 0)).active).toBeNull();
     expect(lessonsAt([lesson], new Date(2026, 10, 24, 17, 30)).todays).toEqual([]);
+  });
+  it('yoklama seanslarını ve girilmeyen dersi ayırır', () => {
+    expect(sessionDates({ weekdays: [1, 3], startDate: '2026-11-23', endDate: '2026-12-02' })).toEqual(['2026-11-23', '2026-11-25', '2026-11-30', '2026-12-02']);
+    const now = new Date(2026, 10, 25, 17, 30);
+    expect(sessionState('2026-11-23', '18:00', true, now)).toBe('kayitli');
+    expect(sessionState('2026-11-23', '18:00', false, now)).toBe('girilmedi');
+    expect(sessionState('2026-11-25', '18:00', false, now)).toBe('bekliyor');
+    expect(sessionState('2026-11-25', '17:00', false, now)).toBe('girilmedi');
+    expect(sessionState('2026-11-30', '18:00', false, now)).toBe('bekliyor');
   });
   it('gelişim ve gerilemeyi ölçer', () => {
     const { trends, advice } = analyzeAthlete([

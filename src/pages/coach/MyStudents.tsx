@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { db } from '../../lib/store';
 import { toIso } from '../../lib/rules';
 import { dateTr, dayNames } from '../../lib/format';
+import AttendanceReport from './AttendanceReport';
 import { useCoachData } from './useCoachData';
 
 export default function MyStudents() {
@@ -45,6 +46,7 @@ export default function MyStudents() {
           return <tr key={s.id}><td>{s.firstName} {s.lastName}</td><td>{l && branchName(l.branchId)}</td><td>{l?.name}</td><td>{l && `${dayNames(l.weekdays)} ${l.startTime}`}</td><td>{l && dateTr(l.endDate)}</td><td><button onClick={() => { setCommentFor(s.id); setStatus(''); }}>Yorum yaz</button></td></tr>;
         })}</tbody>
       </table></div></section>
+      <AttendanceReport lessons={lessons.filter((l) => !branchId || l.branchId === branchId)} students={students} lessonId={lessonId || undefined} />
     </div>
   );
 }

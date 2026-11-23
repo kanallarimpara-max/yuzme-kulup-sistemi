@@ -278,3 +278,11 @@ input[type='color'] { cursor: pointer; min-height: 42px; padding: 4px; }
 .live-table th:first-child, .live-table td:first-child { width: 44px; }
 .live-table th:last-child, .live-table td:last-child { text-align: right; width: 104px; }
 .live-table td small { overflow-wrap: anywhere; }
+
+/* Yoklama */
+.attendance-save { min-height: 48px; width: 100%; }
+.attendance-grid { min-width: max-content; }
+.attendance-grid th, .attendance-grid td { text-align: center; white-space: nowrap; }
+.attendance-grid th:first-child { background: var(--panel); left: 0; position: sticky; text-align: left; z-index: 1; }
+.attendance-grid small { font-weight: 400; }
+.attendance-grid .not-taken { color: var(--muted); font-size: .76rem; }

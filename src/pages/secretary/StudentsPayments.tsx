@@ -6,6 +6,7 @@ import { paymentSummary, toIso } from '../../lib/rules';
 import { dateTr, money } from '../../lib/format';
 import { downloadTablePdf } from '../../lib/pdf';
 import type { Branch, Enrollment, Lesson, Student, User } from '../../lib/types';
+import AttendanceReport from '../coach/AttendanceReport';
 
 const STATUS = { odendi: ['Ödendi', 'good'], gecikti: ['Gecikti', 'bad'], bekliyor: ['Bekliyor', 'warn'] } as const;
 
@@ -80,6 +81,7 @@ export default function StudentsPayments() {
           )];
         })}</tbody>
       </table></div></section>
+      <AttendanceReport lessons={lessons.filter((l) => !branchId || l.branchId === branchId)} students={students} lessonId={lessonId || undefined} />
     </div>
   );
 }

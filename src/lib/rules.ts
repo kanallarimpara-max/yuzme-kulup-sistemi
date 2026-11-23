@@ -212,7 +212,30 @@ export function lessonsAt<T extends DatedLesson>(lessons: T[], now: Date) {
   const todays = lessons
     .filter((l) => l.weekdays.includes(now.getDay()) && l.startDate <= today && l.endDate >= today)
     .sort((a, b) => a.startTime.localeCompare(b.startTime));
-  return { today, todays, active: todays.find((l) => l.startTime <= time && time < l.endTime) ?? null };
+  const actives = todays.filter((l) => l.startTime <= time && time < l.endTime);
+  return { today, time, todays, actives, active: actives[0] ?? null };
+}
+
+/** Dersin 1., 2., 3. seans tarihleri. */
+export function sessionDates(l: Pick<DatedLesson, 'weekdays' | 'startDate' | 'endDate'>): IsoDate[] {
+  const days = new Set(l.weekdays);
+  const out: IsoDate[] = [];
+  const cursor = parse(l.startDate);
+  while (toIso(cursor) <= l.endDate && out.length < 400) {
+    if (days.has(cursor.getDay())) out.push(toIso(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return out;
+}
+
+export type SessionState = 'kayitli' | 'girilmedi' | 'bekliyor';
+
+/** Bitmiş seansta kayıt yoksa "girilmedi", süren veya gelecek seansta "bekliyor" olur. */
+export function sessionState(date: IsoDate, endTime: string, hasMark: boolean, now: Date): SessionState {
+  if (hasMark) return 'kayitli';
+  const today = toIso(now);
+  const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  return date < today || (date === today && endTime <= time) ? 'girilmedi' : 'bekliyor';
 }
 
 export type DatedResult = Result & { date: IsoDate };
