@@ -150,6 +150,10 @@ service cloud.firestore {
     match /tyfMeets/{id} {
       allow read: if true;
     }
+    // Herkese açık TYF barajları; yalnız Worker'ın servis hesabı yazar.
+    match /standardSets/{id} {
+      allow read: if true;
+    }
     match /comments/{id} {
       allow read: if isSuper() || isStaff(resource.data.clubId) || (signedIn() && resource.data.parentId == request.auth.uid);
       allow create: if hasRole(request.resource.data.clubId, ['coach']) && request.resource.data.coachId == request.auth.uid && validAthleteRecord();

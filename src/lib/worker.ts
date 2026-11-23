@@ -8,7 +8,8 @@ async function call(path: string, init: RequestInit = {}) {
   const [{ getApp }, { getAuth }] = await Promise.all([import('firebase/app'), import('firebase/auth')]);
   const token = await getAuth(getApp()).currentUser?.getIdToken();
   if (!token) throw new Error('Oturum gerekli.');
-  const res = await fetch(`${base}${path}`, { ...init, headers: { ...init.headers, Authorization: `Bearer ${token}` } });
+  const res = await fetch(`${base}${path}`, { ...init, headers: { ...init.headers, Authorization: `Bearer ${token}` } })
+    .catch(() => { throw new Error('Sunucuya ulaşılamadı. İnternet bağlantını kontrol et.'); });
   if (!res.ok) throw new Error((await res.json().catch(() => null))?.error ?? 'İşlem tamamlanamadı.');
   return res;
 }

@@ -3,6 +3,7 @@ import { isLivePdfUrl, normalizeMeetUrl, parseMeetPage, resultLinks } from '../s
 import { consumeAiQuota, handlePush } from './push.js';
 import { handleUpload } from './files.js';
 import { saveMeet, syncMeets } from './tyfMeets.js';
+import { handleStandards } from './standards.js';
 
 const JWK_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 const AI_MODEL = '@cf/mistralai/mistral-small-3.1-24b-instruct';
@@ -105,6 +106,9 @@ export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
     const url = new URL(request.url);
+    if (request.method === 'POST' && url.pathname === '/standards/publish') {
+      return handleStandards(request, env, json).catch(() => json({ error: 'İşlem tamamlanamadı.' }, 502));
+    }
     const uid = await verifyToken(request, env);
     if (!uid) return json({ error: 'Oturum gerekli.' }, 401);
     try {

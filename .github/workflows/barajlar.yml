@@ -1,0 +1,27 @@
+name: TYF Barajlari
+
+# Her gün Türkiye saatiyle 06:30'da TYF sayfasındaki reglamanları kontrol eder.
+on:
+  schedule:
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  guncelle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node scripts/tyf-barajlar.mjs
+      - run: node scripts/baraj-yayinla.mjs
+        env:
+          WORKER_URL: ${{ vars.VITE_WORKER_URL }}

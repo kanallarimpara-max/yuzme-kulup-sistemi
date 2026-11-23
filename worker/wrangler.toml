@@ -5,6 +5,7 @@ compatibility_date = "2026-11-01"
 [vars]
 FIREBASE_PROJECT_ID = "yuzme-kulup-sistemi"
 CLOUDINARY_CLOUD_NAME = "aziqimvl"
+GITHUB_REPOSITORY = "kanallarimpara-max/yuzme-kulup-sistemi"
 
 [ai]
 binding = "AI"

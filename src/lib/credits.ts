@@ -80,7 +80,26 @@ export function buyListing(buyerId: string, listing: { id: string; sellerId: str
 const MAX_INLINE = 1_500_000;
 
 /** Canlıda Worker imzasıyla özel olarak yükler. Demo modunda küçük dosyayı tarayıcıda tutar. */
-export async function uploadFile(file: File): Promise<string> {
+/** Telefon fotoğrafları yüklenmeden küçültülür. Çözülemeyen biçim olduğu gibi gönderilir. */
+async function shrinkImage(file: File): Promise<File> {
+  if (!file.type.startsWith('image/') || file.type === 'image/gif' || file.size < 1_500_000) return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, 1920 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+    return blob && blob.size < file.size ? new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' }) : file;
+  } catch {
+    return file;
+  }
+}
+
+export async function uploadFile(original: File): Promise<string> {
+  const file = await shrinkImage(original);
   if (firebaseEnabled) {
     const { signedUpload, workerEnabled } = await import('./worker');
     if (!workerEnabled) throw new Error('Dosya yükleme henüz ayarlanmadı. Yöneticiye bildirin.');

@@ -8,7 +8,7 @@ const ENTITIES = { nbsp: ' ', Uuml: 'Ü', uuml: 'ü', Ccedil: 'Ç', ccedil: 'ç'
 const clean = (s) => s.replace(/<[^>]+>/g, ' ').replace(/&(\w+);/g, (all, name) => ENTITIES[name] ?? all).replace(/\s+/g, ' ').trim();
 
 const html = await (await fetch(PAGE)).text();
-const links = [...html.matchAll(/<a[^>]+href="(https:\/\/dosya\.tyf\.gov\.tr\/public\/upload\/0\/202[67]-[^"]+\.pdf)"[^>]*>([\s\S]*?)<\/a>/gi)]
+const links = [...html.matchAll(/<a[^>]+href="(https:\/\/dosya\.tyf\.gov\.tr\/public\/upload\/0\/202[6-9]-[^"]+\.pdf)"[^>]*>([\s\S]*?)<\/a>/gi)]
   .map((m) => ({ url: m[1], title: clean(m[2]) }))
   .filter((l, i, all) => l.title && all.findIndex((x) => x.url === l.url) === i);
 
@@ -33,6 +33,12 @@ for (const { url, title } of links) {
   }
 }
 
+// Bir PDF indirilemediyse eksik listeyle mevcut barajların üzerine yazılmaz.
+if (report.some((r) => r.hata) || !links.length) {
+  console.table(report);
+  console.error('Reglamanlar eksik okundu, barajlar değiştirilmedi.');
+  process.exit(1);
+}
 mkdirSync(new URL('../src/data/', import.meta.url), { recursive: true });
 writeFileSync(new URL('../src/data/standards.json', import.meta.url), JSON.stringify({ season: '2026-2027', source: PAGE, standards }));
 console.table(report);

@@ -7,7 +7,8 @@ import { useAttendance } from '../lib/useAttendance';
 import { aiAnalysis, workerEnabled } from '../lib/worker';
 import { analyzeAthlete, formatSwimTime, passedStandards } from '../lib/rules';
 import { dateTr, STROKE_LABEL } from '../lib/format';
-import { groupLabel, STANDARDS } from '../lib/standardData';
+import { groupLabel } from '../lib/standardData';
+import { useStandards } from '../lib/useStandards';
 import { isRaceResult, type CoachComment, type Student, type SwimResult } from '../lib/types';
 
 export default function Performance() {
@@ -16,6 +17,7 @@ export default function Performance() {
   const results = useCollection<SwimResult>('results', athleteRecordScope(user));
   const comments = useCollection<CoachComment>('comments', athleteRecordScope(user));
   const attendance = useAttendance(user);
+  const { standards } = useStandards();
   const [picked, setPicked] = useState('');
   const [eventKey, setEventKey] = useState('');
   const [mode, setMode] = useState<'yaris' | 'antrenman'>('yaris');
@@ -35,7 +37,7 @@ export default function Performance() {
   const chart = own.filter((r) => `${r.stroke}-${r.distance}` === activeKey).map((r) => ({ date: dateTr(r.date), ms: r.timeMs }));
   const season = new Date().getFullYear();
   // Antrenman derecesi baraj geçirmez.
-  const passed = passedStandards(allOwn.filter(isRaceResult), STANDARDS, student, season);
+  const passed = passedStandards(allOwn.filter(isRaceResult), standards, student, season);
   const marks = attendance.flatMap((d) => (d.marks[student.id] ? [{ date: d.date, mark: d.marks[student.id] }] : []));
   const present = marks.filter((m) => m.mark === 'geldi').length;
   const notes = comments.filter((c) => c.studentId === student.id).sort((a, b) => b.date.localeCompare(a.date));

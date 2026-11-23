@@ -4,7 +4,8 @@ import { useCollection } from '../lib/store';
 import { studentScope } from '../lib/access';
 import { EVENTS, formatSwimTime, type Stroke } from '../lib/rules';
 import { STROKE_LABEL } from '../lib/format';
-import { groupLabel, STANDARD_SEASON, STANDARD_SOURCE, STANDARDS } from '../lib/standardData';
+import { groupLabel } from '../lib/standardData';
+import { useStandards } from '../lib/useStandards';
 import type { Student } from '../lib/types';
 
 const ageText = (a: number, b?: number) => (b === 99 ? `${a}+` : b && b !== a ? `${a}-${b}` : String(a));
@@ -12,14 +13,16 @@ const ageText = (a: number, b?: number) => (b === 99 ? `${a}+` : b && b !== a ? 
 export default function Standards() {
   const { user } = useSession();
   const students = useCollection<Student>('students', user?.clubId ? studentScope(user) : { skip: true });
-  const groups = useMemo(() => [...new Set(STANDARDS.map(groupLabel))], []);
-  const [group, setGroup] = useState(groups[0]);
+  const { standards, season, source, checkedAt, changedAt } = useStandards();
+  const groups = useMemo(() => [...new Set(standards.map(groupLabel))], [standards]);
+  const [pickedGroup, setGroup] = useState('');
+  const group = groups.includes(pickedGroup) ? pickedGroup : groups[0];
   const [pool, setPool] = useState<'25m' | '50m'>('25m');
   const [kind, setKind] = useState<'katilim' | 'harcirah'>('katilim');
   const [gender, setGender] = useState<'K' | 'E'>('K');
   const child = user?.role === 'parent' ? students.find((s) => s.parentId === user.id) : undefined;
 
-  const rows = STANDARDS.filter((s) => groupLabel(s) === group && s.pool === pool && s.kind === kind && s.gender === (child?.gender ?? gender));
+  const rows = standards.filter((s) => groupLabel(s) === group && s.pool === pool && s.kind === kind && s.gender === (child?.gender ?? gender));
   const year = Number(group.match(/20\d{2}/)?.[0] ?? new Date().getFullYear());
   const childAge = child ? year - child.birthYear : null;
   const ages = [...new Map(rows.map((r) => [`${r.age}-${r.maxAge}`, { age: r.age, maxAge: r.maxAge }])).values()]
@@ -30,7 +33,7 @@ export default function Standards() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">{STANDARD_SEASON} sezonu</p><h1>Barajlar</h1></div><a className="button" href={STANDARD_SOURCE} target="_blank" rel="noreferrer">TYF kaynağı</a></header>
+      <header className="page-head"><div><p className="eyebrow">{season} sezonu</p><h1>Barajlar</h1>{checkedAt && <p className="muted">TYF son kontrol {new Date(checkedAt).toLocaleDateString('tr-TR')}{changedAt ? ` · son değişiklik ${new Date(changedAt).toLocaleDateString('tr-TR')}` : ''}</p>}</div><a className="button" href={source} target="_blank" rel="noreferrer">TYF kaynağı</a></header>
       <section className="card form-grid">
         <label>Yarış<select value={group} onChange={(e) => setGroup(e.target.value)}>{groups.map((g) => <option key={g}>{g}</option>)}</select></label>
         <label>Havuz<select value={pool} onChange={(e) => setPool(e.target.value as '25m' | '50m')}><option value="25m">25 m</option><option value="50m">50 m</option></select></label>

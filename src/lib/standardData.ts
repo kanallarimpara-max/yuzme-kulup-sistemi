@@ -8,6 +8,7 @@ export const STANDARD_SEASON = data.season;
 
 export const groupLabel = (s: Pick<Standard, 'when'> & { title?: string }) => {
   const title = (s as { title?: string }).title ?? '';
-  const name = /MİLLİ/.test(title) ? 'Milli Takım Seçmesi' : /KISA KULVAR/.test(title) ? 'Türkiye Şampiyonası (Kısa Kulvar)' : 'Türkiye Şampiyonası (Uzun Kulvar)';
+  // TYF yeni bir yarış türü eklerse yanlış başlığa düşmez, kendi adıyla görünür.
+  const name = /MİLLİ/.test(title) ? 'Milli Takım Seçmesi' : !/ŞAMPİYONA/.test(title) && title ? title : /KISA KULVAR/.test(title) ? 'Türkiye Şampiyonası (Kısa Kulvar)' : 'Türkiye Şampiyonası (Uzun Kulvar)';
   return `${name} · ${s.when}`;
 };

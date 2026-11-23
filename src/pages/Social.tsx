@@ -39,8 +39,17 @@ export default function Social() {
     setBusy(true);
     setError('');
     try {
-      const imageUrl = file ? await uploadFile(file) : '';
-      await db.add('posts', { authorId: uid, imageUrl, caption: form.caption.trim(), kind: form.kind, isPublic: user.isPublic, audience: [uid, ...friends], likes: [], comments: [] });
+      let imageUrl = '';
+      if (file) {
+        try {
+          imageUrl = await uploadFile(file);
+        } catch (err) {
+          const reason = (err as Error).message;
+          throw new Error(/[ıİğşçöü]/i.test(reason) ? `Fotoğraf yüklenemedi: ${reason}` : 'Fotoğraf yüklenemedi. Tekrar dene veya başka bir fotoğraf seç.');
+        }
+      }
+      await db.add('posts', { authorId: uid, imageUrl, caption: form.caption.trim().slice(0, 2000), kind: form.kind, isPublic: user.isPublic === true, audience: [...new Set([uid, ...friends])], likes: [], comments: [] })
+        .catch(() => { throw new Error('Paylaşım kaydedilemedi. Bağlantını kontrol edip tekrar dene.'); });
       setForm({ caption: '', kind: 'foto' });
       setFile(null);
       (e.target as HTMLFormElement).reset();

@@ -131,6 +131,7 @@ const checks = [
     assert.deepEqual(await res.json(), { text: 'Tavsiye' });
     assert.ok(aiInput.messages[1].content.includes('"age":12'));
   }],
+  ['baraj yayını kullanıcı oturumuyla yapılamaz', async () => assert.equal((await call('/standards/publish', valid, { method: 'POST', body: '{}' })).status, 401)],
   ['aşırı büyük AI verisi reddedilir', async () => assert.equal((await call('/ai/analyze', valid, { method: 'POST', body: JSON.stringify({ summary: 'x'.repeat(5000) }) })).status, 400)],
   ['günlük AI hakkı aşılamaz', async () => {
     aiCount = 10;

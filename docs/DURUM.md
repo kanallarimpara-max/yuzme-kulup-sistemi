@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Android ve Windows son surum testlerini ve TYF yaris listesinin dolmasini kontrol et
+Gunluk baraj isini, Android ve Windows son surumunu dogrula
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Android ve Windows son surum testlerini ve TYF yaris listesinin dolmasini kontro
 
 ## Son kayıtlar
 
+- 2026-11-24: Antrenor yapilan yorumlari gorur, sosyal paylasim hata mesajlari ve fotograf kucultme duzeltildi, barajlar her gun TYF sayfasindan otomatik guncellenir. 173 kural, 55 test, 30 Worker testi gecti
 - 2026-11-24: Kronometre kontrolune canli kulvar panosu, sonraki cikis ve bitis saati, dokunma kilidi ve kulvar basina cikis sesi eklendi. Iki cihazla denendi, 53 test gecti
 - 2026-11-24: Telefon alt menusundeki kaydirma cubugu kaldirildi, deneme sunucusu suresi uzatildi
 - 2026-11-24: Yoklama telefon tarih ve saatine baglandi: ders disinda Suan dersiniz gorunmuyor, ders saatinde otomatik acilir, altta kaydet. Rapor ogrenci sayfasinda 1. 2. ders tablosu ve Yoklama girilmedi. 52 test gecti
