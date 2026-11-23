@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Trash2 } from 'lucide-react';
 import { useSession, createStaffAccount } from '../../lib/session';
 import { db, useCollection } from '../../lib/store';
-import { ROLE_LABEL, type DiscountCode, type User } from '../../lib/types';
+import { ROLE_LABEL, type Branch, type DiscountCode, type User } from '../../lib/types';
 
 const METHODS = ['Kredi kartı', 'Nakit', 'EFT / Havale'];
 
@@ -11,6 +11,7 @@ export default function Staff() {
   const clubId = club?.id ?? '';
   const users = useCollection<User>('users', { clubId });
   const discounts = useCollection<DiscountCode>('discounts', { clubId });
+  const branches = useCollection<Branch>('branches', { clubId });
   const [person, setPerson] = useState({ name: '', email: '', password: '', role: 'coach' as 'coach' | 'secretary' });
   const [code, setCode] = useState({ code: '', type: 'percent' as 'percent' | 'amount', value: 10 });
   const [status, setStatus] = useState('');
@@ -29,6 +30,19 @@ export default function Staff() {
       setStatus('Personel eklendi.');
     } catch {
       setError('Personel eklenemedi. E-posta kullanımda olabilir.');
+    }
+  };
+  const toggleBranch = (u: User, branchId: string) => db.update('users', u.id, {
+    branchIds: u.branchIds?.includes(branchId) ? u.branchIds.filter((b) => b !== branchId) : [...(u.branchIds ?? []), branchId],
+  });
+  const removeStaff = async (u: User) => {
+    if (!window.confirm(`${u.name} kulüpten çıkarılsın mı? Sisteme erişimi hemen kapanır.`)) return;
+    try {
+      setError('');
+      await db.remove('users', u.id);
+      setStatus(`${u.name} kulüpten çıkarıldı.`);
+    } catch {
+      setError('Personel çıkarılamadı.');
     }
   };
   const addCode = async (e: FormEvent) => {
@@ -55,7 +69,9 @@ export default function Staff() {
           <label>Geçici şifre<input required type="password" autoComplete="new-password" minLength={8} value={person.password} onChange={(e) => setPerson({ ...person, password: e.target.value })} /></label>
           <label>Rol<select value={person.role} onChange={(e) => setPerson({ ...person, role: e.target.value as 'coach' | 'secretary' })}><option value="coach">Antrenör</option><option value="secretary">Sekreter</option></select></label>
           <button className="primary">Personel ekle</button>
-          <ul className="simple-list">{staff.map((u) => <li key={u.id}><span>{u.name}<small>{ROLE_LABEL[u.role]} · {u.tag}</small></span></li>)}</ul>
+          <ul className="simple-list">{staff.map((u) => <li key={u.id} className="wrap-row"><span>{u.name}<small>{ROLE_LABEL[u.role]} · {u.tag}</small>
+            {u.role === 'coach' && <span className="chips">{branches.map((b) => <button type="button" key={b.id} className={u.branchIds?.includes(b.id) ? 'chip on' : 'chip'} aria-pressed={!!u.branchIds?.includes(b.id)} onClick={() => toggleBranch(u, b.id)}>{b.name}</button>)}</span>}</span>
+            <button type="button" className="ghost icon" aria-label={`${u.name} kişisini kulüpten çıkar`} title="Kulüpten çıkar" onClick={() => removeStaff(u)}><Trash2 size={16} /></button></li>)}</ul>
         </form>
         <section className="stack">
           <form className="card stack" onSubmit={addCode}><h2>İndirim kodları</h2>

@@ -56,6 +56,26 @@ export function pushTarget(collection, row) {
   return null;
 }
 
+const AI_DAILY_LIMIT = 10;
+
+/** Ücretsiz AI kotasını tek kullanıcının tüketmesini önler. Sayaç sunucuda atomik artar. */
+export async function consumeAiQuota(env, uid) {
+  if (!env.FIREBASE_SERVICE_ACCOUNT) return false;
+  const day = new Date().toISOString().slice(0, 10);
+  const base = `projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents`;
+  const res = await fetch(`https://firestore.googleapis.com/v1/${base}:commit`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${await accessToken(env)}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ writes: [{ transform: {
+      document: `${base}/aiQuota/${uid}_${day}`,
+      fieldTransforms: [{ fieldPath: 'count', increment: { integerValue: '1' } }],
+    } }] }),
+  });
+  if (!res.ok) return false;
+  const count = Number((await res.json()).writeResults?.[0]?.transformResults?.[0]?.integerValue ?? Infinity);
+  return count <= AI_DAILY_LIMIT;
+}
+
 export async function handlePush(request, env, uid, json) {
   if (!env.FIREBASE_SERVICE_ACCOUNT) return json({ error: 'Bildirim servisi ayarlanmadı.' }, 503);
   const input = await request.json().catch(() => null);

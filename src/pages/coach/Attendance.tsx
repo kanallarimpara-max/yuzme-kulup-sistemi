@@ -28,10 +28,17 @@ export default function Attendance() {
   const marks = docs.find((d) => d.id === docId)?.marks ?? {};
   const mark = async (studentId: string, value: AttendanceMark) => {
     if (!lesson) return;
-    await db.put('attendance', docId, { clubId, lessonId: lesson.id, coachId: user.id, date: today, marks: { ...marks, [studentId]: value } });
     // Veli sınıfın tamamını değil, yalnız kendi çocuğunun kaydını okur.
     const parentId = students.find((s) => s.id === studentId)?.parentId ?? '';
-    await db.put('attendanceMarks', `${docId}_${studentId}`, { clubId, studentId, parentId, lessonId: lesson.id, date: today, mark: value });
+    try {
+      setError('');
+      await db.batch([
+        { name: 'attendance', id: docId, data: { clubId, lessonId: lesson.id, coachId: user.id, date: today, marks: { ...marks, [studentId]: value } } },
+        { name: 'attendanceMarks', id: `${docId}_${studentId}`, data: { clubId, studentId, parentId, lessonId: lesson.id, date: today, mark: value } },
+      ]);
+    } catch {
+      setError('Yoklama kaydedilemedi, tekrar deneyin.');
+    }
   };
 
   const report = async () => {

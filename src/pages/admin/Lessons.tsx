@@ -25,8 +25,9 @@ export default function Lessons() {
   const models = useCollection<TrainingModel>('models', scope);
   const slots = useCollection<Availability>('availability', scope);
   const users = useCollection<User>('users', scope);
-  const coaches = users.filter((u) => u.role === 'coach');
   const [form, setForm] = useState(empty);
+  // Şube atanmamış antrenör tüm şubelerde seçilebilir.
+  const coaches = users.filter((u) => u.role === 'coach' && (!form.branchId || !u.branchIds?.length || u.branchIds.includes(form.branchId)));
   const [message, setMessage] = useState('');
   const set = <K extends keyof ReturnType<typeof empty>>(key: K, value: ReturnType<typeof empty>[K]) => setForm((f) => ({ ...f, [key]: value }));
   const toggle = <T,>(list: T[], value: T) => (list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);

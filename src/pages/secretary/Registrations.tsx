@@ -1,6 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { useSession } from '../../lib/session';
-import { db, useCollection } from '../../lib/store';
+import { db, newId, useCollection } from '../../lib/store';
 import { applyDiscount, buildInstallments, toIso } from '../../lib/rules';
 import { dateTr, dayNames, money } from '../../lib/format';
 import type { Branch, Chat, DiscountCode, Lesson, PreReg, Student, TrainingModel, User } from '../../lib/types';
@@ -47,24 +47,33 @@ export default function Registrations() {
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!current || !lesson || !coachId || isFull) return;
-    const studentId = await db.add('students', {
-      clubId, parentId: current.parentId, lessonId: lesson.id, coachId, firstName: current.firstName, lastName: current.lastName,
-      birthYear: current.birthYear, gender: current.gender,
-    });
-    await db.add('enrollments', {
-      clubId, studentId, parentId: current.parentId, lessonId: lesson.id, coachId, listKurus: lesson.feeKurus, netKurus: net, totalKurus: plan.totalKurus,
-      discountCode: discount?.code ?? '', installments: plan.installments,
-    });
-    await db.update('prereg', current.id, { status: 'kayitli' });
+    const studentId = newId();
+    const now = Date.now();
     // Veli yalnız çocuğunun derslerine atanan antrenmanları görür.
     const parentLessons = [...new Set([...students.filter((s) => s.parentId === current.parentId).map((s) => s.lessonId), lesson.id])];
-    await db.put('parentAccess', current.parentId, { clubId, lessonIds: parentLessons });
-
     // Ders ve antrenör için tek sohbet grubu tutulur, veli otomatik eklenir.
     const chatId = `lesson-${lesson.id}-${coachId}`;
     const chat = chats.find((c) => c.id === chatId);
     const memberIds = [...new Set([...(chat?.memberIds ?? [coachId]), current.parentId])];
-    await db.put('chats', chatId, { clubId, name: lesson.name, lessonId: lesson.id, memberIds });
+    try {
+      // Kayıt yarım kalmaz: öğrenci, ödeme planı, erişim ve sohbet birlikte yazılır.
+      await db.batch([
+        { name: 'students', id: studentId, data: {
+          clubId, parentId: current.parentId, lessonId: lesson.id, coachId, firstName: current.firstName, lastName: current.lastName,
+          birthYear: current.birthYear, gender: current.gender, createdAt: now,
+        } },
+        { name: 'enrollments', id: newId(), data: {
+          clubId, studentId, parentId: current.parentId, lessonId: lesson.id, coachId, listKurus: lesson.feeKurus, netKurus: net, totalKurus: plan.totalKurus,
+          discountCode: discount?.code ?? '', installments: plan.installments, createdAt: now,
+        } },
+        { name: 'prereg', id: current.id, data: { status: 'kayitli' } },
+        { name: 'parentAccess', id: current.parentId, data: { clubId, lessonIds: parentLessons } },
+        { name: 'chats', id: chatId, data: { clubId, name: lesson.name, lessonId: lesson.id, memberIds } },
+      ]);
+    } catch {
+      setStatus('Kayıt tamamlanamadı, hiçbir bilgi değişmedi. Tekrar deneyin.');
+      return;
+    }
 
     setStatus(`${current.firstName} ${current.lastName} kaydedildi ve ders grubuna eklendi.`);
     setCurrent(null);

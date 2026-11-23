@@ -53,7 +53,7 @@ const NAV: NavItem[] = [
   { to: '/barajlar', label: 'Barajlar', icon: Target, roles: ['admin', 'coach', 'parent'] },
   { to: '/tyf', label: 'TYF aktarım', icon: FileUp, roles: ['admin', 'coach'] },
   { to: '/antrenman', label: 'Antrenman', icon: Dumbbell, roles: ['coach'] },
-  { to: '/musaitlik', label: 'Müsaitlik', icon: CalendarCheck, roles: ['coach'] },
+  { to: '/musaitlik', label: 'Dersler ve müsaitlik', icon: CalendarCheck, roles: ['coach'] },
   { to: '/kronometre/kontrol', label: 'Kronometre', icon: Timer, roles: ['coach', 'admin'] },
   { to: '/mesajlar', label: 'Mesajlar', icon: MessagesSquare, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
   { to: '/sosyal', label: 'Sosyal', icon: Camera, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },

@@ -32,6 +32,7 @@ const logs = new Map();
 const sent = [];
 const removed = [];
 let logVersion = 0;
+let aiCount = 0;
 const devices = () => ['p1', 'p2', ...Array.from({ length: 45 }, (_, i) => `k${String(i).padStart(2, '0')}`)].map((uid) => ({ uid, token: uid === 'p2' ? 'olu-token' : `tok-${uid}`, platform: uid === 'p1' ? 'android' : 'web' }));
 async function googleApis(target, init = {}) {
   if (target === 'https://oauth2.googleapis.com/token') return Response.json({ access_token: 'erisim', expires_in: 3600 });
@@ -39,6 +40,10 @@ async function googleApis(target, init = {}) {
     const { message } = JSON.parse(init.body);
     sent.push(message);
     return message.token === 'olu-token' ? new Response('{}', { status: 404 }) : Response.json({ name: 'ok' });
+  }
+  if (target === `${FS}:commit`) {
+    aiCount += 1;
+    return Response.json({ writeResults: [{ transformResults: [{ integerValue: String(aiCount) }] }] });
   }
   if (target === `${FS}:runQuery`) {
     const q = JSON.parse(init.body).structuredQuery;
@@ -116,6 +121,11 @@ const checks = [
     assert.ok(aiInput.messages[1].content.includes('"age":12'));
   }],
   ['aşırı büyük AI verisi reddedilir', async () => assert.equal((await call('/ai/analyze', valid, { method: 'POST', body: JSON.stringify({ summary: 'x'.repeat(5000) }) })).status, 400)],
+  ['günlük AI hakkı aşılamaz', async () => {
+    aiCount = 10;
+    const res = await call('/ai/analyze', valid, { method: 'POST', body: JSON.stringify({ summary: { age: 12 } }) });
+    assert.equal(res.status, 429);
+  }],
   ['oturumsuz bildirim reddedilir', async () => assert.equal((await notify('notices', 'n1', null)).status, 401)],
   ['başkasının kaydıyla bildirim gönderilemez', async () => assert.equal((await notify('notices', 'baskasi')).status, 403)],
   ['izin verilmeyen koleksiyon reddedilir', async () => assert.equal((await notify('users', 'u1')).status, 400)],

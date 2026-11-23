@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Electron ve CSP sertlestirme, AI kotasi, kayit isleminin atomik yapilmasi, antrenor dersler ekrani, tum rollerde ekran testi
+Tum rollerde ekran regresyon testi, CSP dogrulama, ilk super admin kurulum betigi
 
 ## Modüller
 
@@ -37,6 +37,7 @@ Electron ve CSP sertlestirme, AI kotasi, kayit isleminin atomik yapilmasi, antre
 
 ## Son kayıtlar
 
+- 2026-11-23: Electron, site guvenlik basliklari, AI gunluk kotasi, atomik kayit ve yoklama, personel sube atama ve kulupten cikarma, antrenor dersler ekrani eklendi
 - 2026-11-23: Guvenlik denetimi: 36 gercek acik kapatildi (kulupler arasi yazma, acik maas, sohbet ele gecirme, sahte kayit, kullanici listeleme). Benzersiz etiket, lessonPay, parentAccess eklendi. 37 test, 151/151 kural testi gecti
 - 2026-11-23: Kapali uygulama bildirimi yazildi: FCM, Worker gonderimi, web service worker, Android eklentisi, cihaz kaydi kurallari. APK is akisi gercek Firebase ayarlarini alacak sekilde duzeltildi (yerelde, workflow izni bekliyor). 37 test, 21 Worker testi, 93/93 kural testi, build gecti. Gercek cihazda bildirim denenmedi
 - 2026-11-23: Cloudflare Worker yazildi: Firebase oturumu dogrulamali AI analiz ve TYF yarisindan otomatik PDF cekme, ekranlara baglandi. 37 test, 11 Worker testi, build, 85/85 kural testi gecti. Worker yayinlanmadi, gercek AI cagrilmadi

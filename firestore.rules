@@ -38,8 +38,9 @@ service cloud.firestore {
       allow create: if validProfile() && (isSuper()
         || (signedIn() && request.auth.uid == uid && next().role == 'parent')
         || (hasRole(next().clubId, ['admin']) && next().role in ['coach', 'secretary']));
-      allow update: if isSuper() || (signedIn() && request.auth.uid == uid && onlyChanges(['isPublic', 'bio', 'avatarUrl']));
-      allow delete: if isSuper();
+      allow update: if isSuper() || (signedIn() && request.auth.uid == uid && onlyChanges(['isPublic', 'bio', 'avatarUrl']))
+        || (hasRole(resource.data.clubId, ['admin']) && resource.data.role == 'coach' && onlyChanges(['branchIds']) && next().branchIds is list);
+      allow delete: if isSuper() || (hasRole(resource.data.clubId, ['admin']) && resource.data.role in ['coach', 'secretary']);
     }
     // Etiket benzersizdir: var olan belge güncellenemez, adla arama yalnız tam etiketle olur.
     match /tags/{key} {

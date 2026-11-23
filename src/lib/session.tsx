@@ -135,7 +135,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     signIn: async (email, password) => {
       if (!firebaseEnabled) throw new Error('Demo modunda rol kartlarından giriş yapın.');
       const f = await authSdk();
-      await f.signInWithEmailAndPassword(f.auth, email, password);
+      const credential = await f.signInWithEmailAndPassword(f.auth, email, password);
+      // Kulüpten çıkarılan personelin profili yoktur, oturumu açık bırakılmaz.
+      if (!(await db.get('users', credential.user.uid))) {
+        await f.signOut(f.auth);
+        throw new Error('Bu hesabın kulüp erişimi kaldırılmış.');
+      }
     },
     signInDemo: (id) => {
       sessionStorage.setItem(DEMO_KEY, id);

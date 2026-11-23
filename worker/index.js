@@ -1,6 +1,6 @@
 // Ücretsiz Cloudflare Worker: AI analizi ve TYF sonuç çekme. Yalnız geçerli Firebase oturumuyla çalışır.
 import { isResultPdfUrl, normalizeMeetUrl, resultLinks } from '../src/lib/tyfLinks.ts';
-import { handlePush } from './push.js';
+import { consumeAiQuota, handlePush } from './push.js';
 
 const JWK_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 const AI_MODEL = '@cf/meta/llama-3.1-8b-instruct';
@@ -55,10 +55,11 @@ async function pdf(url) {
   return new Response(data, { headers: { ...CORS, 'Content-Type': 'application/pdf' } });
 }
 
-async function analyze(request, env) {
+async function analyze(request, env, uid) {
   const body = await request.json().catch(() => null);
   const summary = JSON.stringify(body?.summary ?? null);
   if (!body?.summary || summary.length > MAX_SUMMARY_CHARS) return json({ error: 'Analiz verisi geçersiz.' }, 400);
+  if (!(await consumeAiQuota(env, uid))) return json({ error: 'Günlük yapay zekâ analiz hakkınız doldu.' }, 429);
   const result = await env.AI.run(AI_MODEL, {
     max_tokens: 500,
     messages: [
@@ -79,7 +80,7 @@ export default {
       if (request.method === 'POST' && url.pathname === '/push/notify') return await handlePush(request, env, uid, json);
       if (request.method === 'GET' && url.pathname === '/tyf/meet') return await meet(url.searchParams.get('url'));
       if (request.method === 'GET' && url.pathname === '/tyf/pdf') return await pdf(url.searchParams.get('url'));
-      if (request.method === 'POST' && url.pathname === '/ai/analyze') return await analyze(request, env);
+      if (request.method === 'POST' && url.pathname === '/ai/analyze') return await analyze(request, env, uid);
     } catch {
       return json({ error: 'İşlem tamamlanamadı.' }, 502);
     }
