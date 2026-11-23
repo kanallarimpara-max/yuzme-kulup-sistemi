@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-GitHub Actions APK derlemesinin sonucunu kontrol et
+Kullanici onayiyla Firestore kurallari ve siteyi yayinla, canli akisi test et
 
 ## Modüller
 
@@ -39,6 +39,7 @@ GitHub Actions APK derlemesinin sonucunu kontrol et
 
 ## Son kayıtlar
 
+- 2026-11-23: GitHub Actions APK derleme sonucu kontrol edildi
 - 2026-11-23: APK is akisi GitHub'a eklendi, Firebase Android kaydi ve depo ayarlari tamamlandi
 - 2026-11-23: Ilk super admin hesabi ve profil kaydi canli Firebase'de olusturuldu, sifre yalniz kullanicida. Giris henuz denenmedi cunku canli kurallar yayinlanmadi
 - 2026-11-23: FCM web bildirim anahtari olusturuldu ve yerel ayara eklendi, build gecti. Gercek bildirim henuz denenmedi
