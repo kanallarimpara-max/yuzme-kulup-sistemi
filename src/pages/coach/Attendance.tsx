@@ -26,9 +26,13 @@ export default function Attendance() {
   const roster = lesson ? students.filter((s) => s.lessonId === lesson.id) : [];
   const docId = lesson ? `${lesson.id}_${today}_${user.id}` : '';
   const marks = docs.find((d) => d.id === docId)?.marks ?? {};
-  const mark = (studentId: string, value: AttendanceMark) => lesson && db.put('attendance', docId, {
-    clubId, lessonId: lesson.id, coachId: user.id, date: today, marks: { ...marks, [studentId]: value },
-  });
+  const mark = async (studentId: string, value: AttendanceMark) => {
+    if (!lesson) return;
+    await db.put('attendance', docId, { clubId, lessonId: lesson.id, coachId: user.id, date: today, marks: { ...marks, [studentId]: value } });
+    // Veli sınıfın tamamını değil, yalnız kendi çocuğunun kaydını okur.
+    const parentId = students.find((s) => s.id === studentId)?.parentId ?? '';
+    await db.put('attendanceMarks', `${docId}_${studentId}`, { clubId, studentId, parentId, lessonId: lesson.id, date: today, mark: value });
+  };
 
   const report = async () => {
     setError('');

@@ -18,7 +18,7 @@ export default function MyStudents() {
   const save = async (e: FormEvent) => {
     e.preventDefault();
     if (!commentFor || !text.trim()) return;
-    await db.add('comments', { clubId, studentId: commentFor, coachId: user.id, text: text.trim(), date: toIso(new Date()) });
+    await db.add('comments', { clubId, studentId: commentFor, parentId: students.find((s) => s.id === commentFor)?.parentId ?? '', coachId: user.id, text: text.trim(), date: toIso(new Date()) });
     setText('');
     setCommentFor(null);
     setStatus('Yorum kaydedildi, veli performans ekranında görür.');

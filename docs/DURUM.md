@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici onaylarsa JDK kur, firestore.rules emulatorde rol testleriyle dogrula, sonra kurallari ve siteyi yayinla. Kredi harcama (ledger) Worker gerektirir
+Kullanici onaylarsa firestore:rules ve hosting yayinla, sonra ilk super admini kur. Kredi harcama icin Worker gerekli
 
 ## Modüller
 
@@ -37,6 +37,7 @@ Kullanici onaylarsa JDK kur, firestore.rules emulatorde rol testleriyle dogrula,
 
 ## Son kayıtlar
 
+- 2026-11-23: Veli verisi kapatildi (sonuc, yorum, yoklama yalniz kendi cocugu). Kural testi eklendi: 49/49 emulatorde gecti, JDK kullanici klasorunde (LOCALAPPDATA/yuzme-tools), test icin JAVA_HOME oraya ayarlanir
 - 2026-11-23: Firestore (default) europe-west3 konumunda yeniden kuruldu. Sorgular rol bazli kurallarla uyumlu yapildi (lib/access.ts), on kayit oturum sirasi ve enrollments.parentId duzeltildi. tsc, 31 test ve build gecti; kurallar henuz yayinlanmadi ve emulatorde test edilmedi
 - 2026-11-23: E-posta/sifre girisi ve Firestore acildi. DIKKAT: veritabani CLI ile otomatik nam5 (ABD) konumunda olustu, bos
 - 2026-11-23: Firebase projesi yuzme-kulup-sistemi ve web uygulamasi olusturuldu, yerel .env yazildi (repoya girmez)

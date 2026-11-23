@@ -3,7 +3,8 @@ import { useCollection } from '../../lib/store';
 import { enrollmentScope, studentScope } from '../../lib/access';
 import { paymentSummary, toIso } from '../../lib/rules';
 import { dateTr, dayNames, money } from '../../lib/format';
-import type { AttendanceDoc, Branch, Enrollment, Lesson, Notice, Student, User, Workout } from '../../lib/types';
+import { useAttendance } from '../../lib/useAttendance';
+import type { Branch, Enrollment, Lesson, Notice, Student, User, Workout } from '../../lib/types';
 
 const MARK = { geldi: ['Geldi', 'good'], gelmedi: ['Gelmedi', 'bad'], izinli: ['İzinli', 'warn'] } as const;
 
@@ -17,7 +18,7 @@ export default function ParentHome() {
   const branches = useCollection<Branch>('branches', scope);
   const users = useCollection<User>('users', scope);
   const workouts = useCollection<Workout>('workouts', scope);
-  const attendance = useCollection<AttendanceDoc>('attendance', scope);
+  const attendance = useAttendance(user);
   const notices = useCollection<Notice>('notices', user ? { contains: ['recipientIds', user.id] } : { skip: true });
   if (!user) return null;
   const today = toIso(new Date());

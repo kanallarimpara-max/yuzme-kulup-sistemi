@@ -63,9 +63,9 @@ export type SalaryPayment = Row & { clubId: string; coachId: string; date: strin
 export type AttendanceMark ='geldi' | 'gelmedi' | 'izinli';
 export type AttendanceDoc = Row & { clubId: string; lessonId: string; coachId: string; date: string; marks: Record<string, AttendanceMark> };
 export type SwimResult = Row & {
-  clubId: string; studentId: string; stroke: Stroke; distance: number; timeMs: number; date: string;
+  clubId: string; studentId: string; parentId?: string; stroke: Stroke; distance: number; timeMs: number; date: string;
   source: 'manuel' | 'tyf'; meet?: string; lapsMs?: number[]; pool?: '25m' | '50m';
 };
-export type CoachComment = Row & { clubId: string; studentId: string; coachId: string; text: string; date: string };
+export type CoachComment = Row & { clubId: string; studentId: string; parentId?: string; coachId: string; text: string; date: string };
 export type TimerLane = { id: string; name: string; workoutId: string | null; clock: LaneClock };
 export type TimerDoc = Row & { clubId: string; lanes: TimerLane[] };

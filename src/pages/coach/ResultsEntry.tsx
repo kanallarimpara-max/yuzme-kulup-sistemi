@@ -26,7 +26,7 @@ export default function ResultsEntry() {
     if (!filled.length) return setError('En az bir derece girin.');
     if (bad) return setError(`${bad.s.firstName} ${bad.s.lastName} için süre geçersiz. Örnek: 1:02.34`);
     setError('');
-    await Promise.all(parsed.map(({ s, timeMs }) => db.add('results', { clubId, studentId: s.id, stroke, distance, timeMs, date, pool, source: 'manuel' })));
+    await Promise.all(parsed.map(({ s, timeMs }) => db.add('results', { clubId, studentId: s.id, parentId: s.parentId, stroke, distance, timeMs, date, pool, source: 'manuel' })));
     setTimes({});
     setStatus(`${parsed.length} derece kaydedildi.`);
   };

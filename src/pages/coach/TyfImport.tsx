@@ -58,7 +58,7 @@ export default function TyfImport() {
   const save = async () => {
     const chosen = found.filter((f) => f.selected);
     await Promise.all(chosen.map(({ event, match, key }) => db.put('results', key, {
-      clubId, studentId: match.athlete.id, stroke: event.stroke, distance: event.distance, timeMs: match.row.timeMs,
+      clubId, studentId: match.athlete.id, parentId: students.find((s) => s.id === match.athlete.id)?.parentId ?? '', stroke: event.stroke, distance: event.distance, timeMs: match.row.timeMs,
       date: event.date, pool, source: 'tyf', meet: event.meet, lapsMs: match.row.lapsMs,
     })));
     setFound((list) => list.map((f) => (f.selected ? { ...f, selected: false, exists: true } : f)));

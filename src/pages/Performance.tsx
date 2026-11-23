@@ -2,20 +2,19 @@ import { useMemo, useState } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useSession } from '../lib/session';
 import { useCollection } from '../lib/store';
-import { studentScope } from '../lib/access';
+import { athleteRecordScope, studentScope } from '../lib/access';
+import { useAttendance } from '../lib/useAttendance';
 import { analyzeAthlete, formatSwimTime, passedStandards } from '../lib/rules';
 import { dateTr, STROKE_LABEL } from '../lib/format';
 import { groupLabel, STANDARDS } from '../lib/standardData';
-import type { AttendanceDoc, CoachComment, Student, SwimResult } from '../lib/types';
+import type { CoachComment, Student, SwimResult } from '../lib/types';
 
 export default function Performance() {
   const { user } = useSession();
-  const clubId = user?.clubId ?? '';
-  const scope = { clubId };
   const allStudents = useCollection<Student>('students', studentScope(user));
-  const results = useCollection<SwimResult>('results', scope);
-  const comments = useCollection<CoachComment>('comments', scope);
-  const attendance = useCollection<AttendanceDoc>('attendance', scope);
+  const results = useCollection<SwimResult>('results', athleteRecordScope(user));
+  const comments = useCollection<CoachComment>('comments', athleteRecordScope(user));
+  const attendance = useAttendance(user);
   const [picked, setPicked] = useState('');
   const [eventKey, setEventKey] = useState('');
 
