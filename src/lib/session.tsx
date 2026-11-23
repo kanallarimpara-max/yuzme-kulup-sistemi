@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { db, firebaseEnabled, localStore, useCollection } from './store';
+import { db, firebaseEnabled, localStore, newId, useCollection } from './store';
 import { demoData } from './seed';
 import type { Club, User } from './types';
 
@@ -31,21 +31,38 @@ const authSdk = async () => {
 };
 
 const makeTag = (name: string) =>
-  `@${name.toLocaleLowerCase('tr-TR').replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u').replace(/[^a-z0-9]/g, '')}${Math.floor(1000 + Math.random() * 9000)}`;
+  `@${name.toLocaleLowerCase('tr-TR').replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u').replace(/[^a-z0-9]/g, '').slice(0, 30)}${Math.floor(1000 + Math.random() * 9000)}`;
+
+/** Profil ve benzersiz etiket birlikte yazılır; etiket doluysa yenisi denenir. */
+async function saveProfile(uid: string, profile: { clubId: string; name: string; role: string; isPublic: boolean }) {
+  for (let attempt = 0; ; attempt += 1) {
+    const tag = makeTag(profile.name);
+    try {
+      await db.batch([
+        { name: 'users', id: uid, data: { ...profile, tag, createdAt: Date.now() } },
+        { name: 'tags', id: tag.slice(1), data: { uid } },
+      ]);
+      return;
+    } catch (error) {
+      if (attempt >= 3) throw error;
+    }
+  }
+}
 
 /** Şifre veritabanına yazılmaz. Demo modunda hiç saklanmaz, Firebase'de yalnız Auth'a gider. */
 export async function createParentAccount(clubId: string, name: string, email: string, password: string, whileSignedIn: (uid: string) => Promise<unknown>) {
   // E-posta profile yazılmaz: profiller tag aramasında görünür, e-posta yalnız Auth'ta kalır.
-  const profile = { clubId, name, role: 'parent' as const, tag: makeTag(name), isPublic: false };
+  const profile = { clubId, name, role: 'parent' as const, isPublic: false };
   if (!firebaseEnabled) {
-    const id = await db.add('users', profile);
+    const id = newId();
+    await saveProfile(id, profile);
     await whileSignedIn(id);
     return id;
   }
   const f = await authSdk();
   const credential = await f.createUserWithEmailAndPassword(f.auth, email, password);
   try {
-    await db.put('users', credential.user.uid, { ...profile, createdAt: Date.now() });
+    await saveProfile(credential.user.uid, profile);
     // Ön kayıt kuralı oturum ister; bu yüzden çıkış kayıt yazıldıktan sonra yapılır.
     await whileSignedIn(credential.user.uid);
   } finally {
@@ -56,13 +73,23 @@ export async function createParentAccount(clubId: string, name: string, email: s
 
 /** Yönetici personel açarken kendi oturumu kapanmasın diye Firebase'de ikinci uygulama örneği kullanılır. */
 export async function createStaffAccount(clubId: string, name: string, email: string, password: string, role: 'coach' | 'secretary' | 'admin') {
-  const profile = { clubId, name, role, tag: makeTag(name), isPublic: true };
-  if (!firebaseEnabled) return db.add('users', profile);
+  const profile = { clubId, name, role, isPublic: true };
+  if (!firebaseEnabled) {
+    const id = newId();
+    await saveProfile(id, profile);
+    return id;
+  }
   const [{ deleteApp, getApp, initializeApp }, auth] = await Promise.all([import('firebase/app'), import('firebase/auth')]);
   const secondary = initializeApp(getApp().options, `staff-${Date.now()}`);
   try {
     const credential = await auth.createUserWithEmailAndPassword(auth.getAuth(secondary), email, password);
-    await db.put('users', credential.user.uid, { ...profile, createdAt: Date.now() });
+    try {
+      await saveProfile(credential.user.uid, profile);
+    } catch (error) {
+      // Profil yazılamazsa profilsiz giriş hesabı bırakılmaz.
+      await credential.user.delete().catch(() => undefined);
+      throw error;
+    }
     return credential.user.uid;
   } finally {
     await deleteApp(secondary);

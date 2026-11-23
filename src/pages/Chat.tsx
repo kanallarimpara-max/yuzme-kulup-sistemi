@@ -5,14 +5,15 @@ import { db, useCollection } from '../lib/store';
 import { uploadFile } from '../lib/credits';
 import { answerCall, applyAnswer, closeCall, startCall, type ActiveCall } from '../lib/call';
 import { GroupCall, livePeers, MAX_GROUP_CALL, type GroupPeer } from '../lib/groupCall';
-import { ROLE_LABEL, type CallDoc, type Chat as ChatRow, type Contact, type Message, type User } from '../lib/types';
+import { contactId, directChatId, findByTag, usePeople } from '../lib/people';
+import { ROLE_LABEL, type CallDoc, type Chat as ChatRow, type Contact, type Message } from '../lib/types';
 
 export default function Chat() {
   const { user } = useSession();
   const uid = user?.id ?? '';
-  const users = useCollection<User>('users');
   const chats = useCollection<ChatRow>('chats', { contains: ['memberIds', uid] });
   const contacts = useCollection<Contact>('contacts', { contains: ['memberIds', uid] });
+  const users = usePeople(user, [...chats, ...contacts].flatMap((c) => c.memberIds));
   const messages = useCollection<Message>('messages', { contains: ['memberIds', uid] });
   const calls = useCollection<CallDoc>('calls', { contains: ['memberIds', uid] });
   const [openId, setOpenId] = useState<string | null>(null);
@@ -63,25 +64,31 @@ export default function Chat() {
     e.preventDefault();
     setError('');
     setInfo('');
-    const wanted = tag.trim().toLocaleLowerCase('tr-TR').replace(/^@?/, '@');
-    const person = users.find((u) => u.tag.toLocaleLowerCase('tr-TR') === wanted);
+    const person = await findByTag(tag).catch(() => null);
     if (!person) return setError('Bu etikette kullanıcı yok.');
     if (person.id === uid) return setError('Kendi etiketini ekleyemezsin.');
     if (contacts.some((c) => c.memberIds.includes(person.id))) return setError('Bu kişiyle zaten bir istek veya bağlantı var.');
-    await db.add('contacts', { fromId: uid, toId: person.id, memberIds: [uid, person.id], status: 'bekliyor' });
+    try {
+      await db.put('contacts', contactId(uid, person.id), { fromId: uid, toId: person.id, memberIds: [uid, person.id], status: 'bekliyor', createdAt: Date.now() });
+    } catch {
+      return setError('Bu kişiyle zaten bir istek veya bağlantı var.');
+    }
     setTag('');
     setInfo(`${person.name} kişisine istek gönderildi.`);
   };
   const accept = async (c: Contact) => {
-    await db.update('contacts', c.id, { status: 'kabul' });
-    await db.put('chats', `dm-${[...c.memberIds].sort().join('-')}`, { name: '', direct: true, memberIds: c.memberIds });
+    // Sohbet, kabul ile aynı işlemde açılır.
+    await db.batch([
+      { name: 'contacts', id: c.id, data: { status: 'kabul' } },
+      { name: 'chats', id: directChatId(c.fromId, c.toId), data: { name: '', direct: true, memberIds: [...c.memberIds].sort(), createdAt: Date.now() } },
+    ]);
   };
   // Süper admin tüm profillerle istek beklemeden iletişim kurar.
   const openDirect = async (personId: string) => {
     if (!personId) return;
-    const memberIds = [uid, personId];
-    const id = `dm-${[...memberIds].sort().join('-')}`;
-    await db.put('chats', id, { name: '', direct: true, memberIds });
+    const memberIds = [uid, personId].sort();
+    const id = directChatId(uid, personId);
+    await db.put('chats', id, { name: '', direct: true, memberIds, createdAt: Date.now() });
     setOpenId(id);
   };
   const send = async (payload: Pick<Message, 'kind' | 'text' | 'url'>) => {

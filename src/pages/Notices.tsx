@@ -3,7 +3,8 @@ import { useSession } from '../lib/session';
 import { db, useCollection, useMerged } from '../lib/store';
 import { studentScope } from '../lib/access';
 import { dateTr } from '../lib/format';
-import { ROLE_LABEL, type Lesson, type Notice, type Student, type User } from '../lib/types';
+import { usePeople } from '../lib/people';
+import { ROLE_LABEL, type Lesson, type Notice, type Student } from '../lib/types';
 
 type Audience = 'herkes' | 'antrenor' | 'sekreter' | 'ders' | 'ogrenciler' | 'kisiler';
 
@@ -13,7 +14,7 @@ export default function Notices() {
   const scope = { clubId };
   const uid = user?.id;
   const notices = useMerged<Notice>('notices', uid ? { contains: ['recipientIds', uid] } : { skip: true }, uid ? { eq: ['senderId', uid] } : { skip: true });
-  const users = useCollection<User>('users', scope);
+  const users = usePeople(user);
   const lessons = useCollection<Lesson>('lessons', scope);
   const students = useCollection<Student>('students', studentScope(user));
   const [form, setForm] = useState({ kind: 'duyuru' as Notice['kind'], title: '', body: '', date: '' });

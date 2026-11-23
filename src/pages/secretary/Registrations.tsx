@@ -56,6 +56,9 @@ export default function Registrations() {
       discountCode: discount?.code ?? '', installments: plan.installments,
     });
     await db.update('prereg', current.id, { status: 'kayitli' });
+    // Veli yalnız çocuğunun derslerine atanan antrenmanları görür.
+    const parentLessons = [...new Set([...students.filter((s) => s.parentId === current.parentId).map((s) => s.lessonId), lesson.id])];
+    await db.put('parentAccess', current.parentId, { clubId, lessonIds: parentLessons });
 
     // Ders ve antrenör için tek sohbet grubu tutulur, veli otomatik eklenir.
     const chatId = `lesson-${lesson.id}-${coachId}`;

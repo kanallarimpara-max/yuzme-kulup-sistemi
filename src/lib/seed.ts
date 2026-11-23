@@ -24,8 +24,8 @@ export const demoData: Record<string, SeedRow[]> = {
     { id: 'u-parent', clubId, name: 'Selin Aydın', email: 'veli@demo.test', role: 'parent', tag: '@selinaydin', isPublic: false },
   ],
   lessons: [
-    { id: 'l1', clubId, modelId: 'm1', maxInstallments: 3, interestPercent: 10, branchId: 'b1', coachIds: ['u-coach'], name: 'Gelişim Grubu', weekdays: [1, 3, 5], startTime: '17:00', endTime: '18:00', startDate: '2026-11-02', endDate: '2027-01-29', capacity: 10, feeKurus: 350000, coachPayKurus: 1500000 },
-    { id: 'l2', clubId, modelId: 'm3', maxInstallments: 1, interestPercent: 0, branchId: 'b2', coachIds: ['u-coach'], name: 'Performans Takımı', weekdays: [2, 4, 6], startTime: '18:30', endTime: '20:00', startDate: '2026-11-03', endDate: '2027-01-30', capacity: 8, feeKurus: 500000, coachPayKurus: 2000000 },
+    { id: 'l1', clubId, modelId: 'm1', maxInstallments: 3, interestPercent: 10, branchId: 'b1', coachIds: ['u-coach'], name: 'Gelişim Grubu', weekdays: [1, 3, 5], startTime: '17:00', endTime: '18:00', startDate: '2026-11-02', endDate: '2027-01-29', capacity: 10, feeKurus: 350000 },
+    { id: 'l2', clubId, modelId: 'm3', maxInstallments: 1, interestPercent: 0, branchId: 'b2', coachIds: ['u-coach'], name: 'Performans Takımı', weekdays: [2, 4, 6], startTime: '18:30', endTime: '20:00', startDate: '2026-11-03', endDate: '2027-01-30', capacity: 8, feeKurus: 500000 },
   ],
   students: [
     { id: 's1', clubId, parentId: 'u-parent', lessonId: 'l1', coachId: 'u-coach', firstName: 'Mert', lastName: 'Aydın', birthYear: 2014, gender: 'E' },
@@ -69,6 +69,15 @@ export const demoData: Record<string, SeedRow[]> = {
   ],
   ledger: [{ id: 'lg1', userId: 'u-coach', delta: 1000, reason: 'Açılış kredisi' }],
   wallets: [{ id: 'u-coach', balance: 1000, held: 0 }],
+  lessonPay: [
+    { id: 'l1', clubId, coachIds: ['u-coach'], coachPayKurus: 1500000 },
+    { id: 'l2', clubId, coachIds: ['u-coach'], coachPayKurus: 2000000 },
+  ],
+  parentAccess: [{ id: 'u-parent', clubId, lessonIds: ['l1', 'l2'] }],
+  tags: [
+    { id: 'sistem', uid: 'u-super' }, { id: 'denizkaya', uid: 'u-admin' }, { id: 'eceyilmaz', uid: 'u-sec' },
+    { id: 'candemir', uid: 'u-coach' }, { id: 'selinaydin', uid: 'u-parent' },
+  ],
   creditRequests: [],
   orders: [],
   listings: [],

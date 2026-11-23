@@ -31,7 +31,7 @@ export default function Wallet() {
     setError('');
     try {
       const receiptUrl = await uploadFile(receipt);
-      await db.add('creditRequests', { userId: user.id, type: 'yukleme', credits: pack.credits, kurus: pack.priceKurus, note: note.trim(), receiptUrl, status: 'bekliyor' });
+      await db.add('creditRequests', { userId: user.id, type: 'yukleme', packageId: pack.id, credits: pack.credits, kurus: pack.priceKurus, note: note.trim(), receiptUrl, status: 'bekliyor' });
       setPack(null);
       setMethod('');
       setNote('');

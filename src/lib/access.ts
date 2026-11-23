@@ -25,6 +25,13 @@ export function salaryScope(user: User | null | undefined): Scope {
   return user.role === 'admin' || user.role === 'super' ? { clubId: user.clubId } : SKIP;
 }
 
+/** Veli kulüpteki diğer velileri listeleyemez, yalnız açık profilleri görür. */
+export function peopleScope(user: User | null | undefined): Scope {
+  if (!user) return SKIP;
+  if (user.role === 'super') return {};
+  return user.role === 'parent' ? { clubId: user.clubId, eq: ['isPublic', true] } : { clubId: user.clubId };
+}
+
 /** Sonuç ve yorumlarda veli yalnız kendi çocuğunun kaydını görür. */
 export function athleteRecordScope(user: User | null | undefined): Scope {
   if (!user) return SKIP;

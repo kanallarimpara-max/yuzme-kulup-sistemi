@@ -1,6 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { useSession } from '../../lib/session';
-import { db, useCollection } from '../../lib/store';
+import { db, newId, useCollection } from '../../lib/store';
 import { coachFit, lessonEndDate, toIso, type CoachFit } from '../../lib/rules';
 import { dateTr, dayNames, money, toKurus, WEEKDAYS } from '../../lib/format';
 import type { Availability, Branch, Lesson, Notice, TrainingModel, User } from '../../lib/types';
@@ -43,12 +43,17 @@ export default function Lessons() {
     e.preventDefault();
     if (!canSave || !endDate || !user) return;
     const name = form.name.trim() || autoName;
-    await db.add('lessons', {
-      clubId, branchId: form.branchId, modelId: form.modelId, coachIds: form.coachIds, name, weekdays: form.weekdays,
-      startTime: form.startTime, endTime: form.endTime, startDate: form.startDate, endDate, sessionCount: form.sessionCount,
-      capacity: form.capacity, feeKurus: toKurus(form.fee), coachPayKurus: toKurus(form.coachPay),
-      maxInstallments: form.maxInstallments, interestPercent: form.interestPercent,
-    });
+    const lessonId = newId();
+    // Maaş herkese açık ders kaydına yazılmaz.
+    await db.batch([
+      { name: 'lessons', id: lessonId, data: {
+        clubId, branchId: form.branchId, modelId: form.modelId, coachIds: form.coachIds, name, weekdays: form.weekdays,
+        startTime: form.startTime, endTime: form.endTime, startDate: form.startDate, endDate, sessionCount: form.sessionCount,
+        capacity: form.capacity, feeKurus: toKurus(form.fee),
+        maxInstallments: form.maxInstallments, interestPercent: form.interestPercent, createdAt: Date.now(),
+      } },
+      { name: 'lessonPay', id: lessonId, data: { clubId, coachIds: form.coachIds, coachPayKurus: toKurus(form.coachPay) } },
+    ]);
     const notice: Omit<Notice, 'id'> = {
       clubId, senderId: user.id, kind: 'ders', title: 'Yeni ders atandı',
       body: `${name} · ${dayNames(form.weekdays)} ${form.startTime}-${form.endTime} · ${branchName}`,

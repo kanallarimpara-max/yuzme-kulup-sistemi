@@ -13,7 +13,7 @@ export default function Market() {
   const { user } = useSession();
   const products = useCollection<Product>('products');
   const orders = useCollection<Order>('orders', ownScope(user, 'userId'));
-  const users = useCollection<User>('users');
+  const users = useCollection<User>('users', user?.role === 'super' ? {} : { skip: true });
   const wallet = useWallet(user?.id);
   const [form, setForm] = useState({ name: '', description: '', imageUrl: '', price: '', credits: 0 });
   const [status, setStatus] = useState('');

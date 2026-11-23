@@ -28,6 +28,8 @@ export type PreRegLook = { eyebrow: string; color: string; title: string; descri
 export type Club = Row & {
   name: string; logoUrl?: string; color: string; slug: string; paymentMethods?: string[]; preRegLook?: Partial<PreRegLook>;
 };
+/** Antrenör maaşı herkese açık ders kaydından ayrı tutulur. */
+export type LessonPay = Row & { clubId: string; coachIds: string[]; coachPayKurus: number };
 export type DiscountCode = Row & { clubId: string; code: string; type: 'percent' | 'amount'; value: number; active: boolean };
 export type PreReg = Row & {
   clubId: string; modelId: string; branchId: string; firstName: string; lastName: string; birthYear: number; gender: 'K' | 'E';
@@ -42,7 +44,7 @@ export type Chat = Row & { clubId?: string; name: string; lessonId?: string; mem
 export type Branch = Row & { clubId: string; name: string };
 export type Lesson = Row & {
   clubId: string; branchId: string; coachIds: string[]; name: string; weekdays: number[]; startTime: string;
-  endTime: string; startDate: string; endDate: string; capacity: number; feeKurus: number; coachPayKurus: number;
+  endTime: string; startDate: string; endDate: string; capacity: number; feeKurus: number;
   modelId?: string; sessionCount?: number; maxInstallments?: number; interestPercent?: number;
 };
 export type Student = Row & {

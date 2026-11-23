@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Trash2 } from 'lucide-react';
 import { useSession } from '../../lib/session';
-import { db, useCollection } from '../../lib/store';
+import { db, firebaseEnabled, useCollection } from '../../lib/store';
 import { money, toKurus } from '../../lib/format';
 import { adjustCredit, settleRequest, walletNumbers, type CreditPackage, type CreditRequest, type PlatformSettings, type WalletRow } from '../../lib/credits';
 import type { Notice, User } from '../../lib/types';
@@ -72,7 +72,7 @@ export default function CreditAdmin() {
             <span><strong>{users.find((u) => u.id === r.userId)?.name} · {r.type === 'yukleme' ? 'Yükleme' : 'Bozdurma'}</strong>
               <small>{r.credits} kredi · {money(r.kurus)}{r.note ? ` · ${r.note}` : ''}</small>
               {r.payout && <small>{r.payout.method === 'eft' ? `EFT: ${r.payout.name} · ${r.payout.iban}` : `Kripto: ${r.payout.coin} · ${r.payout.network} · ${r.payout.wallet}`}</small>}
-              {r.receiptUrl && <a href={r.receiptUrl} target="_blank" rel="noreferrer" download="dekont">Dekontu aç</a>}</span>
+              {r.receiptUrl && (/^https:\/\/res\.cloudinary\.com\//.test(r.receiptUrl) || (!firebaseEnabled && r.receiptUrl.startsWith('data:'))) && <a href={r.receiptUrl} target="_blank" rel="noreferrer" download="dekont">Dekontu aç</a>}</span>
             <span className="form-actions"><button className="primary" onClick={() => decide(r, true)}>Onayla</button><button onClick={() => decide(r, false)}>Reddet</button></span>
           </li>
         ))}</ul>}

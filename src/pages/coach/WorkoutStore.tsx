@@ -2,7 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { useSession } from '../../lib/session';
 import { db, newId, useCollection, type Row } from '../../lib/store';
 import { buyListing, useWallet } from '../../lib/credits';
-import type { User, Workout } from '../../lib/types';
+import { usePeople } from '../../lib/people';
+import type { Workout } from '../../lib/types';
 
 // İlan belgesinde setler bulunmaz. Alıcı setleri yalnız satın aldıktan sonra görür.
 type Listing = Row & { sellerId: string; workoutId: string; title: string; description: string; priceCredits: number; setCount: number; meters: number };
@@ -13,7 +14,7 @@ export default function WorkoutStore() {
   const workouts = useCollection<Workout>('workouts', user?.clubId ? { clubId: user.clubId } : { skip: true });
   const listings = useCollection<Listing>('listings');
   const purchases = useCollection<Purchase>('purchases', user ? { eq: ['buyerId', user.id] } : { skip: true });
-  const users = useCollection<User>('users');
+  const users = usePeople(user, listings.map((l) => l.sellerId));
   const wallet = useWallet(user?.id);
   const [form, setForm] = useState({ workoutId: '', description: '', price: 100 });
   const [status, setStatus] = useState('');

@@ -3,7 +3,7 @@ import { useCollection } from '../lib/store';
 import { salaryScope, studentScope } from '../lib/access';
 import { toIso } from '../lib/rules';
 import { money } from '../lib/format';
-import { ROLE_LABEL, type Branch, type Lesson, type SalaryPayment, type Student } from '../lib/types';
+import { ROLE_LABEL, type Branch, type Lesson, type LessonPay, type SalaryPayment, type Student } from '../lib/types';
 
 export default function Dashboard() {
   const { user, club } = useSession();
@@ -12,6 +12,7 @@ export default function Dashboard() {
   const students = useCollection<Student>('students', studentScope(user));
   const branches = useCollection<Branch>('branches', scope);
   const salaries = useCollection<SalaryPayment>('salaries', salaryScope(user));
+  const pay = useCollection<LessonPay>('lessonPay', user?.role === 'coach' ? { contains: ['coachIds', user.id] } : { skip: true });
   if (!user) return null;
 
   const now = new Date();
@@ -24,7 +25,7 @@ export default function Dashboard() {
     ? students.filter((s) => s.parentId === user.id)
     : user.role === 'coach' ? students.filter((s) => s.coachId === user.id) : students;
   const countFor = (id: string) => students.filter((s) => s.lessonId === id).length;
-  const salaryTotal = mine.reduce((s, l) => s + l.coachPayKurus, 0);
+  const salaryTotal = pay.reduce((s, l) => s + l.coachPayKurus, 0);
   const salaryPaid = salaries.filter((s) => s.coachId === user.id).reduce((t, s) => t + s.amountKurus, 0);
 
   return (

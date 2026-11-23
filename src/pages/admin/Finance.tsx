@@ -5,7 +5,7 @@ import { useSession } from '../../lib/session';
 import { db, useCollection } from '../../lib/store';
 import { financeSummary, toIso } from '../../lib/rules';
 import { dateTr, money, toKurus } from '../../lib/format';
-import type { Enrollment, Expense, Lesson, SalaryPayment, Student, User } from '../../lib/types';
+import type { Enrollment, Expense, Lesson, LessonPay, SalaryPayment, Student, User } from '../../lib/types';
 
 export default function Finance() {
   const { club } = useSession();
@@ -15,6 +15,7 @@ export default function Finance() {
   const expenses = useCollection<Expense>('expenses', scope);
   const salaries = useCollection<SalaryPayment>('salaries', scope);
   const lessons = useCollection<Lesson>('lessons', scope);
+  const pay = useCollection<LessonPay>('lessonPay', scope);
   const students = useCollection<Student>('students', scope);
   const users = useCollection<User>('users', scope);
   const coaches = users.filter((u) => u.role === 'coach');
@@ -34,7 +35,7 @@ export default function Finance() {
     await db.add('salaries', { clubId, coachId: salary.coachId, date: salary.date, amountKurus: toKurus(salary.amount) });
     setSalary({ ...salary, amount: '' });
   };
-  const owed = (coachId: string) => lessons.filter((l) => l.coachIds.includes(coachId)).reduce((s, l) => s + l.coachPayKurus, 0);
+  const owed = (coachId: string) => pay.filter((l) => l.coachIds.includes(coachId)).reduce((s, l) => s + l.coachPayKurus, 0);
   const paid = (coachId: string) => salaries.filter((s) => s.coachId === coachId).reduce((t, s) => t + s.amountKurus, 0);
 
   return (

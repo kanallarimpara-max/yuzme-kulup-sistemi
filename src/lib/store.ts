@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 export type Row = { id: string; clubId?: string; createdAt?: number };
 /** `id` tek belge, `contains` dizi alanı filtresidir. Ücretsiz okuma kotası için geniş dinleme yapılmaz. */
-export type Scope = { clubId?: string; id?: string; contains?: [field: string, value: string]; eq?: [field: string, value: string | boolean]; skip?: boolean };
+export type Scope = { clubId?: string; id?: string; contains?: [field: string, value: string]; eq?: [field: string, value: string | boolean]; within?: [field: string, values: string[]]; skip?: boolean };
 type Listener = (rows: Row[]) => void;
 
 export interface DataStore {
@@ -69,6 +69,7 @@ class LocalStore implements DataStore {
       if (scope.skip) return false;
       if (scope.id && r.id !== scope.id) return false;
       if (scope.eq && (r as unknown as Record<string, unknown>)[scope.eq[0]] !== scope.eq[1]) return false;
+      if (scope.within && !scope.within[1].includes(String((r as unknown as Record<string, unknown>)[scope.within[0]]))) return false;
       if (scope.clubId && r.clubId !== scope.clubId) return false;
       if (scope.contains) {
         const list = (r as unknown as Record<string, unknown>)[scope.contains[0]];
@@ -188,6 +189,7 @@ class FirestoreStore implements DataStore {
       const filters = [
         ...(scope.clubId ? [f.where('clubId', '==', scope.clubId)] : []),
         ...(scope.eq ? [f.where(scope.eq[0], '==', scope.eq[1])] : []),
+        ...(scope.within ? [f.where(scope.within[0], 'in', scope.within[1].slice(0, 30))] : []),
         ...(scope.contains ? [f.where(scope.contains[0], 'array-contains', scope.contains[1])] : []),
       ];
       stop = f.onSnapshot(f.query(ref, ...filters), (snap) => listener(snap.docs.map((d) => ({ ...d.data(), id: d.id }))), denied);
@@ -251,7 +253,7 @@ export const db: DataStore = localStore ?? new FirestoreStore();
 
 export function useCollection<T extends Row>(name: string, scope: Scope = {}): T[] {
   const [rows, setRows] = useState<T[]>([]);
-  useEffect(() => db.watch(name, scope, (next) => setRows(next as T[])), [name, scope.clubId, scope.id, scope.skip, scope.contains?.join('|'), scope.eq?.join('|')]);
+  useEffect(() => db.watch(name, scope, (next) => setRows(next as T[])), [name, scope.clubId, scope.id, scope.skip, scope.contains?.join('|'), scope.eq?.join('|'), scope.within?.flat().join('|')]);
   return rows;
 }
 

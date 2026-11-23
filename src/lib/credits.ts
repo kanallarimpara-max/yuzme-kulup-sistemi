@@ -1,4 +1,4 @@
-import { db, inc, newId, useCollection, type BatchOp, type Row } from './store';
+import { db, firebaseEnabled, inc, newId, useCollection, type BatchOp, type Row } from './store';
 
 export type LedgerRow = Row & { userId: string; delta: number; reason: string };
 export type CreditRequest = Row & {
@@ -91,6 +91,7 @@ export async function uploadFile(file: File): Promise<string> {
     if (!res.ok) throw new Error('Dosya yüklenemedi');
     return (await res.json()).secure_url as string;
   }
+  if (firebaseEnabled) throw new Error('Dosya yükleme henüz ayarlanmadı. Yöneticiye bildirin.');
   if (file.size > MAX_INLINE) throw new Error('Demo modunda dosya en fazla 1,5 MB olabilir.');
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

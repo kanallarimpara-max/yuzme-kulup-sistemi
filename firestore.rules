@@ -1,22 +1,53 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function path(name, id) { return /databases/$(database)/documents/$(name)/$(id); }
     function signedIn() { return request.auth != null; }
-    function me() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function me() { return get(path('users', request.auth.uid)).data; }
     function isSuper() { return signedIn() && me().role == 'super'; }
     function inClub(clubId) { return signedIn() && me().clubId == clubId; }
     function hasRole(clubId, roles) { return inClub(clubId) && me().role in roles; }
+    function isStaff(clubId) { return hasRole(clubId, ['admin', 'secretary', 'coach']); }
     function isMember() { return signedIn() && request.auth.uid in resource.data.memberIds; }
-    function willBeMember() { return signedIn() && request.auth.uid in request.resource.data.memberIds; }
     function onlyChanges(fields) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields); }
+    function safeFileUrl(url) { return url is string && url.size() < 1024 && url.matches('^https://res[.]cloudinary[.]com/[^ ]+$'); }
+    // Kayıt başka kulübe taşınamaz: güncellemede hem eski hem yeni kulüp yetkilinin kulübü olmalı.
+    function canWrite(roles) {
+      return isSuper() || (resource == null
+        ? hasRole(request.resource.data.clubId, roles)
+        : hasRole(resource.data.clubId, roles) && request.resource.data.clubId == resource.data.clubId);
+    }
+    // Sonuç, yorum ve yoklama kopyası gerçek öğrencinin velisine ve antrenörüne bağlı olmalı.
+    function validAthleteRecord() {
+      let s = get(path('students', request.resource.data.studentId)).data;
+      return s.clubId == request.resource.data.clubId && s.parentId == request.resource.data.parentId
+        && (me().role == 'admin' || s.coachId == request.auth.uid);
+    }
 
-    // Profil: e-posta içermez. Kullanıcı rolünü, kulübünü veya etiketini kendisi değiştiremez.
+    // Profil: e-posta içermez. Listeleme kulüp personeli ve açık profillerle sınırlıdır.
     match /users/{uid} {
-      allow read: if signedIn();
-      allow create: if isSuper()
-        || (signedIn() && request.auth.uid == uid && request.resource.data.role == 'parent')
-        || (signedIn() && hasRole(request.resource.data.clubId, ['admin']) && request.resource.data.role in ['coach', 'secretary']);
+      function next() { return request.resource.data; }
+      function validProfile() {
+        return next().keys().hasOnly(['clubId', 'name', 'role', 'tag', 'isPublic', 'createdAt', 'bio', 'avatarUrl'])
+          && next().name is string && next().name.size() > 0 && next().name.size() <= 100
+          && next().tag is string && next().tag.matches('^@[a-z0-9]{3,40}$')
+          && getAfter(path('tags', next().tag.replace('@', ''))).data.uid == uid;
+      }
+      allow get: if signedIn();
+      allow list: if isSuper() || isStaff(resource.data.clubId) || resource.data.isPublic == true;
+      allow create: if validProfile() && (isSuper()
+        || (signedIn() && request.auth.uid == uid && next().role == 'parent')
+        || (hasRole(next().clubId, ['admin']) && next().role in ['coach', 'secretary']));
       allow update: if isSuper() || (signedIn() && request.auth.uid == uid && onlyChanges(['isPublic', 'bio', 'avatarUrl']));
+      allow delete: if isSuper();
+    }
+    // Etiket benzersizdir: var olan belge güncellenemez, adla arama yalnız tam etiketle olur.
+    match /tags/{key} {
+      allow get: if signedIn();
+      allow create: if signedIn() && request.resource.data.keys().hasOnly(['uid'])
+        && getAfter(path('users', request.resource.data.uid)).data.tag == '@' + key
+        && (request.auth.uid == request.resource.data.uid || isSuper()
+          || hasRole(getAfter(path('users', request.resource.data.uid)).data.clubId, ['admin']));
       allow delete: if isSuper();
     }
 
@@ -24,132 +55,178 @@ service cloud.firestore {
     match /clubs/{clubId} {
       allow read: if true;
       allow create, delete: if isSuper();
-      allow update: if isSuper() || hasRole(clubId, ['admin'])
+      allow update: if isSuper() || (hasRole(clubId, ['admin']) && onlyChanges(['name', 'logoUrl', 'color', 'paymentMethods', 'preRegLook']))
         || (hasRole(clubId, ['secretary']) && onlyChanges(['preRegLook']));
     }
     match /branches/{id} {
       allow read: if true;
-      allow write: if isSuper() || hasRole(request.resource.data.clubId, ['admin']);
+      allow create, update: if canWrite(['admin']);
       allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
     }
     match /models/{id} {
       allow read: if true;
-      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin']);
+      allow create, update: if canWrite(['admin']);
       allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
     }
+    // Ders bilgisi ön kayıtta herkese açıktır; antrenör maaşı burada tutulamaz.
     match /lessons/{id} {
       allow read: if true;
-      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin']);
+      allow create, update: if canWrite(['admin']) && !('coachPayKurus' in request.resource.data);
       allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
+    }
+    match /lessonPay/{id} {
+      allow read: if isSuper() || hasRole(resource.data.clubId, ['admin']) || (signedIn() && request.auth.uid in resource.data.coachIds);
+      allow create, update: if canWrite(['admin']);
+      allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
+    }
+    // Velinin hangi derslerin antrenmanını görebileceğini sekreter kayıtta belirler.
+    match /parentAccess/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow create, update: if canWrite(['admin', 'secretary']);
     }
 
     match /prereg/{id} {
-      allow create: if signedIn() && request.resource.data.parentId == request.auth.uid && request.resource.data.status == 'yeni';
-      allow read, update, delete: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary']);
+      allow create: if signedIn() && request.resource.data.parentId == request.auth.uid && request.resource.data.status == 'yeni'
+        && exists(path('clubs', request.resource.data.clubId));
+      allow read, delete: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary']);
+      allow update: if canWrite(['admin', 'secretary']);
     }
 
     match /students/{id} {
       allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary'])
         || (signedIn() && resource.data.coachId == request.auth.uid) || (signedIn() && resource.data.parentId == request.auth.uid);
-      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin', 'secretary']);
+      allow create, update: if canWrite(['admin', 'secretary']);
       allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary']);
     }
     match /enrollments/{id} {
       allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary'])
         || (signedIn() && resource.data.parentId == request.auth.uid);
-      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin', 'secretary']);
+      allow create, update: if canWrite(['admin', 'secretary']);
       allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
     }
     match /discounts/{id} {
       allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary']);
-      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin']);
+      allow create, update: if canWrite(['admin']);
       allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
     }
     match /expenses/{id} {
       allow read, delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
-      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin']);
+      allow create, update: if canWrite(['admin']);
     }
     match /salaries/{id} {
       allow read: if isSuper() || hasRole(resource.data.clubId, ['admin']) || (signedIn() && resource.data.coachId == request.auth.uid);
-      allow create, update: if isSuper() || hasRole(request.resource.data.clubId, ['admin']);
+      allow create, update: if canWrite(['admin']);
       allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
     }
 
     match /availability/{id} {
-      allow read: if inClub(resource.data.clubId) || isSuper();
-      allow create, update: if signedIn() && request.resource.data.coachId == request.auth.uid && inClub(request.resource.data.clubId);
+      allow read: if isSuper() || isStaff(resource.data.clubId);
+      allow create, update: if hasRole(request.resource.data.clubId, ['coach']) && request.resource.data.coachId == request.auth.uid
+        && (resource == null || resource.data.coachId == request.auth.uid);
       allow delete: if signedIn() && resource.data.coachId == request.auth.uid;
     }
     // Sınıf yoklaması personele açıktır; veli yalnız kendi çocuğunun kopyasını okur.
     match /attendance/{id} {
-      allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary', 'coach']);
-      allow create, update: if hasRole(request.resource.data.clubId, ['coach', 'admin']);
+      allow read: if isSuper() || isStaff(resource.data.clubId);
+      allow create, update: if canWrite(['coach', 'admin']);
     }
     match /attendanceMarks/{id} {
-      allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary', 'coach'])
-        || (signedIn() && resource.data.parentId == request.auth.uid);
-      allow create, update: if hasRole(request.resource.data.clubId, ['coach', 'admin']);
+      allow read: if isSuper() || isStaff(resource.data.clubId) || (signedIn() && resource.data.parentId == request.auth.uid);
+      allow create, update: if canWrite(['coach', 'admin']) && validAthleteRecord();
     }
     match /results/{id} {
-      allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary', 'coach'])
-        || (signedIn() && resource.data.parentId == request.auth.uid);
-      allow create, update: if hasRole(request.resource.data.clubId, ['coach', 'admin']);
+      allow read: if isSuper() || isStaff(resource.data.clubId) || (signedIn() && resource.data.parentId == request.auth.uid);
+      allow create, update: if canWrite(['coach', 'admin']) && validAthleteRecord();
       allow delete: if hasRole(resource.data.clubId, ['coach', 'admin']);
     }
     match /comments/{id} {
-      allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary', 'coach'])
-        || (signedIn() && resource.data.parentId == request.auth.uid);
-      allow create: if hasRole(request.resource.data.clubId, ['coach']) && request.resource.data.coachId == request.auth.uid;
+      allow read: if isSuper() || isStaff(resource.data.clubId) || (signedIn() && resource.data.parentId == request.auth.uid);
+      allow create: if hasRole(request.resource.data.clubId, ['coach']) && request.resource.data.coachId == request.auth.uid && validAthleteRecord();
     }
     match /workouts/{id} {
-      allow read: if inClub(resource.data.clubId) || isSuper();
-      allow create, update: if hasRole(request.resource.data.clubId, ['coach']) && request.resource.data.coachId == request.auth.uid;
+      allow read: if isSuper() || isStaff(resource.data.clubId)
+        || (signedIn() && resource.data.clubId == get(path('parentAccess', request.auth.uid)).data.clubId
+          && resource.data.lessonId in get(path('parentAccess', request.auth.uid)).data.lessonIds);
+      allow create, update: if hasRole(request.resource.data.clubId, ['coach']) && request.resource.data.coachId == request.auth.uid
+        && (resource == null || (resource.data.coachId == request.auth.uid && resource.data.clubId == request.resource.data.clubId));
       allow delete: if signedIn() && resource.data.coachId == request.auth.uid;
     }
     match /timers/{id} {
-      allow read: if inClub(resource.data.clubId);
-      allow write: if signedIn() && id == 'timer-' + request.auth.uid;
+      allow read: if isSuper() || hasRole(resource.data.clubId, ['coach', 'admin']);
+      allow create, update: if id == 'timer-' + request.auth.uid && hasRole(request.resource.data.clubId, ['coach', 'admin']);
     }
     match /notices/{id} {
       allow read: if isSuper() || (signedIn() && (request.auth.uid in resource.data.recipientIds || resource.data.senderId == request.auth.uid));
-      allow create: if isSuper() || hasRole(request.resource.data.clubId, ['admin', 'coach']);
+      allow create: if signedIn() && request.resource.data.senderId == request.auth.uid && request.resource.data.recipientIds.size() <= 1000
+        && (isSuper() || hasRole(request.resource.data.clubId, ['admin', 'coach']));
     }
 
-    // Sohbet yalnız üyelere açıktır.
+    // Kişi isteği iki kişi arasındadır, kabulü yalnız alıcı yapar.
     match /contacts/{id} {
+      function c() { return request.resource.data; }
       allow read: if isMember();
-      allow create: if willBeMember() && request.resource.data.fromId == request.auth.uid && request.resource.data.status == 'bekliyor';
-      allow update: if signedIn() && resource.data.toId == request.auth.uid && onlyChanges(['status']);
+      allow create: if signedIn() && c().fromId == request.auth.uid && c().toId != request.auth.uid && c().status == 'bekliyor'
+        && c().keys().hasOnly(['fromId', 'toId', 'memberIds', 'status', 'createdAt']) && c().memberIds == [c().fromId, c().toId]
+        && id == (c().fromId < c().toId ? 'contact-' + c().fromId + '-' + c().toId : 'contact-' + c().toId + '-' + c().fromId);
+      allow update: if signedIn() && resource.data.toId == request.auth.uid && onlyChanges(['status']) && request.resource.data.status == 'kabul';
       allow delete: if isMember();
     }
+    // Özel sohbet kabul edilmiş istekle açılır; ders grubunu yalnız kulüp yönetimi değiştirir.
     match /chats/{id} {
+      function n() { return request.resource.data; }
+      function validDirect() {
+        let m = n().memberIds;
+        return signedIn() && n().get('direct', false) == true && n().keys().hasOnly(['name', 'direct', 'memberIds', 'createdAt'])
+          && m.size() == 2 && m[0] < m[1] && id == 'dm-' + m[0] + '-' + m[1] && request.auth.uid in m
+          && (isSuper() || getAfter(path('contacts', 'contact-' + m[0] + '-' + m[1])).data.status == 'kabul');
+      }
+      function validGroup() { return n().get('direct', false) == false && canWrite(['admin', 'secretary']); }
       allow read: if isMember() || isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary']);
-      allow create, update: if willBeMember() || isSuper() || hasRole(request.resource.data.clubId, ['admin', 'secretary']);
+      allow create: if validDirect() || validGroup();
+      allow update: if isSuper() || (resource.data.get('direct', false) == false && validGroup());
     }
     match /messages/{id} {
+      function m() { return request.resource.data; }
+      function validBody() {
+        return (m().kind == 'text' && m().text is string && m().text.size() > 0 && m().text.size() <= 4000 && !('url' in m()))
+          || (m().kind in ['image', 'audio'] && safeFileUrl(m().url));
+      }
       allow read: if isMember();
-      allow create: if willBeMember() && request.resource.data.senderId == request.auth.uid;
+      allow create: if signedIn() && m().senderId == request.auth.uid && validBody()
+        && m().keys().hasOnly(['chatId', 'memberIds', 'senderId', 'kind', 'text', 'url', 'createdAt'])
+        && request.auth.uid in get(path('chats', m().chatId)).data.memberIds
+        && m().memberIds == get(path('chats', m().chatId)).data.memberIds;
     }
     match /calls/{id} {
-      allow read, update: if isMember();
-      allow create: if willBeMember() && request.resource.data.callerId == request.auth.uid;
+      function k() { return request.resource.data; }
+      allow read: if isMember();
+      allow create: if signedIn() && k().callerId == request.auth.uid && k().calleeId != request.auth.uid && k().status == 'caliyor'
+        && k().memberIds == [k().callerId, k().calleeId] && k().offer is string && k().offer.size() < 20000
+        && get(path('chats', k().chatId)).data.memberIds.hasAll(k().memberIds);
+      allow update: if (signedIn() && resource.data.calleeId == request.auth.uid && onlyChanges(['status', 'answer'])
+          && k().status in ['bagli', 'bitti'] && k().get('answer', '').size() < 20000)
+        || (isMember() && onlyChanges(['status']) && k().status == 'bitti');
     }
     // Grup araması: yalnız sohbetin üyeleri katılır ve sinyal alışverişi yapar.
     match /groupPeers/{id} {
       allow read: if isMember();
-      allow create, update: if signedIn() && request.resource.data.uid == request.auth.uid
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid
         && id == request.resource.data.chatId + '_' + request.auth.uid
-        && request.auth.uid in get(/databases/$(database)/documents/chats/$(request.resource.data.chatId)).data.memberIds
-        && request.resource.data.memberIds == get(/databases/$(database)/documents/chats/$(request.resource.data.chatId)).data.memberIds;
+        && request.auth.uid in get(path('chats', request.resource.data.chatId)).data.memberIds
+        && request.resource.data.memberIds == get(path('chats', request.resource.data.chatId)).data.memberIds;
+      allow update: if signedIn() && resource.data.uid == request.auth.uid && (onlyChanges(['lastSeen'])
+        || (request.resource.data.uid == request.auth.uid && request.resource.data.chatId == resource.data.chatId
+          && request.resource.data.memberIds == get(path('chats', resource.data.chatId)).data.memberIds));
       allow delete: if signedIn() && resource.data.uid == request.auth.uid;
     }
     match /groupSignals/{id} {
       allow read, delete: if isMember();
-      allow create: if willBeMember() && request.resource.data.from == request.auth.uid
+      allow create: if signedIn() && request.auth.uid in request.resource.data.memberIds && request.resource.data.from == request.auth.uid
         && request.resource.data.memberIds.size() == 2 && request.resource.data.to in request.resource.data.memberIds
-        && request.auth.uid in get(/databases/$(database)/documents/chats/$(request.resource.data.chatId)).data.memberIds
-        && request.resource.data.to in get(/databases/$(database)/documents/chats/$(request.resource.data.chatId)).data.memberIds;
-      allow update: if signedIn() && resource.data.to == request.auth.uid && onlyChanges(['answer']);
+        && request.resource.data.offer.size() < 20000
+        && request.auth.uid in get(path('chats', request.resource.data.chatId)).data.memberIds
+        && request.resource.data.to in get(path('chats', request.resource.data.chatId)).data.memberIds;
+      allow update: if signedIn() && resource.data.to == request.auth.uid && onlyChanges(['answer']) && request.resource.data.answer.size() < 20000;
     }
     // Cihaz bildirim kayıtlarını istemci okuyamaz; yalnız Worker'ın servis hesabı okur.
     match /pushTokens/{id} {
@@ -165,10 +242,26 @@ service cloud.firestore {
       allow read: if signedIn() && request.auth.uid == uid;
       allow write: if signedIn() && request.auth.uid == uid && request.resource.data.keys().hasOnly(['at']) && request.resource.data.at == request.time;
     }
+    // Beğeni ve yorumda kişi yalnız kendi adına işlem yapar, başkasının yorumunu değiştiremez.
     match /posts/{id} {
+      function p() { return request.resource.data; }
+      function canSee() { return resource.data.isPublic == true || request.auth.uid in resource.data.audience; }
+      function likeOnly() {
+        return onlyChanges(['likes']) && p().likes.toSet().difference(resource.data.likes.toSet()).hasOnly([request.auth.uid])
+          && resource.data.likes.toSet().difference(p().likes.toSet()).hasOnly([request.auth.uid]);
+      }
+      function commentOnly() {
+        let size = resource.data.comments.size();
+        return onlyChanges(['comments']) && p().comments.size() == size + 1 && p().comments[0:size] == resource.data.comments
+          && p().comments[size].keys().hasOnly(['userId', 'text', 'at']) && p().comments[size].userId == request.auth.uid
+          && p().comments[size].text is string && p().comments[size].text.size() > 0 && p().comments[size].text.size() <= 500;
+      }
       allow read: if signedIn() && (resource.data.isPublic == true || request.auth.uid in resource.data.audience);
-      allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
-      allow update: if signedIn() && (resource.data.authorId == request.auth.uid || onlyChanges(['likes', 'comments']));
+      allow create: if signedIn() && p().authorId == request.auth.uid && p().likes == [] && p().comments == [] && request.auth.uid in p().audience
+        && p().keys().hasOnly(['authorId', 'imageUrl', 'caption', 'kind', 'isPublic', 'audience', 'likes', 'comments', 'createdAt'])
+        && (p().imageUrl == '' || safeFileUrl(p().imageUrl)) && p().caption.size() <= 2000;
+      allow update: if signedIn() && ((resource.data.authorId == request.auth.uid && onlyChanges(['isPublic', 'caption', 'audience']))
+        || (canSee() && (likeOnly() || commentOnly())));
       allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
     }
 
@@ -177,7 +270,6 @@ service cloud.firestore {
       allow read: if isSuper() || (signedIn() && resource.data.userId == request.auth.uid);
       allow create: if isSuper();
     }
-    function path(name, id) { return /databases/$(database)/documents/$(name)/$(id); }
     function myWalletOp() { return getAfter(path('wallets', request.auth.uid)).data.op; }
 
     // Bakiye yalnız aynı işlemde yazılan yeni bir sipariş, satın alma veya bozdurma talebiyle değişir.
@@ -218,7 +310,10 @@ service cloud.firestore {
       allow read: if isSuper() || (signedIn() && resource.data.userId == request.auth.uid);
       allow create: if signedIn() && request.resource.data.userId == request.auth.uid && request.resource.data.status == 'bekliyor'
         && request.resource.data.credits is int && request.resource.data.credits > 0
-        && (request.resource.data.type == 'yukleme' || (request.resource.data.type == 'bozdurma' && myWalletOp() == id));
+        && ((request.resource.data.type == 'yukleme' && safeFileUrl(request.resource.data.receiptUrl)
+            && request.resource.data.credits == get(path('packages', request.resource.data.packageId)).data.credits
+            && request.resource.data.kurus == get(path('packages', request.resource.data.packageId)).data.priceKurus)
+          || (request.resource.data.type == 'bozdurma' && myWalletOp() == id));
       allow update: if isSuper();
     }
     // Tasarım giriş ekranında da uygulanır; yalnız süper admin değiştirir.
@@ -231,7 +326,8 @@ service cloud.firestore {
     match /orders/{id} {
       allow read: if isSuper() || (signedIn() && resource.data.userId == request.auth.uid);
       allow create: if signedIn() && request.resource.data.userId == request.auth.uid && (
-        (request.resource.data.pay == 'tl' && request.resource.data.credits == 0 && request.resource.data.status == 'Ödeme bekliyor')
+        (request.resource.data.pay == 'tl' && request.resource.data.credits == 0 && request.resource.data.status == 'Ödeme bekliyor'
+          && request.resource.data.kurus == get(path('products', request.resource.data.productId)).data.priceKurus)
         || (request.resource.data.pay == 'kredi' && myWalletOp() == id));
       allow update: if isSuper();
     }
