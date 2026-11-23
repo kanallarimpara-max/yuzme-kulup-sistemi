@@ -286,3 +286,8 @@ input[type='color'] { cursor: pointer; min-height: 42px; padding: 4px; }
 .attendance-grid th:first-child { background: var(--panel); left: 0; position: sticky; text-align: left; z-index: 1; }
 .attendance-grid small { font-weight: 400; }
 .attendance-grid .not-taken { color: var(--muted); font-size: .76rem; }
+
+@media (max-width: 820px) {
+  .sidebar nav { scrollbar-width: none; }
+  .sidebar nav::-webkit-scrollbar { display: none; }
+}

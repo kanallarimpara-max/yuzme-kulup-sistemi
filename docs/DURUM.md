@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Android ve Windows paketlerini son surumle dogrula
+Android ve Windows son surum acilis testlerini kontrol et
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Android ve Windows paketlerini son surumle dogrula
 
 ## Son kayıtlar
 
+- 2026-11-24: Telefon alt menusundeki kaydirma cubugu kaldirildi, deneme sunucusu suresi uzatildi
 - 2026-11-24: Yoklama telefon tarih ve saatine baglandi: ders disinda Suan dersiniz gorunmuyor, ders saatinde otomatik acilir, altta kaydet. Rapor ogrenci sayfasinda 1. 2. ders tablosu ve Yoklama girilmedi. 52 test gecti
 - 2026-11-24: Canli sonuclar uygulama icine alindi: TYF yarislari otomatik bulunur, tablo, kulup filtresi, resmi liste. Yaris derecesi yalniz admin, antrenor yalniz antrenman derecesi. Baraj yalniz yaris derecesiyle. 171 kural, 51 test gecti
 - 2026-11-24: Windows paketi CI'da acildi ve giris ekrani dogrulandi. Android acilis testinde emulator disk alani ve APK kaydi duzeltildi

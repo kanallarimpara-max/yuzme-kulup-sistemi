@@ -14,6 +14,6 @@ writeFileSync(join(envDir, '.env'), [
 const server = await createServer({ envDir, server: { port: 5175, strictPort: true } });
 await server.listen();
 console.log('e2e hazir');
-await new Promise((resolve) => setTimeout(resolve, Number(process.env.E2E_MS ?? 1200000)));
+await new Promise((resolve) => setTimeout(resolve, Number(process.env.E2E_MS ?? 14400000)));
 await server.close();
 process.exit(0);
