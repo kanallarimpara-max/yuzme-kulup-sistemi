@@ -21,9 +21,9 @@ export default function Wallet() {
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  if (!user || !settings) return null;
+  if (!user) return null;
 
-  const payoutKurus = redeemKurus(amount, settings.rateCredits, settings.rateKurus);
+  const payoutKurus = settings ? redeemKurus(amount, settings.rateCredits, settings.rateKurus) : 0;
   const sendTopUp = async (e: FormEvent) => {
     e.preventDefault();
     if (!pack || !receipt) return setError('Dekont yüklemek zorunlu.');
@@ -79,7 +79,9 @@ export default function Wallet() {
         ))}</div>
         {pack && <div className="form-actions"><button onClick={() => setMethod('kart')}>Kredi kartı</button><button onClick={() => setMethod('kart')}>Banka kartı</button><button className="primary" onClick={() => setMethod('eft')}>EFT / Havale</button></div>}
         {method === 'kart' && <p className="muted" role="status">Bu özellik daha gelişim aşamasında.</p>}
-        {pack && method === 'eft' && (
+        {packages.length === 0 && <p className="muted">Henüz kredi paketi tanımlanmadı.</p>}
+        {pack && method === 'eft' && !settings && <p className="muted" role="status">EFT bilgileri henüz tanımlanmadı. Süper admin ekledikten sonra talep gönderebilirsin.</p>}
+        {pack && method === 'eft' && settings && (
           <form className="stack" onSubmit={sendTopUp}>
             <div className="bank-box"><strong>Güncel EFT / Havale Bilgileri</strong><span>Banka: {settings.bank}</span><span>Hesap Sahibi: {settings.holder}</span><span>IBAN: {settings.iban}</span><span>Tutar: {money(pack.priceKurus)}</span></div>
             <label>Açıklama notu<textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} /></label>
@@ -90,7 +92,7 @@ export default function Wallet() {
       </section>
       <form className="card stack" onSubmit={sendRedeem}>
         <h2>Kredi bozdur</h2>
-        <p className="muted">Oran: {settings.rateCredits} kredi = {money(settings.rateKurus)}</p>
+        <p className="muted">{settings ? `Oran: ${settings.rateCredits} kredi = ${money(settings.rateKurus)}` : 'Bozdurma oranı henüz tanımlanmadı.'}</p>
         <div className="form-grid">
           <label>Bozdurulacak kredi<input type="number" min={1} max={wallet.available} required value={amount || ''} onChange={(e) => setAmount(Number(e.target.value))} /></label>
           <label>Alacağın tutar<input readOnly value={money(payoutKurus)} /></label>
@@ -104,7 +106,7 @@ export default function Wallet() {
             <label>Koin<input required value={payout.coin} onChange={(e) => setPayout({ ...payout, coin: e.target.value })} /></label>
           </>}
         </div>
-        <div className="form-actions"><button className="primary">Kredi bozdur</button></div>
+        <div className="form-actions"><button className="primary" disabled={!settings}>Kredi bozdur</button></div>
       </form>
       <section className="card"><h2>Taleplerim</h2>{mine.length === 0 ? <p className="muted">Henüz talep yok.</p> : <ul className="simple-list">{mine.map((r) => (
         <li key={r.id}><span>{r.type === 'yukleme' ? 'Yükleme' : 'Bozdurma'}<small>{r.credits} kredi · {money(r.kurus)}</small></span><em className={`badge ${STATUS[r.status][1]}`}>{STATUS[r.status][0]}</em></li>

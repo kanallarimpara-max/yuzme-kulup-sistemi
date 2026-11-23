@@ -90,7 +90,7 @@ export default function CreditAdmin() {
           <label>Banka<input required value={form.bank} onChange={(e) => setForm({ ...form, bank: e.target.value })} /></label>
           <label>Hesap sahibi<input required value={form.holder} onChange={(e) => setForm({ ...form, holder: e.target.value })} /></label>
           <label>IBAN<input required value={form.iban} onChange={(e) => setForm({ ...form, iban: e.target.value })} /></label>
-          <div className="form-grid"><label>Kredi<input type="number" min={1} value={form.rateCredits} onChange={(e) => setForm({ ...form, rateCredits: Number(e.target.value) })} /></label><label>Karşılığı (TL)<input inputMode="decimal" value={form.rate} onChange={(e) => setForm({ ...form, rate: e.target.value })} /></label></div>
+          <div className="form-grid"><label>Kredi<input type="number" min={1} value={form.rateCredits} onChange={(e) => setForm({ ...form, rateCredits: Number(e.target.value) })} /></label><label>Karşılığı (TL)<input inputMode="decimal" pattern="[0-9₺ ]+([.,][0-9]+)*" title="Örnek: 1.500 veya 1.500,50" value={form.rate} onChange={(e) => setForm({ ...form, rate: e.target.value })} /></label></div>
           <button className="primary">Kaydet</button>
         </form>
       </div>
@@ -99,7 +99,7 @@ export default function CreditAdmin() {
         <form className="inline-form wrap" onSubmit={addPack}>
           <input aria-label="Paket adı" required placeholder="Paket adı" value={pack.name} onChange={(e) => setPack({ ...pack, name: e.target.value })} />
           <input aria-label="Kredi" type="number" min={1} value={pack.credits} onChange={(e) => setPack({ ...pack, credits: Number(e.target.value) })} />
-          <input aria-label="Fiyat TL" required placeholder="Fiyat (TL)" inputMode="decimal" value={pack.price} onChange={(e) => setPack({ ...pack, price: e.target.value })} />
+          <input aria-label="Fiyat TL" required placeholder="Fiyat (TL)" inputMode="decimal" pattern="[0-9₺ ]+([.,][0-9]+)*" title="Örnek: 1.500 veya 1.500,50" value={pack.price} onChange={(e) => setPack({ ...pack, price: e.target.value })} />
           <button className="primary">Paket ekle</button>
         </form>
         <ul className="simple-list">{packages.map((p) => <li key={p.id}><span>{p.name}<small>{p.credits} kredi · {money(p.priceKurus)}</small></span><button className="ghost icon" aria-label={`${p.name} paketini sil`} onClick={() => db.remove('packages', p.id)}><Trash2 size={16} /></button></li>)}</ul>

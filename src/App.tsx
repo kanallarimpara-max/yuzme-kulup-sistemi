@@ -1,9 +1,13 @@
 import { Camera, FileUp, MessagesSquare, Target, Baby, BadgePlus, Banknote, Bell, BellOff, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
+import { Menu, Phone, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
+import { isRinging } from './lib/call';
 import { useSession } from './lib/session';
+import { useCollection } from './lib/store';
 import { AdSlot, useAppDesign } from './lib/design';
 import { pushAvailable, usePushToggle } from './lib/push';
-import { ROLE_LABEL, type Role } from './lib/types';
+import { ROLE_LABEL, type CallDoc, type Role } from './lib/types';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -74,10 +78,38 @@ function PushButton({ uid }: { uid: string }) {
   return <button className="ghost icon" disabled={busy} onClick={toggle} aria-label={label} title={label}>{on ? <Bell size={18} /> : <BellOff size={18} />}</button>;
 }
 
+/** Kullanıcı başka ekrandayken de gelen aramayı görür. */
+function IncomingCall({ uid }: { uid: string }) {
+  const calls = useCollection<CallDoc>('calls', { contains: ['memberIds', uid] });
+  if (!calls.some((c) => isRinging(c, uid))) return null;
+  return <NavLink className="call-alert" to="/mesajlar"><Phone size={17} />Gelen arama var, açmak için dokun</NavLink>;
+}
+
+/** Kaydedilemeyen işlem sessizce kaybolmasın. */
+function ErrorToast() {
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    let timer = 0;
+    const onError = () => {
+      setShown(true);
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setShown(false), 5000);
+    };
+    window.addEventListener('unhandledrejection', onError);
+    return () => {
+      window.removeEventListener('unhandledrejection', onError);
+      window.clearTimeout(timer);
+    };
+  }, []);
+  return shown ? <p className="error-toast" role="alert">İşlem kaydedilemedi. Bağlantını kontrol edip tekrar dene.</p> : null;
+}
+
 function Shell() {
   const { user, club, signOut } = useSession();
   const { pathname } = useLocation();
   const design = useAppDesign();
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => setMenuOpen(false), [pathname]);
   if (!user) return <Navigate to="/giris" replace />;
   const items = NAV.filter((n) => n.roles.includes(user.role));
   // Menüde olmayan sayfa adres çubuğundan da açılamaz. Asıl veri yetkisi Firestore kurallarındadır.
@@ -89,17 +121,20 @@ function Shell() {
           <span className="brand-mark">{club?.logoUrl || design.logoUrl ? <img src={club?.logoUrl || design.logoUrl} alt="" /> : <Waves size={20} />}</span>
           <span><strong>{club?.name ?? design.appName}</strong><small>{ROLE_LABEL[user.role]}</small></span>
         </div>
-        <nav>
+        <nav className={menuOpen ? 'open' : ''}>
           {items.map(({ to, label, icon: Icon }) => (
             <NavLink key={to} to={to}><Icon size={18} /><span>{label}</span></NavLink>
           ))}
         </nav>
         <div className="sidebar-foot">
           <span className="who"><CalendarDays size={15} />{user.tag}</span>
+          <button className="ghost icon menu-toggle" aria-expanded={menuOpen} aria-label={menuOpen ? 'Menüyü kapat' : 'Tüm menü'} onClick={() => setMenuOpen((o) => !o)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
           {pushAvailable && <PushButton uid={user.id} />}
           <button className="ghost icon" onClick={signOut} aria-label="Çıkış yap" title="Çıkış yap"><LogOut size={18} /></button>
         </div>
       </aside>
+      <ErrorToast />
+      {pathname !== '/mesajlar' && <IncomingCall uid={user.id} />}
       <main className="content">{user.role !== 'super' && AD_SLOT[pathname] && <AdSlot slot={AD_SLOT[pathname]} />}<Outlet /></main>
     </div>
   );

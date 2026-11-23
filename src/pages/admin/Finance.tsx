@@ -61,14 +61,14 @@ export default function Finance() {
           <div className="form-grid">
             <label>Kategori<select value={expense.category} onChange={(e) => setExpense({ ...expense, category: e.target.value })}>{['Havuz kirası', 'Malzeme', 'Personel', 'Ulaşım', 'Yarış', 'Diğer'].map((c) => <option key={c}>{c}</option>)}</select></label>
             <label>Tarih<input type="date" required value={expense.date} onChange={(e) => setExpense({ ...expense, date: e.target.value })} /></label>
-            <label>Tutar (TL)<input required inputMode="decimal" value={expense.amount} onChange={(e) => setExpense({ ...expense, amount: e.target.value })} /></label>
+            <label>Tutar (TL)<input required inputMode="decimal" pattern="[0-9₺ ]+([.,][0-9]+)*" title="Örnek: 1.500 veya 1.500,50" value={expense.amount} onChange={(e) => setExpense({ ...expense, amount: e.target.value })} /></label>
           </div><button className="primary">Gider ekle</button>
         </form>
         <form className="card stack" onSubmit={addSalary}><h2>Maaş ödemesi</h2>
           <label>Antrenör<select required value={salary.coachId} onChange={(e) => setSalary({ ...salary, coachId: e.target.value })}><option value="">Seçin</option>{coaches.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
           <div className="form-grid">
             <label>Tarih<input type="date" required value={salary.date} onChange={(e) => setSalary({ ...salary, date: e.target.value })} /></label>
-            <label>Tutar (TL)<input required inputMode="decimal" value={salary.amount} onChange={(e) => setSalary({ ...salary, amount: e.target.value })} /></label>
+            <label>Tutar (TL)<input required inputMode="decimal" pattern="[0-9₺ ]+([.,][0-9]+)*" title="Örnek: 1.500 veya 1.500,50" value={salary.amount} onChange={(e) => setSalary({ ...salary, amount: e.target.value })} /></label>
           </div><button className="primary">Ödemeyi kaydet</button>
         </form>
       </div>

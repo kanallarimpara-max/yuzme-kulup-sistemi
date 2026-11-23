@@ -3,7 +3,7 @@ import { ArrowLeft, Check, Image as ImageIcon, Mic, Phone, PhoneOff, Search, Sen
 import { useSession } from '../lib/session';
 import { db, useCollection } from '../lib/store';
 import { uploadFile } from '../lib/credits';
-import { answerCall, applyAnswer, closeCall, startCall, type ActiveCall } from '../lib/call';
+import { answerCall, applyAnswer, closeCall, isRinging, startCall, type ActiveCall } from '../lib/call';
 import { GroupCall, livePeers, MAX_GROUP_CALL, type GroupPeer } from '../lib/groupCall';
 import { contactId, directChatId, findByTag, usePeople } from '../lib/people';
 import { ROLE_LABEL, type CallDoc, type Chat as ChatRow, type Contact, type Message } from '../lib/types';
@@ -36,8 +36,10 @@ export default function Chat() {
   const title = (c: ChatRow) => (c.direct ? nameOf(c.memberIds.find((m) => m !== uid) ?? '') : c.name);
   const open = chats.find((c) => c.id === openId) ?? null;
   const thread = messages.filter((m) => m.chatId === openId).sort((a, b) => (a.createdAt ?? 0) - (b.createdAt ?? 0));
-  const incoming = calls.find((c) => c.calleeId === uid && c.status === 'caliyor' && c.id !== callId);
+  const incoming = calls.find((c) => isRinging(c, uid) && c.id !== callId);
   const current = calls.find((c) => c.id === callId);
+  const liveCallId = useRef<string | null>(null);
+  liveCallId.current = callId;
 
   useEffect(() => { endRef.current?.scrollIntoView({ block: 'end' }); }, [thread.length, openId]);
 
@@ -55,6 +57,8 @@ export default function Chat() {
   }, [current?.status, current?.answer]);
 
   useEffect(() => () => {
+    // Ekrandan çıkınca karşı taraf açık hatta kalmasın.
+    if (activeCall.current && liveCallId.current) void db.update('calls', liveCallId.current, { status: 'bitti' }).catch(() => undefined);
     closeCall(activeCall.current);
     void groupCall.current?.leave();
   }, []);

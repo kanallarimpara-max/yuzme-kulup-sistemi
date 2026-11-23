@@ -5,6 +5,8 @@ import { dateTr, money, toKurus } from '../../lib/format';
 import { toIso } from '../../lib/rules';
 import { createStaffAccount } from '../../lib/session';
 import { DEFAULT_DESIGN, type Ad, type AppDesign } from '../../lib/design';
+import ImageField from '../../lib/ImageField';
+import { preRegLink } from '../../lib/links';
 import type { Club } from '../../lib/types';
 
 type Sale = Row & { clubName: string; date: string; plan: string; amountKurus: number };
@@ -48,7 +50,7 @@ export default function Platform() {
         throw error;
       }
       setNewClub({ name: '', adminName: '', email: '', password: '' });
-      setClubStatus(`${name} ve kulüp admini oluşturuldu. Ön kayıt adresi: #/on-kayit/${slug}`);
+      setClubStatus(`${name} ve kulüp admini oluşturuldu. Ön kayıt adresi: ${preRegLink(slug)}`);
     } catch {
       setClubError('Kulüp açılamadı. E-posta kayıtlı olabilir.');
     } finally {
@@ -92,13 +94,13 @@ export default function Platform() {
         </form>
         {clubStatus && <p className="ok" role="status">{clubStatus}</p>}
         {clubError && <p className="error" role="alert">{clubError}</p>}
-        <ul className="simple-list">{clubs.map((c) => <li key={c.id}><span>{c.name}<small>#/on-kayit/{c.slug}</small></span></li>)}</ul>
+        <ul className="simple-list">{clubs.map((c) => <li key={c.id}><span>{c.name}<small>{preRegLink(c.slug)}</small></span></li>)}</ul>
       </section>
       <section className="card stack">
         <h2>Uygulama tasarımı</h2>
         <form className="form-grid" onSubmit={saveLook}>
           <label>Uygulama adı<input required value={shownLook.appName} onChange={(e) => setLook({ ...shownLook, appName: e.target.value })} /></label>
-          <label>Logo adresi<input type="url" value={shownLook.logoUrl} onChange={(e) => setLook({ ...shownLook, logoUrl: e.target.value })} /></label>
+          <ImageField label="Uygulama logosu" value={shownLook.logoUrl} onChange={(logoUrl) => setLook({ ...shownLook, logoUrl })} />
           <label>Vurgu rengi<input type="color" value={shownLook.accent} onChange={(e) => setLook({ ...shownLook, accent: e.target.value })} /></label>
           <label>Arka plan<input type="color" value={shownLook.background} onChange={(e) => setLook({ ...shownLook, background: e.target.value })} /></label>
           <label>Kart rengi<input type="color" value={shownLook.panel} onChange={(e) => setLook({ ...shownLook, panel: e.target.value })} /></label>
@@ -111,7 +113,7 @@ export default function Platform() {
           <label>Kulüp<input required value={sale.clubName} onChange={(e) => setSale({ ...sale, clubName: e.target.value })} /></label>
           <label>Satış tarihi<input type="date" required value={sale.date} onChange={(e) => setSale({ ...sale, date: e.target.value })} /></label>
           <label>Ödeme planı<select value={sale.plan} onChange={(e) => setSale({ ...sale, plan: e.target.value })}><option>Aylık</option><option>Yıllık</option><option>Taksitli</option></select></label>
-          <label>Tutar (TL)<input required inputMode="decimal" value={sale.amount} onChange={(e) => setSale({ ...sale, amount: e.target.value })} /></label>
+          <label>Tutar (TL)<input required inputMode="decimal" pattern="[0-9₺ ]+([.,][0-9]+)*" title="Örnek: 1.500 veya 1.500,50" value={sale.amount} onChange={(e) => setSale({ ...sale, amount: e.target.value })} /></label>
           <div className="form-actions"><button className="primary">Satış ekle</button></div>
         </form>
         <div className="table-wrap"><table><thead><tr><th>Kulüp</th><th>Tarih</th><th>Plan</th><th>Tutar</th></tr></thead>
@@ -121,7 +123,7 @@ export default function Platform() {
         <h2>Reklam alanları</h2>
         <form className="form-grid" onSubmit={addAd}>
           <label>Başlık<input required value={ad.title} onChange={(e) => setAd({ ...ad, title: e.target.value })} /></label>
-          <label>Görsel adresi<input type="url" required value={ad.imageUrl} onChange={(e) => setAd({ ...ad, imageUrl: e.target.value })} /></label>
+          <ImageField label="Reklam görseli" required value={ad.imageUrl} onChange={(imageUrl) => setAd({ ...ad, imageUrl })} />
           <label>Bağlantı<input type="url" value={ad.linkUrl} onChange={(e) => setAd({ ...ad, linkUrl: e.target.value })} /></label>
           <label>Alan<select value={ad.slot} onChange={(e) => setAd({ ...ad, slot: e.target.value })}><option value="panel">Panel</option><option value="market">Market</option><option value="sosyal">Sosyal</option></select></label>
           <div className="form-actions"><button className="primary">Reklam ekle</button></div>

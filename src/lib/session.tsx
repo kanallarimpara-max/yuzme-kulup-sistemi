@@ -10,6 +10,7 @@ type Session = {
   signIn: (email: string, password: string) => Promise<void>;
   signInDemo: (userId: string) => void;
   signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 };
 
 const Ctx = createContext<Session | null>(null);
@@ -148,6 +149,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await f.signOut(f.auth);
         throw new Error('Bu hesabın kulüp erişimi kaldırılmış.');
       }
+    },
+    resetPassword: async (email) => {
+      const f = await authSdk();
+      await f.sendPasswordResetEmail(f.auth, email);
     },
     signInDemo: (id) => {
       sessionStorage.setItem(DEMO_KEY, id);

@@ -85,7 +85,8 @@ export type LaneClock = { status: 'idle' | 'running' | 'paused' | 'done'; starte
 export const laneElapsed = (lane: LaneClock, now: number) =>
   lane.status === 'running' && lane.startedAt !== null ? lane.offsetMs + Math.max(0, now - lane.startedAt) : lane.offsetMs;
 
-export const startLane = (lane: LaneClock, now: number): LaneClock => ({ status: 'running', startedAt: now, offsetMs: lane.status === 'done' ? 0 : lane.offsetMs });
+// Çalışan kulvara tekrar "başlat" denirse süre geri sarılmaz.
+export const startLane = (lane: LaneClock, now: number): LaneClock => (lane.status === 'running' ? lane : { status: 'running', startedAt: now, offsetMs: lane.status === 'done' ? 0 : lane.offsetMs });
 export const pauseLane = (lane: LaneClock, now: number): LaneClock => ({ status: 'paused', startedAt: null, offsetMs: laneElapsed(lane, now) });
 export const finishLane = (): LaneClock => ({ status: 'done', startedAt: null, offsetMs: 0 });
 export const jumpLane = (sets: WorkoutSet[], setIndex: number, now: number): LaneClock => ({ status: 'running', startedAt: now, offsetMs: setOffsetMs(sets, setIndex) });

@@ -3,6 +3,8 @@ import { useSession } from '../../lib/session';
 import { db } from '../../lib/store';
 import type { PreRegLook } from '../../lib/types';
 import { PreRegHeader } from '../PreRegister';
+import { preRegLink } from '../../lib/links';
+import ImageField from '../../lib/ImageField';
 
 const blank: PreRegLook = {
   eyebrow: 'Ön kayıt formu', color: '#19b5c9', title: '',
@@ -18,7 +20,7 @@ export default function PreRegDesign() {
   }, [club?.id]);
   if (!club) return null;
 
-  const link = `${location.origin}${location.pathname}#/on-kayit/${club.slug}`;
+  const link = preRegLink(club.slug);
   const set = (key: keyof PreRegLook, value: string) => {
     setLook((l) => ({ ...l, [key]: value }));
     setStatus('');
@@ -42,7 +44,7 @@ export default function PreRegDesign() {
           <label>Tema rengi<input type="color" value={look.color} onChange={(e) => set('color', e.target.value)} /></label>
           <label>Başlık (boşsa kulüp adı)<input value={look.title} onChange={(e) => set('title', e.target.value)} /></label>
           <label>Açıklama metni<textarea rows={3} value={look.description} onChange={(e) => set('description', e.target.value)} /></label>
-          <label>Form logosu (isteğe bağlı)<input type="url" placeholder="https://" value={look.logoUrl} onChange={(e) => set('logoUrl', e.target.value)} /></label>
+          <ImageField label="Form logosu (isteğe bağlı)" value={look.logoUrl ?? ''} onChange={(url) => set('logoUrl', url)} />
           <label>Tanıtım videosu (YouTube/Vimeo)<input type="url" placeholder="https://www.youtube.com/watch?v=..." value={look.videoUrl} onChange={(e) => set('videoUrl', e.target.value)} /></label>
           <div className="form-actions">
             <button className="primary" onClick={async () => { await db.update('clubs', club.id, { preRegLook: look }); setStatus('Görünüm kaydedildi.'); }}>Görünümü Kaydet</button>

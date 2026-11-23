@@ -13,9 +13,12 @@ export const STROKE_LABEL = { serbest: 'Serbest', kelebek: 'Kelebek', sirt: 'Sı
 export const money =(kurus: number) =>
   (kurus / 100).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 2 });
 
+/** Türkçe yazımı anlar: 1.500 = bin beş yüz, 1.500,50 ve 12,5 ondalıklıdır. */
 export const toKurus = (value: string) => {
-  const n = Number(value.replace(',', '.'));
-  return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : 0;
+  const raw = value.replace(/[\s₺]/g, '');
+  const plain = raw.includes(',') ? raw.replace(/\./g, '').replace(',', '.') : /^\d{1,3}(\.\d{3})+$/.test(raw) ? raw.replace(/\./g, '') : raw;
+  const n = Number(plain);
+  return plain && Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : 0;
 };
 
 export const dateTr = (iso: string) => {

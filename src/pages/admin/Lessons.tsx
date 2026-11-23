@@ -82,8 +82,8 @@ export default function Lessons() {
           <label>Bitiş saati<input type="time" required value={form.endTime} onChange={(e) => set('endTime', e.target.value)} /></label>
           <label>Toplam seans<input type="number" min={1} required value={form.sessionCount} onChange={(e) => set('sessionCount', Number(e.target.value))} /></label>
           <label>Kontenjan<input type="number" min={1} required value={form.capacity} onChange={(e) => set('capacity', Number(e.target.value))} /></label>
-          <label>Öğrenci aidatı (TL)<input inputMode="decimal" required value={form.fee} onChange={(e) => set('fee', e.target.value)} /></label>
-          <label>Antrenör maaşı (TL)<input inputMode="decimal" required value={form.coachPay} onChange={(e) => set('coachPay', e.target.value)} /></label>
+          <label>Öğrenci aidatı (TL)<input inputMode="decimal" pattern="[0-9₺ ]+([.,][0-9]+)*" title="Örnek: 1.500 veya 1.500,50" required value={form.fee} onChange={(e) => set('fee', e.target.value)} /></label>
+          <label>Antrenör maaşı (TL)<input inputMode="decimal" pattern="[0-9₺ ]+([.,][0-9]+)*" title="Örnek: 1.500 veya 1.500,50" required value={form.coachPay} onChange={(e) => set('coachPay', e.target.value)} /></label>
           <label>En fazla taksit<input type="number" min={1} max={12} value={form.maxInstallments} onChange={(e) => set('maxInstallments', Number(e.target.value))} /></label>
           <label>Taksit faizi (%)<input type="number" min={0} step="0.01" value={form.interestPercent} onChange={(e) => set('interestPercent', Number(e.target.value))} /></label>
         </div>

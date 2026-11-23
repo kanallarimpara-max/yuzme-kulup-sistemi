@@ -17,6 +17,9 @@ export const gathered = (pc: RTCPeerConnection) => new Promise<void>((resolve) =
 
 export type ActiveCall = { pc: RTCPeerConnection; stream: MediaStream; audio: HTMLAudioElement };
 
+/** Bir dakikadan eski, kapanmamış arama artık çalıyor sayılmaz. */
+export const isRinging = (c: CallDoc, uid: string) => c.calleeId === uid && c.status === 'caliyor' && Date.now() - (c.createdAt ?? 0) < 60000;
+
 async function prepare(): Promise<ActiveCall> {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   const pc = new RTCPeerConnection(CONFIG);

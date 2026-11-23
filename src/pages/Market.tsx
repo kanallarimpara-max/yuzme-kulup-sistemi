@@ -9,6 +9,8 @@ import type { User } from '../lib/types';
 
 type Order = Row & { userId: string; productId: string; productName: string; pay: 'kredi' | 'tl'; credits: number; kurus: number; status: string };
 
+const ORDER_STATUS = ['Ödeme bekliyor', 'Hazırlanıyor', 'Teslim edildi'];
+
 export default function Market() {
   const { user } = useSession();
   const products = useCollection<Product>('products');
@@ -64,7 +66,7 @@ export default function Market() {
           <label>Ürün adı<input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
           <label>Açıklama<input required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
           <label>Fotoğraf<input type="file" accept="image/*" onChange={(e) => image(e.target.files?.[0])} /></label>
-          <label>Fiyat (TL)<input required inputMode="decimal" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></label>
+          <label>Fiyat (TL)<input required inputMode="decimal" pattern="[0-9₺ ]+([.,][0-9]+)*" title="Örnek: 1.500 veya 1.500,50" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></label>
           <label>Kredi fiyatı<input type="number" min={0} value={form.credits} onChange={(e) => setForm({ ...form, credits: Number(e.target.value) })} /></label>
           <div className="form-actions"><button className="primary">Ürün ekle</button></div>
         </form>
@@ -84,7 +86,7 @@ export default function Market() {
       ))}</section>
       <section className="card"><h2>{isSuper ? 'Tüm siparişler' : 'Siparişlerim'}</h2>
         {visibleOrders.length === 0 ? <p className="muted">Henüz sipariş yok.</p> : <ul className="simple-list">{visibleOrders.map((o) => (
-          <li key={o.id}><span>{o.productName}<small>{isSuper ? `${users.find((u) => u.id === o.userId)?.name} · ` : ''}{o.pay === 'kredi' ? `${o.credits} kredi` : money(o.kurus)}</small></span><em className="badge">{o.status}</em></li>
+          <li key={o.id}><span>{o.productName}<small>{isSuper ? `${users.find((u) => u.id === o.userId)?.name} · ` : ''}{o.pay === 'kredi' ? `${o.credits} kredi` : money(o.kurus)}</small></span>{isSuper ? <select aria-label={`${o.productName} sipariş durumu`} className="auto" value={o.status} onChange={(e) => db.update('orders', o.id, { status: e.target.value })}>{[...new Set([o.status, ...ORDER_STATUS])].map((s) => <option key={s}>{s}</option>)}</select> : <em className="badge">{o.status}</em>}</li>
         ))}</ul>}
       </section>
     </div>
