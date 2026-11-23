@@ -56,6 +56,30 @@ export default function Chat() {
     }
   }, [current?.status, current?.answer]);
 
+  // Açılmayan arama bir dakika sonra kapanır, bağlantı kurulamazsa kullanıcıya söylenir.
+  useEffect(() => {
+    if (!current || current.status !== 'caliyor' || current.callerId !== uid) return;
+    const id = current.id;
+    const timer = window.setTimeout(() => {
+      setError('Aranan kişi yanıt vermedi.');
+      void db.update('calls', id, { status: 'bitti' }).catch(() => undefined);
+    }, Math.max(0, 60000 - (Date.now() - (current.createdAt ?? Date.now()))));
+    return () => window.clearTimeout(timer);
+  }, [current?.id, current?.status]);
+
+  useEffect(() => {
+    const pc = activeCall.current?.pc;
+    if (!pc || !callId) return;
+    const id = callId;
+    const onChange = () => {
+      if (pc.connectionState !== 'failed') return;
+      setError('Ses bağlantısı kurulamadı. İki cihazın interneti birbirine doğrudan bağlanamıyor olabilir.');
+      void db.update('calls', id, { status: 'bitti' }).catch(() => undefined);
+    };
+    pc.addEventListener('connectionstatechange', onChange);
+    return () => pc.removeEventListener('connectionstatechange', onChange);
+  }, [callId]);
+
   useEffect(() => () => {
     // Ekrandan çıkınca karşı taraf açık hatta kalmasın.
     if (activeCall.current && liveCallId.current) void db.update('calls', liveCallId.current, { status: 'bitti' }).catch(() => undefined);

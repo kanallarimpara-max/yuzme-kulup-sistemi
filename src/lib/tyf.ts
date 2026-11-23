@@ -59,6 +59,7 @@ export function parseResultPages(pages: PdfItem[][]): TyfEvent | null {
       const nameCells = band.filter((i) => i.x > 100 && i.x < 340).sort((a, b) => b.y - a.y);
       if (!nameCells.length) return;
       const timeCell = band.find((i) => i.x >= 430 && TIME.test(i.text.trim()));
+      // TYF diskalifiyeleri sayfa sonunda ayrı listeler; o listedeki DSQ üstteki sporcunun derecesini silmemeli.
       const statusCell = band.find((i) => i.x >= 430 && STATUS.test(i.text.trim()));
       const rankCell = band.find((i) => i.x < 70 && /^\d+$/.test(i.text.trim()));
       rows.push({

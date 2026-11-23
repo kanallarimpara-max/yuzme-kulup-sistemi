@@ -26,6 +26,13 @@ describe('TYF sonuç PDF ayrıştırma', () => {
     expect(event.rows[0]).toMatchObject({ rank: 1, maskedName: 'Ze**ep Ş***n', birthYear: 2015, club: 'Mavi Dalga Spor Kulübü', timeMs: 81860, lapsMs: [38750, 81860] });
     expect(event.rows[2]).toMatchObject({ rank: null, timeMs: null, status: 'DSQ' });
   });
+  it('sayfa sonundaki DSQ listesi ne satır olur ne üstteki dereceyi siler', () => {
+    const list = [...page.slice(0, 5), ...row(698, '1', 'Ze**ep Ş***n', 'Mavi Dalga Spor Kulübü', '1:21.86', ''),
+      { x: 31.2, y: 678, text: 'DSQ' }, { x: 56.6, y: 678, text: 'De*** K**a' }, { x: 153, y: 678, text: 'Başka Spor Kulübü' }];
+    const { rows } = parseResultPages([list])!;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ timeMs: 81860, status: '' });
+  });
   it('yıldızlı adı harf harf eşleştirir', () => {
     expect(maskedNameMatches('Ze**ep Ş***n', 'Zeynep Şahin')).toBe(true);
     expect(maskedNameMatches('Ze**ep Ş***n', 'Zeynep Şahinoğlu')).toBe(false);

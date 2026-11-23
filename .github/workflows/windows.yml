@@ -27,6 +27,16 @@ jobs:
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ vars.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_WORKER_URL: ${{ vars.VITE_WORKER_URL }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - name: Uygulamayi gercekten ac
+        run: |
+          npm install --no-save playwright-core@1.49.1
+          node scripts/windows-duman.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-ekran
+          path: duman/
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         with:
           name: yuzme-kulup-windows
