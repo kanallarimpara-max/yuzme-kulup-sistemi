@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici onayiyla Firestore kurallari ve siteyi yayinla, canli akisi test et
+Canli sitede super admin girisi, AI, dekont yukleme, bildirim ve sesli ozellikleri dene
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Kullanici onayiyla Firestore kurallari ve siteyi yayinla, canli akisi test et
 
 ## Son kayıtlar
 
+- 2026-11-23: Firestore kurallari ve site kullanici onayiyla yayinlandi. 37 test, kural testleri ve build gecti. Canli giris henuz denenmedi
 - 2026-11-23: GitHub Actions APK derleme sonucu kontrol edildi
 - 2026-11-23: APK is akisi GitHub'a eklendi, Firebase Android kaydi ve depo ayarlari tamamlandi
 - 2026-11-23: Ilk super admin hesabi ve profil kaydi canli Firebase'de olusturuldu, sifre yalniz kullanicida. Giris henuz denenmedi cunku canli kurallar yayinlanmadi
