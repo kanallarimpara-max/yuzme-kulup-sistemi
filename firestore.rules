@@ -151,6 +151,15 @@ service cloud.firestore {
         && request.resource.data.to in get(/databases/$(database)/documents/chats/$(request.resource.data.chatId)).data.memberIds;
       allow update: if signedIn() && resource.data.to == request.auth.uid && onlyChanges(['answer']);
     }
+    // Cihaz bildirim kayıtlarını istemci okuyamaz; yalnız Worker'ın servis hesabı okur.
+    match /pushTokens/{id} {
+      allow create, update: if signedIn() && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'token', 'platform', 'updatedAt'])
+        && request.resource.data.token is string && request.resource.data.token.size() < 4096
+        && request.resource.data.platform in ['web', 'android']
+        && id == hashing.sha256(request.resource.data.token).toHexString().lower();
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
     // Kronometre sunucu saatiyle eşitlenir.
     match /clockSync/{uid} {
       allow read: if signedIn() && request.auth.uid == uid;

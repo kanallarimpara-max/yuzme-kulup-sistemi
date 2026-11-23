@@ -149,6 +149,8 @@ class LocalStore implements DataStore {
   }
 }
 
+const PUSH_COLLECTIONS = new Set(['notices', 'messages', 'calls']);
+
 class FirestoreStore implements DataStore {
   private sdk = (async () => {
     const [{ getApp, getApps, initializeApp }, firestore] = await Promise.all([import('firebase/app'), import('firebase/firestore')]);
@@ -198,7 +200,10 @@ class FirestoreStore implements DataStore {
 
   async add<T extends object>(name: string, data: T) {
     const f = await this.sdk;
-    return (await f.addDoc(f.collection(f.db, name), { ...data, createdAt: Date.now() })).id;
+    const id = (await f.addDoc(f.collection(f.db, name), { ...data, createdAt: Date.now() })).id;
+    // Bildirim hatası asıl kaydı etkilemez.
+    if (PUSH_COLLECTIONS.has(name)) void import('./push').then((p) => p.notifyPush(name, id)).catch(() => undefined);
+    return id;
   }
 
   async put<T extends object>(name: string, id: string, data: T) {

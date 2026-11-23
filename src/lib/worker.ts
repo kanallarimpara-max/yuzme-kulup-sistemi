@@ -20,6 +20,11 @@ export async function meetPdf(url: string) {
   return (await call(`/tyf/pdf?url=${encodeURIComponent(url)}`)).arrayBuffer();
 }
 
+export async function pushNotify(collection: string, id: string): Promise<{ done: boolean; retry?: boolean }> {
+  const res = await call('/push/notify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ collection, id }) });
+  return res.json();
+}
+
 /** Yapay zekâya ad, kulüp veya kimlik gönderilmez; yalnız sayısal özet gider. */
 export async function aiAnalysis(summary: object): Promise<string> {
   const res = await call('/ai/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ summary }) });

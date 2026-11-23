@@ -117,6 +117,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     signOut: async () => {
       if (firebaseEnabled) {
         const f = await authSdk();
+        await import('./push').then((p) => p.disablePush()).catch(() => undefined);
         await f.signOut(f.auth);
       } else {
         sessionStorage.removeItem(DEMO_KEY);

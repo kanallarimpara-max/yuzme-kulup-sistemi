@@ -1,7 +1,8 @@
 // Firestore kurallarını yalnız yerel emülatörde, kurgusal veriyle dener: npm run test:rules
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { assertFails, assertSucceeds, initializeTestEnvironment } from '@firebase/rules-unit-testing';
-import { addDoc, collection, doc, getDoc, getDocs, increment, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
 
 const env = await initializeTestEnvironment({
   projectId: 'demo-yuzme-kural',
@@ -45,6 +46,7 @@ const seed = {
   listingSets: { ilan1: { sellerId: 'coach2', sets: [] }, ilan2: { sellerId: 'yenisatici', sets: [] } },
 };
 
+const tokenId = createHash('sha256').update('cihaz-token').digest('hex');
 const batch = (f, ops) => {
   const b = writeBatch(f);
   ops.forEach(([name, id, data]) => b.set(doc(f, name, id), data, { merge: true }));
@@ -148,6 +150,14 @@ const checks = [
   ok('kullanıcı saatini eşitler', () => setDoc(doc(C, 'clockSync', 'coach1'), { at: serverTimestamp() })),
   no('saat kaydı elle yazılamaz', () => setDoc(doc(C, 'clockSync', 'coach1'), { at: new Date(0) })),
   no('başkasının saat kaydı yazılamaz', () => setDoc(doc(C, 'clockSync', 'coach2'), { at: serverTimestamp() })),
+  ok('kullanıcı cihazını bildirime kaydeder', () => setDoc(doc(C, 'pushTokens', tokenId), { uid: 'coach1', token: 'cihaz-token', platform: 'web', updatedAt: 1 })),
+  no('cihaz kaydı okunamaz', () => getDoc(doc(C, 'pushTokens', tokenId))),
+  no('cihaz kayıtları listelenemez', () => getDocs(collection(Z, 'pushTokens'))),
+  no('başkası adına cihaz kaydedilemez', () => setDoc(doc(A, 'pushTokens', tokenId), { uid: 'coach1', token: 'cihaz-token', platform: 'web', updatedAt: 1 })),
+  no('token ile uyuşmayan kayıt açılamaz', () => setDoc(doc(C, 'pushTokens', 'uydurma'), { uid: 'coach1', token: 'cihaz-token', platform: 'web', updatedAt: 1 })),
+  no('başkasının cihaz kaydı silinemez', () => deleteDoc(doc(A, 'pushTokens', tokenId))),
+  ok('kullanıcı kendi cihaz kaydını siler', () => deleteDoc(doc(C, 'pushTokens', tokenId))),
+  no('bildirim günlüğü yazılamaz', () => setDoc(doc(Z, 'pushLog', 'notices_n1'), { next: 0 })),
   ok('süper admin tüm öğrencileri okur', () => getDocs(collection(Z, 'students'))),
   ok('süper admin tasarım yazar', () => setDoc(doc(Z, 'appDesign', 'main'), { appName: 'Kurgu' })),
   ok('oturumsuz tasarım okur', () => getDoc(doc(U, 'appDesign', 'main'))),

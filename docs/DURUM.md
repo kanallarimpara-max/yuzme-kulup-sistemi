@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici: Cloudflare ve Cloudinary hesabi, gh workflow izni, acik yayin onayi. Sonra wrangler deploy, VITE_WORKER_URL, firebase deploy, ilk super admin. Kapali uygulamaya bildirim henuz yazilmadi
+Kullanici acik yayin onayi verirse firebase deploy --only firestore:rules,hosting ve ilk super admin. Sonra Cloudflare (wrangler deploy, FIREBASE_SERVICE_ACCOUNT secret, VITE_WORKER_URL), FCM VAPID anahtari, Cloudinary, gh workflow izni ve GitHub vars
 
 ## Modüller
 
@@ -37,6 +37,7 @@ Kullanici: Cloudflare ve Cloudinary hesabi, gh workflow izni, acik yayin onayi. 
 
 ## Son kayıtlar
 
+- 2026-11-23: Kapali uygulama bildirimi yazildi: FCM, Worker gonderimi, web service worker, Android eklentisi, cihaz kaydi kurallari. APK is akisi gercek Firebase ayarlarini alacak sekilde duzeltildi (yerelde, workflow izni bekliyor). 37 test, 21 Worker testi, 93/93 kural testi, build gecti. Gercek cihazda bildirim denenmedi
 - 2026-11-23: Cloudflare Worker yazildi: Firebase oturumu dogrulamali AI analiz ve TYF yarisindan otomatik PDF cekme, ekranlara baglandi. 37 test, 11 Worker testi, build, 85/85 kural testi gecti. Worker yayinlanmadi, gercek AI cagrilmadi
 - 2026-11-23: Kronometre sunucu saatiyle esitlendi, sunucusuz grup sesli arama eklendi (en fazla 6 kisi). 33 test, build, 85/85 kural testi gecti; arama iki gercek cihazda denenmedi
 - 2026-11-23: Kredi harcama Worker gerektirmeden atomik islem + Firestore kurallariyla yazildi (wallets, listingSets). Secili ogrenci bildirimi, super admin istek beklemeden sohbet, antrenor paneli kisi sayisi ve logo eklendi. 31 test, build, 75/75 kural testi gecti

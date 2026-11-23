@@ -1,7 +1,8 @@
-import { Camera, FileUp, MessagesSquare, Target, Baby, BadgePlus, Banknote, Bell, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
+import { Camera, FileUp, MessagesSquare, Target, Baby, BadgePlus, Banknote, Bell, BellOff, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useSession } from './lib/session';
 import { AdSlot, useAppDesign } from './lib/design';
+import { pushAvailable, usePushToggle } from './lib/push';
 import { ROLE_LABEL, type Role } from './lib/types';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -66,6 +67,12 @@ const NAV: NavItem[] = [
 
 const AD_SLOT: Record<string, string> = { '/panel': 'panel', '/market': 'market', '/sosyal': 'sosyal' };
 
+function PushButton({ uid }: { uid: string }) {
+  const { on, busy, error, toggle } = usePushToggle(uid);
+  const label = error || (on ? 'Bildirimleri kapat' : 'Bildirimleri aç');
+  return <button className="ghost icon" disabled={busy} onClick={toggle} aria-label={label} title={label}>{on ? <Bell size={18} /> : <BellOff size={18} />}</button>;
+}
+
 function Shell() {
   const { user, club, signOut } = useSession();
   const { pathname } = useLocation();
@@ -88,6 +95,7 @@ function Shell() {
         </nav>
         <div className="sidebar-foot">
           <span className="who"><CalendarDays size={15} />{user.tag}</span>
+          {pushAvailable && <PushButton uid={user.id} />}
           <button className="ghost icon" onClick={signOut} aria-label="Çıkış yap" title="Çıkış yap"><LogOut size={18} /></button>
         </div>
       </aside>
