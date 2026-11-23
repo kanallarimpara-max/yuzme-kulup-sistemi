@@ -46,8 +46,17 @@ jobs:
       - run: chmod +x android/gradlew
       - run: ./gradlew assembleDebug --no-daemon
         working-directory: android
-      - name: Emulator hizlandirma
+      # APK, açılış testi başarısız olsa da incelenebilsin diye önce kaydedilir.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yuzme-kulup-android
+          path: android/app/build/outputs/apk/debug/*.apk
+          retention-days: 14
+      - name: Emulator hizlandirma ve disk alani
         run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /opt/hostedtoolcache/CodeQL
+          rm -rf ~/.gradle/caches android/app/build/intermediates android/build
+          df -h "$HOME"
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
@@ -57,6 +66,7 @@ jobs:
           api-level: 34
           target: google_apis
           arch: x86_64
+          disk-size: 3000M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
           script: sh scripts/android-duman.sh
@@ -66,8 +76,3 @@ jobs:
           name: android-ekran
           path: duman/
           retention-days: 7
-      - uses: actions/upload-artifact@v4
-        with:
-          name: yuzme-kulup-android
-          path: android/app/build/outputs/apk/debug/*.apk
-          retention-days: 14

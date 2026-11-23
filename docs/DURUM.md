@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-CI acilis testlerini kontrol et, sonra kullanici girisiyle canli akislari dene
+Android acilis testinin sonucunu kontrol et
 
 ## Modüller
 
@@ -39,6 +39,7 @@ CI acilis testlerini kontrol et, sonra kullanici girisiyle canli akislari dene
 
 ## Son kayıtlar
 
+- 2026-11-24: Windows paketi CI'da acildi ve giris ekrani dogrulandi. Android acilis testinde emulator disk alani ve APK kaydi duzeltildi
 - 2026-11-24: Sesli arama, grup aramasi ve kayit iki kullaniciyla denendi. Android mikrofon izni eklendi, cevapsiz ve kopuk arama uyarisi, AI kisa Turkce yanit, 18 gercek TYF dosyasi dogrulandi, Android ve Windows acilis testi CI'a eklendi
 - 2026-11-23: Tum roller gercek kullanici senaryosuyla denendi. Para girisi, kronometre, veli paneli, bos kredi ekrani, baglanti, arama uyarisi, sifre yenileme, gorsel yukleme ve mobil menu duzeltildi
 - 2026-11-23: Super admin sistem sahibi ekrani, tanitim sayfasi, ilk yorum kural hatasi duzeltmesi ve Windows is akisi eklendi. Web yayinlandi, tum roller emulatorde gezildi, 160/160 kural testi gecti
