@@ -35,7 +35,7 @@ export type PreReg = Row & {
   parentId: string; status: 'yeni' | 'kayitli';
 };
 export type Enrollment = Row & {
-  clubId: string; studentId: string; lessonId: string; coachId: string; listKurus: number; netKurus: number; totalKurus: number;
+  clubId: string; studentId: string; parentId: string; lessonId: string; coachId: string; listKurus: number; netKurus: number; totalKurus: number;
   discountCode?: string; installments: PaidInstallment[];
 };
 export type Chat = Row & { clubId?: string; name: string; lessonId?: string; memberIds: string[]; direct?: boolean };

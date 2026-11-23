@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useSession } from '../lib/session';
-import { db, useCollection } from '../lib/store';
+import { db, useCollection, useMerged } from '../lib/store';
+import { studentScope } from '../lib/access';
 import { dateTr } from '../lib/format';
 import { ROLE_LABEL, type Lesson, type Notice, type Student, type User } from '../lib/types';
 
@@ -10,10 +11,11 @@ export default function Notices() {
   const { user } = useSession();
   const clubId = user?.clubId ?? '';
   const scope = { clubId };
-  const notices = useCollection<Notice>('notices', scope);
+  const uid = user?.id;
+  const notices = useMerged<Notice>('notices', uid ? { contains: ['recipientIds', uid] } : { skip: true }, uid ? { eq: ['senderId', uid] } : { skip: true });
   const users = useCollection<User>('users', scope);
   const lessons = useCollection<Lesson>('lessons', scope);
-  const students = useCollection<Student>('students', scope);
+  const students = useCollection<Student>('students', studentScope(user));
   const [form, setForm] = useState({ kind: 'duyuru' as Notice['kind'], title: '', body: '', date: '' });
   const [audience, setAudience] = useState<Audience>('herkes');
   const [lessonId, setLessonId] = useState('');

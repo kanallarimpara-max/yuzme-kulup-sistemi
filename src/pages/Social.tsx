@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Heart, MessageCircle, Trash2 } from 'lucide-react';
 import { useSession } from '../lib/session';
-import { db, useCollection } from '../lib/store';
+import { db, useCollection, useMerged } from '../lib/store';
 import { uploadFile } from '../lib/credits';
 import { ROLE_LABEL, type Contact, type Post, type User } from '../lib/types';
 
@@ -11,7 +11,7 @@ const KIND = { foto: 'Fotoğraf', derece: 'Derece', madalya: 'Madalya' };
 export default function Social() {
   const { user } = useSession();
   const uid = user?.id ?? '';
-  const posts = useCollection<Post>('posts');
+  const posts = useMerged<Post>('posts', uid ? { eq: ['isPublic', true] } : { skip: true }, uid ? { contains: ['audience', uid] } : { skip: true });
   const users = useCollection<User>('users');
   const contacts = useCollection<Contact>('contacts', { contains: ['memberIds', uid] });
   const [tab, setTab] = useState<Tab>('akis');

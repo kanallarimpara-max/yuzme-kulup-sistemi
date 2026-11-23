@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { useSession } from '../../lib/session';
 import { db, useCollection } from '../../lib/store';
+import { studentScope } from '../../lib/access';
 import { formatSwimTime } from '../../lib/rules';
 import { dateTr, STROKE_LABEL } from '../../lib/format';
 import { matchAthletes, readResultPdf, resultKey, type TyfEvent, type TyfMatch } from '../../lib/tyf';
@@ -10,9 +11,9 @@ import type { Student, SwimResult } from '../../lib/types';
 type Found = { event: TyfEvent; match: TyfMatch; key: string; selected: boolean; exists: boolean };
 
 export default function TyfImport() {
-  const { club } = useSession();
+  const { club, user } = useSession();
   const clubId = club?.id ?? '';
-  const students = useCollection<Student>('students', { clubId });
+  const students = useCollection<Student>('students', studentScope(user));
   const results = useCollection<SwimResult>('results', { clubId });
   const [pool, setPool] = useState<'25m' | '50m'>('50m');
   const [found, setFound] = useState<Found[]>([]);

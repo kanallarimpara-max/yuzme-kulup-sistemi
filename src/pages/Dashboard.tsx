@@ -1,5 +1,6 @@
 import { useSession } from '../lib/session';
 import { useCollection } from '../lib/store';
+import { salaryScope, studentScope } from '../lib/access';
 import { toIso } from '../lib/rules';
 import { money } from '../lib/format';
 import { ROLE_LABEL, type Branch, type Lesson, type SalaryPayment, type Student } from '../lib/types';
@@ -8,9 +9,9 @@ export default function Dashboard() {
   const { user, club } = useSession();
   const scope = { clubId: user?.clubId };
   const lessons = useCollection<Lesson>('lessons', scope);
-  const students = useCollection<Student>('students', scope);
+  const students = useCollection<Student>('students', studentScope(user));
   const branches = useCollection<Branch>('branches', scope);
-  const salaries = useCollection<SalaryPayment>('salaries', scope);
+  const salaries = useCollection<SalaryPayment>('salaries', salaryScope(user));
   if (!user) return null;
 
   const now = new Date();

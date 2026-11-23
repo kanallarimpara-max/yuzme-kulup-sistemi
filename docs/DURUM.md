@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici onaylarsa bos (default) veritabanini silip europe-west3 konumunda yeniden olustur, sonra sorgulari kurallarla uyumlu yap
+Kullanici onaylarsa JDK kur, firestore.rules emulatorde rol testleriyle dogrula, sonra kurallari ve siteyi yayinla. Kredi harcama (ledger) Worker gerektirir
 
 ## Modüller
 
@@ -37,6 +37,7 @@ Kullanici onaylarsa bos (default) veritabanini silip europe-west3 konumunda yeni
 
 ## Son kayıtlar
 
+- 2026-11-23: Firestore (default) europe-west3 konumunda yeniden kuruldu. Sorgular rol bazli kurallarla uyumlu yapildi (lib/access.ts), on kayit oturum sirasi ve enrollments.parentId duzeltildi. tsc, 31 test ve build gecti; kurallar henuz yayinlanmadi ve emulatorde test edilmedi
 - 2026-11-23: E-posta/sifre girisi ve Firestore acildi. DIKKAT: veritabani CLI ile otomatik nam5 (ABD) konumunda olustu, bos
 - 2026-11-23: Firebase projesi yuzme-kulup-sistemi ve web uygulamasi olusturuldu, yerel .env yazildi (repoya girmez)
 - 2026-11-23: Firebase CLI projeye eklendi

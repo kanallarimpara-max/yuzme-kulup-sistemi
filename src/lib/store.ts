@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 // Firebase ayarı varsa Firestore, yoksa tarayıcıda çalışan demo deposu kullanılır.
 // Ekranlar yalnızca bu dosyadaki API'yi bilir.
 
 export type Row = { id: string; clubId?: string; createdAt?: number };
 /** `id` tek belge, `contains` dizi alanı filtresidir. Ücretsiz okuma kotası için geniş dinleme yapılmaz. */
-export type Scope = { clubId?: string; id?: string; contains?: [field: string, value: string] };
+export type Scope = { clubId?: string; id?: string; contains?: [field: string, value: string]; eq?: [field: string, value: string | boolean]; skip?: boolean };
 type Listener = (rows: Row[]) => void;
 
 export interface DataStore {
@@ -56,7 +56,9 @@ class LocalStore implements DataStore {
 
   private rows(name: string, scope: Scope) {
     return (this.data[name] ?? []).filter((r) => {
+      if (scope.skip) return false;
       if (scope.id && r.id !== scope.id) return false;
+      if (scope.eq && (r as unknown as Record<string, unknown>)[scope.eq[0]] !== scope.eq[1]) return false;
       if (scope.clubId && r.clubId !== scope.clubId) return false;
       if (scope.contains) {
         const list = (r as unknown as Record<string, unknown>)[scope.contains[0]];
@@ -118,9 +120,9 @@ class LocalStore implements DataStore {
 
 class FirestoreStore implements DataStore {
   private sdk = (async () => {
-    const [{ initializeApp }, firestore] = await Promise.all([import('firebase/app'), import('firebase/firestore')]);
+    const [{ getApp, getApps, initializeApp }, firestore] = await Promise.all([import('firebase/app'), import('firebase/firestore')]);
     const env = import.meta.env;
-    const app = initializeApp({
+    const app = getApps().length ? getApp() : initializeApp({
       apiKey: env.VITE_FIREBASE_API_KEY,
       authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
       projectId: env.VITE_FIREBASE_PROJECT_ID,
@@ -133,19 +135,29 @@ class FirestoreStore implements DataStore {
   watch(name: string, scope: Scope, listener: Listener) {
     let stop = () => {};
     let closed = false;
+    if (scope.skip) {
+      listener([]);
+      return () => {};
+    }
+    // Oturum kapanınca dinleyici izin hatası alır; ekran boş listeye düşer.
+    const denied = (error: Error) => {
+      console.warn(`${name} okunamadı:`, error.message);
+      listener([]);
+    };
     this.sdk.then((f) => {
       if (closed) return;
       if (scope.id) {
-        stop = f.onSnapshot(f.doc(f.db, name, scope.id), (d) => listener(d.exists() ? [{ ...d.data(), id: d.id }] : []));
+        stop = f.onSnapshot(f.doc(f.db, name, scope.id), (d) => listener(d.exists() ? [{ ...d.data(), id: d.id }] : []), denied);
         return;
       }
       const ref = f.collection(f.db, name);
       // Kulüp filtresi hem veri izolasyonu hem de ücretsiz okuma kotası için zorunludur.
       const filters = [
         ...(scope.clubId ? [f.where('clubId', '==', scope.clubId)] : []),
+        ...(scope.eq ? [f.where(scope.eq[0], '==', scope.eq[1])] : []),
         ...(scope.contains ? [f.where(scope.contains[0], 'array-contains', scope.contains[1])] : []),
       ];
-      stop = f.onSnapshot(f.query(ref, ...filters), (snap) => listener(snap.docs.map((d) => ({ ...d.data(), id: d.id }))));
+      stop = f.onSnapshot(f.query(ref, ...filters), (snap) => listener(snap.docs.map((d) => ({ ...d.data(), id: d.id }))), denied);
     });
     return () => {
       closed = true;
@@ -179,6 +191,13 @@ export const db: DataStore = localStore ?? new FirestoreStore();
 
 export function useCollection<T extends Row>(name: string, scope: Scope = {}): T[] {
   const [rows, setRows] = useState<T[]>([]);
-  useEffect(() => db.watch(name, scope, (next) => setRows(next as T[])), [name, scope.clubId, scope.id, scope.contains?.join('|')]);
+  useEffect(() => db.watch(name, scope, (next) => setRows(next as T[])), [name, scope.clubId, scope.id, scope.skip, scope.contains?.join('|'), scope.eq?.join('|')]);
   return rows;
+}
+
+/** Kuralların ayrı sorgu istediği iki listeyi tekrarsız birleştirir. */
+export function useMerged<T extends Row>(name: string, first: Scope, second: Scope): T[] {
+  const a = useCollection<T>(name, first);
+  const b = useCollection<T>(name, second);
+  return useMemo(() => [...new Map([...a, ...b].map((r) => [r.id, r])).values()], [a, b]);
 }

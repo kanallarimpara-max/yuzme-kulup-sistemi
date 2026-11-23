@@ -63,10 +63,11 @@ export default function PreRegister() {
     if (form.password !== form.password2) return setError('Şifreler aynı değil.');
     setBusy(true);
     try {
-      const parentId = await createParentAccount(club.id, form.parentName.trim(), form.parentEmail.trim(), form.password);
       const { password: _p, password2: _p2, ...safe } = form;
-      const record: Omit<PreReg, 'id'> = { ...safe, gender: form.gender as 'K' | 'E', birthYear, clubId: club.id, parentId, status: 'yeni' };
-      await db.add('prereg', record);
+      await createParentAccount(club.id, form.parentName.trim(), form.parentEmail.trim(), form.password, (parentId) => {
+        const record: Omit<PreReg, 'id'> = { ...safe, gender: form.gender as 'K' | 'E', birthYear, clubId: club.id, parentId, status: 'yeni' };
+        return db.add('prereg', record);
+      });
       setForm(blank);
       setDone(true);
     } catch {

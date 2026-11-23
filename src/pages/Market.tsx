@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { ShoppingBag, Trash2 } from 'lucide-react';
 import { useSession } from '../lib/session';
 import { db, useCollection, type Row } from '../lib/store';
+import { ownScope } from '../lib/access';
 import { money, toKurus } from '../lib/format';
 import { postCredit, uploadFile, useWallet, type Product } from '../lib/credits';
 import type { User } from '../lib/types';
@@ -11,7 +12,7 @@ type Order = Row & { userId: string; productId: string; productName: string; pay
 export default function Market() {
   const { user } = useSession();
   const products = useCollection<Product>('products');
-  const orders = useCollection<Order>('orders');
+  const orders = useCollection<Order>('orders', ownScope(user, 'userId'));
   const users = useCollection<User>('users');
   const wallet = useWallet(user?.id);
   const [form, setForm] = useState({ name: '', description: '', imageUrl: '', price: '', credits: 0 });

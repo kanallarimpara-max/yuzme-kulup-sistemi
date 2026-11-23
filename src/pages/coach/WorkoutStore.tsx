@@ -10,9 +10,9 @@ type Purchase = Row & { buyerId: string; listingId: string };
 
 export default function WorkoutStore() {
   const { user } = useSession();
-  const workouts = useCollection<Workout>('workouts');
+  const workouts = useCollection<Workout>('workouts', user?.clubId ? { clubId: user.clubId } : { skip: true });
   const listings = useCollection<Listing>('listings');
-  const purchases = useCollection<Purchase>('purchases');
+  const purchases = useCollection<Purchase>('purchases', user ? { eq: ['buyerId', user.id] } : { skip: true });
   const users = useCollection<User>('users');
   const wallet = useWallet(user?.id);
   const [form, setForm] = useState({ workoutId: '', description: '', price: 100 });

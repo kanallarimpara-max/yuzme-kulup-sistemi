@@ -115,7 +115,7 @@ service cloud.firestore {
       allow delete: if isMember();
     }
     match /chats/{id} {
-      allow read: if isMember();
+      allow read: if isMember() || isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary']);
       allow create, update: if willBeMember() || isSuper() || hasRole(request.resource.data.clubId, ['admin', 'secretary']);
     }
     match /messages/{id} {

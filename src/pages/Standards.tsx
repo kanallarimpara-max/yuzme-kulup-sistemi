@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useSession } from '../lib/session';
 import { useCollection } from '../lib/store';
+import { studentScope } from '../lib/access';
 import { EVENTS, formatSwimTime, type Stroke } from '../lib/rules';
 import { STROKE_LABEL } from '../lib/format';
 import { groupLabel, STANDARD_SEASON, STANDARD_SOURCE, STANDARDS } from '../lib/standardData';
@@ -10,7 +11,7 @@ const ageText = (a: number, b?: number) => (b === 99 ? `${a}+` : b && b !== a ? 
 
 export default function Standards() {
   const { user } = useSession();
-  const students = useCollection<Student>('students', { clubId: user?.clubId ?? '__none__' });
+  const students = useCollection<Student>('students', user?.clubId ? studentScope(user) : { skip: true });
   const groups = useMemo(() => [...new Set(STANDARDS.map(groupLabel))], []);
   const [group, setGroup] = useState(groups[0]);
   const [pool, setPool] = useState<'25m' | '50m'>('25m');

@@ -1,4 +1,4 @@
-import { db, useCollection, type Row } from './store';
+import { db, useCollection, type Row, type Scope } from './store';
 import { creditBalance } from './rules';
 
 export type LedgerRow = Row & { userId: string; delta: number; reason: string };
@@ -19,8 +19,9 @@ export const spendable = (ledger: LedgerRow[], requests: CreditRequest[], userId
 };
 
 export function useWallet(userId?: string) {
-  const ledger = useCollection<LedgerRow>('ledger');
-  const requests = useCollection<CreditRequest>('creditRequests');
+  const scope: Scope = userId ? { eq: ['userId', userId] } : { skip: true };
+  const ledger = useCollection<LedgerRow>('ledger', scope);
+  const requests = useCollection<CreditRequest>('creditRequests', scope);
   return { ledger, requests, ...spendable(ledger, requests, userId ?? '') };
 }
 

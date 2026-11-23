@@ -6,7 +6,8 @@ import { ROLE_LABEL, type User } from '../lib/types';
 
 export default function Login() {
   const { signIn, signInDemo } = useSession();
-  const users = useCollection<User>('users');
+  // Rol kartları yalnız demo içindir; gerçek sistemde kullanıcı listesi girişte okunmaz.
+  const users = useCollection<User>('users', { skip: firebaseEnabled });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

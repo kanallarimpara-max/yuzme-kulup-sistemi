@@ -52,7 +52,7 @@ export default function Registrations() {
       birthYear: current.birthYear, gender: current.gender,
     });
     await db.add('enrollments', {
-      clubId, studentId, lessonId: lesson.id, coachId, listKurus: lesson.feeKurus, netKurus: net, totalKurus: plan.totalKurus,
+      clubId, studentId, parentId: current.parentId, lessonId: lesson.id, coachId, listKurus: lesson.feeKurus, netKurus: net, totalKurus: plan.totalKurus,
       discountCode: discount?.code ?? '', installments: plan.installments,
     });
     await db.update('prereg', current.id, { status: 'kayitli' });

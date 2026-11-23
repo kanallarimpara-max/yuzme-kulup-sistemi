@@ -1,5 +1,6 @@
 import { useSession } from '../../lib/session';
 import { useCollection } from '../../lib/store';
+import { enrollmentScope, studentScope } from '../../lib/access';
 import { paymentSummary, toIso } from '../../lib/rules';
 import { dateTr, dayNames, money } from '../../lib/format';
 import type { AttendanceDoc, Branch, Enrollment, Lesson, Notice, Student, User, Workout } from '../../lib/types';
@@ -10,14 +11,14 @@ export default function ParentHome() {
   const { user } = useSession();
   const clubId = user?.clubId ?? '';
   const scope = { clubId };
-  const students = useCollection<Student>('students', scope);
-  const enrollments = useCollection<Enrollment>('enrollments', scope);
+  const students = useCollection<Student>('students', studentScope(user));
+  const enrollments = useCollection<Enrollment>('enrollments', enrollmentScope(user));
   const lessons = useCollection<Lesson>('lessons', scope);
   const branches = useCollection<Branch>('branches', scope);
   const users = useCollection<User>('users', scope);
   const workouts = useCollection<Workout>('workouts', scope);
   const attendance = useCollection<AttendanceDoc>('attendance', scope);
-  const notices = useCollection<Notice>('notices', scope);
+  const notices = useCollection<Notice>('notices', user ? { contains: ['recipientIds', user.id] } : { skip: true });
   if (!user) return null;
   const today = toIso(new Date());
   const mine = students.filter((s) => s.parentId === user.id);
