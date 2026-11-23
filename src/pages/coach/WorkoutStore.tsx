@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useSession } from '../../lib/session';
-import { db, useCollection, type Row } from '../../lib/store';
-import { postCredit, useWallet } from '../../lib/credits';
+import { db, newId, useCollection, type Row } from '../../lib/store';
+import { buyListing, useWallet } from '../../lib/credits';
 import type { User, Workout } from '../../lib/types';
 
 // İlan belgesinde setler bulunmaz. Alıcı setleri yalnız satın aldıktan sonra görür.
@@ -25,7 +25,12 @@ export default function WorkoutStore() {
     e.preventDefault();
     const w = mine.find((x) => x.id === form.workoutId);
     if (!w || form.price < 1) return;
-    await db.add('listings', { sellerId: user.id, workoutId: w.id, title: w.title, description: form.description.trim(), priceCredits: form.price, setCount: w.sets.length, meters: w.sets.reduce((s, x) => s + x.reps * x.distance, 0) });
+    const id = newId();
+    // Setler ayrı belgede durur; yalnız satıcı ve satın alan okuyabilir.
+    await db.batch([
+      { name: 'listings', id, data: { sellerId: user.id, workoutId: w.id, title: w.title, description: form.description.trim(), priceCredits: form.price, setCount: w.sets.length, meters: w.sets.reduce((s, x) => s + x.reps * x.distance, 0), createdAt: Date.now() } },
+      { name: 'listingSets', id, data: { sellerId: user.id, sets: w.sets } },
+    ]);
     setForm({ workoutId: '', description: '', price: 100 });
     setStatus('Antrenman satışa çıkarıldı.');
   };
@@ -34,13 +39,19 @@ export default function WorkoutStore() {
     setStatus('');
     if (purchases.some((p) => p.buyerId === user.id && p.listingId === l.id)) return setError('Bu antrenmanı zaten aldın.');
     if (wallet.available < l.priceCredits) return setError('Kredi bakiyen yetersiz.');
-    const source = workouts.find((w) => w.id === l.workoutId);
-    if (!source) return setError('Antrenman artık mevcut değil.');
-    await postCredit(user.id, -l.priceCredits, `Antrenman alımı: ${l.title}`);
-    await postCredit(l.sellerId, l.priceCredits, `Antrenman satışı: ${l.title}`);
-    await db.add('purchases', { buyerId: user.id, listingId: l.id });
-    await db.add('workouts', { clubId: user.clubId, coachId: user.id, title: `${l.title} (satın alındı)`, sets: source.sets, description: l.description });
-    setStatus(`${l.title} antrenmanlarına eklendi.`);
+    try {
+      const purchaseId = await buyListing(user.id, l);
+      const content = await db.get<Row & { sets: Workout['sets'] }>('listingSets', l.id);
+      if (!content) return setError('Satın alındı ama setler okunamadı. Süper admine bildir.');
+      await db.put('workouts', `bought-${purchaseId}`, { clubId: user.clubId, coachId: user.id, title: `${l.title} (satın alındı)`, sets: content.sets, description: l.description, createdAt: Date.now() });
+      setStatus(`${l.title} antrenmanlarına eklendi.`);
+    } catch {
+      setError('Satın alma tamamlanamadı, bakiyeni kontrol edip tekrar dene.');
+    }
+  };
+  const unlist = async (l: Listing) => {
+    await db.remove('listingSets', l.id);
+    await db.remove('listings', l.id);
   };
 
   return (
@@ -62,7 +73,7 @@ export default function WorkoutStore() {
             <h2>{l.title}</h2><p className="muted">{l.description}</p>
             <small>{users.find((u) => u.id === l.sellerId)?.name} · {l.setCount} set · {l.meters} m</small>
             <strong>{l.priceCredits} kredi</strong>
-            {own ? <button onClick={() => db.remove('listings', l.id)}>Satıştan kaldır</button> : <button className="primary" disabled={bought} onClick={() => buy(l)}>{bought ? 'Satın alındı' : 'Satın al'}</button>}
+            {own ? <button onClick={() => unlist(l)}>Satıştan kaldır</button> : <button className="primary" disabled={bought} onClick={() => buy(l)}>{bought ? 'Satın alındı' : 'Satın al'}</button>}
           </article>
         );
       })}</section>

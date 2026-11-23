@@ -3,7 +3,7 @@ import { useSession } from '../../lib/session';
 import { db, useCollection } from '../../lib/store';
 import { money } from '../../lib/format';
 import { redeemKurus } from '../../lib/rules';
-import { uploadFile, useWallet, type CreditPackage, type PlatformSettings } from '../../lib/credits';
+import { requestRedeem, uploadFile, useWallet, type CreditPackage, type PlatformSettings } from '../../lib/credits';
 
 const STATUS = { bekliyor: ['Bekliyor', 'warn'], onaylandi: ['Onaylandı', 'good'], reddedildi: ['Reddedildi', 'bad'] } as const;
 
@@ -50,9 +50,13 @@ export default function Wallet() {
     const target = payout.method === 'eft'
       ? { method: 'eft' as const, name: payout.name.trim(), iban: payout.iban.trim() }
       : { method: 'kripto' as const, wallet: payout.wallet.trim(), network: payout.network.trim(), coin: payout.coin.trim() };
-    await db.add('creditRequests', { userId: user.id, type: 'bozdurma', credits: amount, kurus: payoutKurus, payout: target, status: 'bekliyor' });
-    setAmount(0);
-    setStatus('Bozdurma talebin süper admine iletildi.');
+    try {
+      await requestRedeem(user.id, amount, payoutKurus, target);
+      setAmount(0);
+      setStatus('Bozdurma talebin süper admine iletildi.');
+    } catch {
+      setError('Bozdurma talebi gönderilemedi, bakiyeni kontrol et.');
+    }
   };
 
   const mine = wallet.requests.filter((r) => r.userId === user.id).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));

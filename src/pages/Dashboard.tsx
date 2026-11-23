@@ -30,11 +30,11 @@ export default function Dashboard() {
   return (
     <div className="page">
       <header className="page-head">
-        <div><p className="eyebrow">{ROLE_LABEL[user.role]}</p><h1>Merhaba, {user.name.split(' ')[0]}</h1></div>
+        <div>{club?.logoUrl && <img src={club.logoUrl} alt={`${club.name} logosu`} style={{ borderRadius: 10, height: 48, marginBottom: 8, width: 48, objectFit: 'cover' }} />}<p className="eyebrow">{ROLE_LABEL[user.role]}</p><h1>Merhaba, {user.name.split(' ')[0]}</h1></div>
         <p className="muted">{club?.name ?? 'Platform yönetimi'} · {now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' })}</p>
       </header>
       <section className="stats">
-        <article><span>Bugünkü ders</span><strong>{todays.length}</strong></article>
+        <article><span>Bugünkü ders</span><strong>{todays.length}<small> · {todays.reduce((s, l) => s + countFor(l.id), 0)} kişi</small></strong></article>
         <article><span>{user.role === 'parent' ? 'Sporcum' : 'Öğrenci'}</span><strong>{visibleStudents.length}</strong></article>
         <article><span>Aktif ders saati</span><strong>{mine.length}</strong></article>
         <article><span>Şube</span><strong>{branches.length}</strong></article>

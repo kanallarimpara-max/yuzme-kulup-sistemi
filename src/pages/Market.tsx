@@ -4,7 +4,7 @@ import { useSession } from '../lib/session';
 import { db, useCollection, type Row } from '../lib/store';
 import { ownScope } from '../lib/access';
 import { money, toKurus } from '../lib/format';
-import { postCredit, uploadFile, useWallet, type Product } from '../lib/credits';
+import { buyProductWithCredits, uploadFile, useWallet, type Product } from '../lib/credits';
 import type { User } from '../lib/types';
 
 type Order = Row & { userId: string; productId: string; productName: string; pay: 'kredi' | 'tl'; credits: number; kurus: number; status: string };
@@ -40,12 +40,17 @@ export default function Market() {
   const buy = async (p: Product, pay: Order['pay']) => {
     setError('');
     setStatus('');
-    if (pay === 'kredi') {
-      if (wallet.available < p.priceCredits) return setError('Kredi bakiyen yetersiz.');
-      await postCredit(user.id, -p.priceCredits, `Market: ${p.name}`);
+    try {
+      if (pay === 'kredi') {
+        if (wallet.available < p.priceCredits) return setError('Kredi bakiyen yetersiz.');
+        await buyProductWithCredits(user.id, p);
+      } else {
+        await db.add('orders', { userId: user.id, productId: p.id, productName: p.name, pay, credits: 0, kurus: p.priceKurus, status: 'Ödeme bekliyor' });
+      }
+      setStatus(`${p.name} siparişin alındı.`);
+    } catch {
+      setError('Sipariş tamamlanamadı, bakiyeni kontrol edip tekrar dene.');
     }
-    await db.add('orders', { userId: user.id, productId: p.id, productName: p.name, pay, credits: pay === 'kredi' ? p.priceCredits : 0, kurus: pay === 'tl' ? p.priceKurus : 0, status: pay === 'kredi' ? 'Ödendi' : 'Ödeme bekliyor' });
-    setStatus(`${p.name} siparişin alındı.`);
   };
 
   const visibleOrders = (isSuper ? orders : orders.filter((o) => o.userId === user.id)).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));

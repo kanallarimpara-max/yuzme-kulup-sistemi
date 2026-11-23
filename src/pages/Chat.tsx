@@ -68,6 +68,14 @@ export default function Chat() {
     await db.update('contacts', c.id, { status: 'kabul' });
     await db.put('chats', `dm-${[...c.memberIds].sort().join('-')}`, { name: '', direct: true, memberIds: c.memberIds });
   };
+  // Süper admin tüm profillerle istek beklemeden iletişim kurar.
+  const openDirect = async (personId: string) => {
+    if (!personId) return;
+    const memberIds = [uid, personId];
+    const id = `dm-${[...memberIds].sort().join('-')}`;
+    await db.put('chats', id, { name: '', direct: true, memberIds });
+    setOpenId(id);
+  };
   const send = async (payload: Pick<Message, 'kind' | 'text' | 'url'>) => {
     if (!open) return;
     await db.add('messages', { chatId: open.id, memberIds: open.memberIds, senderId: uid, ...payload });
@@ -150,6 +158,7 @@ export default function Chat() {
       <div className={open ? 'chat-layout has-open' : 'chat-layout'}>
         <aside className="card chat-list">
           <form className="inline-form" onSubmit={findPerson}><input aria-label="Etiketle kişi ara" placeholder="@etiket" value={tag} onChange={(e) => setTag(e.target.value)} /><button className="icon" aria-label="İstek gönder"><Search size={16} /></button></form>
+          {user.role === 'super' && <label>Tüm profiller<select value="" onChange={(e) => openDirect(e.target.value)}><option value="">Kişi seçin</option>{users.filter((u) => u.id !== uid).map((u) => <option key={u.id} value={u.id}>{u.name} · {ROLE_LABEL[u.role]}</option>)}</select></label>}
           {requests.map((c) => <div className="request" key={c.id}><span>{nameOf(c.fromId)}<small>Bağlantı isteği</small></span><button className="primary icon" aria-label={`${nameOf(c.fromId)} isteğini kabul et`} onClick={() => accept(c)}><Check size={16} /></button></div>)}
           {chats.length === 0 && <p className="muted">Henüz sohbet yok.</p>}
           {chats.map((c) => (

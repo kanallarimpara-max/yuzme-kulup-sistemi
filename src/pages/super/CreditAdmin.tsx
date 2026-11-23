@@ -3,13 +3,14 @@ import { Trash2 } from 'lucide-react';
 import { useSession } from '../../lib/session';
 import { db, useCollection } from '../../lib/store';
 import { money, toKurus } from '../../lib/format';
-import { postCredit, spendable, type CreditPackage, type CreditRequest, type LedgerRow, type PlatformSettings } from '../../lib/credits';
+import { adjustCredit, settleRequest, walletNumbers, type CreditPackage, type CreditRequest, type PlatformSettings, type WalletRow } from '../../lib/credits';
 import type { Notice, User } from '../../lib/types';
 
 export default function CreditAdmin() {
   const { user } = useSession();
   const users = useCollection<User>('users');
-  const ledger = useCollection<LedgerRow>('ledger');
+  const wallets = useCollection<WalletRow>('wallets');
+  const numbersOf = (id: string) => walletNumbers(wallets.find((w) => w.id === id));
   const requests = useCollection<CreditRequest>('creditRequests');
   const packages = useCollection<CreditPackage>('packages');
   const settings = useCollection<PlatformSettings>('settings')[0];
@@ -29,12 +30,11 @@ export default function CreditAdmin() {
 
   const decide = async (r: CreditRequest, approve: boolean) => {
     const owner = users.find((u) => u.id === r.userId);
-    if (approve && r.type === 'bozdurma' && spendable(ledger, requests, r.userId).balance < r.credits) {
+    if (approve && r.type === 'bozdurma' && numbersOf(r.userId).balance < r.credits) {
       setStatus('Bakiye yetersiz, talep onaylanamaz.');
       return;
     }
-    if (approve) await postCredit(r.userId, r.type === 'yukleme' ? r.credits : -r.credits, r.type === 'yukleme' ? 'Kredi yükleme' : 'Kredi bozdurma');
-    await db.update('creditRequests', r.id, { status: approve ? 'onaylandi' : 'reddedildi' });
+    await settleRequest(r, approve);
     const label = r.type === 'yukleme' ? 'Kredi yüklemeniz' : 'Kredi bozdurma talebiniz';
     await tell(owner, approve ? (r.type === 'yukleme' ? 'Krediniz yüklendi' : 'Krediniz bozuldu') : `${label} reddedildi`, `${r.credits} kredi · ${money(r.kurus)}`);
     setStatus('Talep güncellendi.');
@@ -52,11 +52,11 @@ export default function CreditAdmin() {
   };
   const adjust = async (sign: 1 | -1) => {
     if (!manual.userId || manual.amount <= 0) return;
-    if (sign < 0 && spendable(ledger, requests, manual.userId).available < manual.amount) {
+    if (sign < 0 && numbersOf(manual.userId).available < manual.amount) {
       setStatus('Silinecek miktar kullanılabilir bakiyeden fazla.');
       return;
     }
-    await postCredit(manual.userId, sign * manual.amount, manual.reason.trim() || 'Yönetici düzeltmesi');
+    await adjustCredit(manual.userId, sign * manual.amount, manual.reason.trim() || 'Yönetici düzeltmesi');
     setStatus('Bakiye güncellendi.');
   };
 
@@ -80,7 +80,7 @@ export default function CreditAdmin() {
       <div className="two-col">
         <section className="card stack">
           <h2>Antrenör bakiyesi</h2>
-          <label>Antrenör<select value={manual.userId} onChange={(e) => setManual({ ...manual, userId: e.target.value })}><option value="">Seçin</option>{coaches.map((c) => <option key={c.id} value={c.id}>{c.name} · {spendable(ledger, requests, c.id).balance} kredi</option>)}</select></label>
+          <label>Antrenör<select value={manual.userId} onChange={(e) => setManual({ ...manual, userId: e.target.value })}><option value="">Seçin</option>{coaches.map((c) => <option key={c.id} value={c.id}>{c.name} · {numbersOf(c.id).balance} kredi</option>)}</select></label>
           <label>Miktar<input type="number" min={1} value={manual.amount} onChange={(e) => setManual({ ...manual, amount: Number(e.target.value) })} /></label>
           <label>Açıklama<input value={manual.reason} onChange={(e) => setManual({ ...manual, reason: e.target.value })} /></label>
           <div className="form-actions"><button className="primary" onClick={() => adjust(1)}>Kredi ekle</button><button onClick={() => adjust(-1)}>Kredi sil</button></div>

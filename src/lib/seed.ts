@@ -68,6 +68,7 @@ export const demoData: Record<string, SeedRow[]> = {
     { id: 'pr2', name: 'Kulüp Bonesi', description: 'Silikon yüzücü bonesi', imageUrl: '', priceKurus: 25000, priceCredits: 250 },
   ],
   ledger: [{ id: 'lg1', userId: 'u-coach', delta: 1000, reason: 'Açılış kredisi' }],
+  wallets: [{ id: 'u-coach', balance: 1000, held: 0 }],
   creditRequests: [],
   orders: [],
   listings: [],

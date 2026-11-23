@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici acikca yayin onayi verirse firebase deploy --only firestore:rules,hosting; sonra ilk super admin. Kalan: Worker (kredi harcama, AI, TYF otomatik, bildirim), Cloudinary, APK izni, grup sesli arama, kronometre saat farki
+Kullanici acik yayin onayi verirse deploy; kalan: grup sesli arama, kronometre saat esitleme, Worker ile AI/TYF otomatik/bildirim, Cloudinary, APK izni
 
 ## Modüller
 
@@ -37,6 +37,7 @@ Kullanici acikca yayin onayi verirse firebase deploy --only firestore:rules,host
 
 ## Son kayıtlar
 
+- 2026-11-23: Kredi harcama Worker gerektirmeden atomik islem + Firestore kurallariyla yazildi (wallets, listingSets). Secili ogrenci bildirimi, super admin istek beklemeden sohbet, antrenor paneli kisi sayisi ve logo eklendi. 31 test, build, 75/75 kural testi gecti
 - 2026-11-23: Super admin: kulup+admin acma, uygulama tasarimi. Reklam gosterimi, veli TYF canli sonuc, kurulabilir web uygulamasi (PWA) eklendi. tsc, 31 test, build, 56/56 kural testi gecti. Yayin izin denetiminde durdu
 - 2026-11-23: Veli verisi kapatildi (sonuc, yorum, yoklama yalniz kendi cocugu). Kural testi eklendi: 49/49 emulatorde gecti, JDK kullanici klasorunde (LOCALAPPDATA/yuzme-tools), test icin JAVA_HOME oraya ayarlanir
 - 2026-11-23: Firestore (default) europe-west3 konumunda yeniden kuruldu. Sorgular rol bazli kurallarla uyumlu yapildi (lib/access.ts), on kayit oturum sirasi ve enrollments.parentId duzeltildi. tsc, 31 test ve build gecti; kurallar henuz yayinlanmadi ve emulatorde test edilmedi

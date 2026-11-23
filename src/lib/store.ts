@@ -14,12 +14,21 @@ export interface DataStore {
   put<T extends object>(name: string, id: string, data: T): Promise<void>;
   update(name: string, id: string, patch: object): Promise<void>;
   remove(name: string, id: string): Promise<void>;
+  get<T extends Row>(name: string, id: string): Promise<T | null>;
+  /** Tüm yazımlar birlikte olur veya hiçbiri olmaz. Alanlar mevcut belgeyle birleştirilir. */
+  batch(ops: BatchOp[]): Promise<void>;
 }
+
+export type BatchOp = { name: string; id: string; data: Record<string, unknown> };
+type Increment = { __inc: number };
+/** Sunucudaki değeri okumadan artırır; aynı anda yapılan işlemlerde bakiye kaybolmaz. */
+export const inc = (n: number): Increment => ({ __inc: n });
+const isInc = (v: unknown): v is Increment => typeof v === 'object' && v !== null && '__inc' in v;
 
 export const firebaseEnabled = Boolean(import.meta.env?.VITE_FIREBASE_PROJECT_ID);
 
 const KEY = 'yuzme-kulup:v1';
-const newId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+export const newId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 
 class LocalStore implements DataStore {
   private data: Record<string, Row[]> = {};
@@ -116,6 +125,23 @@ class LocalStore implements DataStore {
     this.data[name] = (this.data[name] ?? []).filter((r) => r.id !== id);
     this.commit();
   }
+
+  async get<T extends Row>(name: string, id: string) {
+    return ((this.data[name] ?? []).find((r) => r.id === id) as T | undefined) ?? null;
+  }
+
+  async batch(ops: BatchOp[]) {
+    for (const { name, id, data } of ops) {
+      const rows = (this.data[name] ??= []);
+      const i = rows.findIndex((r) => r.id === id);
+      const before = (i >= 0 ? rows[i] : { id }) as Row & Record<string, unknown>;
+      const next: Record<string, unknown> = { ...before };
+      for (const [key, value] of Object.entries(data)) next[key] = isInc(value) ? Number(before[key] ?? 0) + value.__inc : value;
+      if (i >= 0) rows[i] = next as Row;
+      else rows.push(next as Row);
+    }
+    this.commit();
+  }
 }
 
 class FirestoreStore implements DataStore {
@@ -183,6 +209,22 @@ class FirestoreStore implements DataStore {
   async remove(name: string, id: string) {
     const f = await this.sdk;
     await f.deleteDoc(f.doc(f.db, name, id));
+  }
+
+  async get<T extends Row>(name: string, id: string) {
+    const f = await this.sdk;
+    const snap = await f.getDoc(f.doc(f.db, name, id));
+    return snap.exists() ? ({ ...snap.data(), id: snap.id } as T) : null;
+  }
+
+  async batch(ops: BatchOp[]) {
+    const f = await this.sdk;
+    const batch = f.writeBatch(f.db);
+    for (const { name, id, data } of ops) {
+      const row = Object.fromEntries(Object.entries(data).map(([k, v]) => [k, isInc(v) ? f.increment(v.__inc) : v]));
+      batch.set(f.doc(f.db, name, id), row, { merge: true });
+    }
+    await batch.commit();
   }
 }
 

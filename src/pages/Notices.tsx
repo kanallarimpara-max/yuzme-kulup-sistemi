@@ -5,7 +5,7 @@ import { studentScope } from '../lib/access';
 import { dateTr } from '../lib/format';
 import { ROLE_LABEL, type Lesson, type Notice, type Student, type User } from '../lib/types';
 
-type Audience = 'herkes' | 'antrenor' | 'sekreter' | 'ders' | 'kisiler';
+type Audience = 'herkes' | 'antrenor' | 'sekreter' | 'ders' | 'ogrenciler' | 'kisiler';
 
 export default function Notices() {
   const { user } = useSession();
@@ -20,6 +20,7 @@ export default function Notices() {
   const [audience, setAudience] = useState<Audience>('herkes');
   const [lessonId, setLessonId] = useState('');
   const [people, setPeople] = useState<string[]>([]);
+  const [pickedStudents, setPickedStudents] = useState<string[]>([]);
   const [status, setStatus] = useState('');
   if (!user) return null;
 
@@ -29,6 +30,7 @@ export default function Notices() {
     if (audience === 'antrenor') return others.filter((u) => u.role === 'coach').map((u) => u.id);
     if (audience === 'sekreter') return others.filter((u) => u.role === 'secretary').map((u) => u.id);
     if (audience === 'kisiler') return people;
+    if (audience === 'ogrenciler') return [...new Set(students.filter((s) => pickedStudents.includes(s.id)).map((s) => s.parentId))];
     if (audience === 'ders') {
       const lesson = lessons.find((l) => l.id === lessonId);
       const parents = students.filter((s) => s.lessonId === lessonId).map((s) => s.parentId);
@@ -62,9 +64,12 @@ export default function Notices() {
             <label>Tür<select value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value as Notice['kind'] })}><option value="duyuru">Duyuru</option><option value="yaris">Yarış</option></select></label>
             <label>Başlık<input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></label>
             <label>Tarih<input type="date" required={form.kind === 'yaris'} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} /></label>
-            <label>Kime<select value={audience} onChange={(e) => setAudience(e.target.value as Audience)}><option value="herkes">Tüm kulüp</option><option value="antrenor">Sadece antrenörler</option><option value="sekreter">Sadece sekreterler</option><option value="ders">Bir ders saati</option><option value="kisiler">Seçili kişiler</option></select></label>
+            <label>Kime<select value={audience} onChange={(e) => setAudience(e.target.value as Audience)}><option value="herkes">Tüm kulüp</option><option value="antrenor">Sadece antrenörler</option><option value="sekreter">Sadece sekreterler</option><option value="ders">Bir ders saati</option><option value="ogrenciler">Seçili öğrenciler</option><option value="kisiler">Seçili kişiler</option></select></label>
             {audience === 'ders' && <label>Ders<select required value={lessonId} onChange={(e) => setLessonId(e.target.value)}><option value="">Seçin</option>{lessons.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></label>}
           </div>
+          {audience === 'ogrenciler' && <div className="coach-picks">{students.map((s) => (
+            <label className="check" key={s.id}><input type="checkbox" checked={pickedStudents.includes(s.id)} onChange={() => setPickedStudents((p) => (p.includes(s.id) ? p.filter((x) => x !== s.id) : [...p, s.id]))} /><span>{s.firstName} {s.lastName}</span></label>
+          ))}</div>}
           {audience === 'kisiler' && <div className="coach-picks">{users.filter((u) => u.id !== user.id).map((u) => (
             <label className="check" key={u.id}><input type="checkbox" checked={people.includes(u.id)} onChange={() => setPeople((p) => (p.includes(u.id) ? p.filter((x) => x !== u.id) : [...p, u.id]))} /><span>{u.name}</span><em className="badge">{ROLE_LABEL[u.role]}</em></label>
           ))}</div>}

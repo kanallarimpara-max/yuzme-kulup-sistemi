@@ -1,5 +1,4 @@
-import { db, useCollection, type Row, type Scope } from './store';
-import { creditBalance } from './rules';
+import { db, inc, newId, useCollection, type BatchOp, type Row } from './store';
 
 export type LedgerRow = Row & { userId: string; delta: number; reason: string };
 export type CreditRequest = Row & {
@@ -11,21 +10,72 @@ export type PlatformSettings = Row & { bank: string; holder: string; iban: strin
 export type CreditPackage = Row & { name: string; credits: number; priceKurus: number };
 export type Product = Row & { name: string; description: string; imageUrl: string; priceKurus: number; priceCredits: number };
 
-/** Bekleyen bozdurma tutarı harcanamaz, böylece aynı kredi iki kez kullanılamaz. */
-export const spendable = (ledger: LedgerRow[], requests: CreditRequest[], userId: string) => {
-  const balance = creditBalance(ledger.filter((l) => l.userId === userId));
-  const held = requests.filter((r) => r.userId === userId && r.type === 'bozdurma' && r.status === 'bekliyor').reduce((s, r) => s + r.credits, 0);
+/** Bakiye tek belgede tutulur. Her değişiklik Firestore kurallarında sipariş veya talep belgesiyle doğrulanır. */
+export type WalletRow = Row & { balance: number; held: number; op?: string };
+export const walletNumbers = (w?: WalletRow) => {
+  const balance = w?.balance ?? 0;
+  const held = w?.held ?? 0;
+  // Bekleyen bozdurma tutarı harcanamaz, böylece aynı kredi iki kez kullanılamaz.
   return { balance, held, available: balance - held };
 };
 
 export function useWallet(userId?: string) {
-  const scope: Scope = userId ? { eq: ['userId', userId] } : { skip: true };
-  const ledger = useCollection<LedgerRow>('ledger', scope);
-  const requests = useCollection<CreditRequest>('creditRequests', scope);
-  return { ledger, requests, ...spendable(ledger, requests, userId ?? '') };
+  const wallet = useCollection<WalletRow>('wallets', userId ? { id: userId } : { skip: true })[0];
+  const requests = useCollection<CreditRequest>('creditRequests', userId ? { eq: ['userId', userId] } : { skip: true });
+  return { requests, ...walletNumbers(wallet) };
 }
 
-export const postCredit = (userId: string, delta: number, reason: string) => db.add('ledger', { userId, delta, reason });
+const ledgerOp = (userId: string, delta: number, reason: string): BatchOp => ({
+  name: 'ledger', id: newId(), data: { userId, delta, reason, createdAt: Date.now() },
+});
+
+/** Süper admin: elle kredi ekler veya siler. */
+export const adjustCredit = (userId: string, delta: number, reason: string) => db.batch([
+  ledgerOp(userId, delta, reason),
+  { name: 'wallets', id: userId, data: { balance: inc(delta), held: inc(0) } },
+]);
+
+/** Süper admin: yükleme veya bozdurma talebini tek işlemde sonuçlandırır. */
+export function settleRequest(r: CreditRequest, approve: boolean) {
+  const status = { name: 'creditRequests', id: r.id, data: { status: approve ? 'onaylandi' : 'reddedildi' } };
+  if (r.type === 'yukleme') {
+    return db.batch(approve
+      ? [status, ledgerOp(r.userId, r.credits, 'Kredi yükleme'), { name: 'wallets', id: r.userId, data: { balance: inc(r.credits), held: inc(0) } }]
+      : [status]);
+  }
+  return db.batch([
+    status,
+    ...(approve ? [ledgerOp(r.userId, -r.credits, 'Kredi bozdurma')] : []),
+    { name: 'wallets', id: r.userId, data: { balance: inc(approve ? -r.credits : 0), held: inc(-r.credits) } },
+  ]);
+}
+
+/** Antrenör: bozdurma talebi açar ve tutarı aynı işlemde bloke eder. */
+export function requestRedeem(userId: string, credits: number, kurus: number, payout: CreditRequest['payout']) {
+  const id = newId();
+  return db.batch([
+    { name: 'creditRequests', id, data: { userId, type: 'bozdurma', credits, kurus, payout, status: 'bekliyor', createdAt: Date.now() } },
+    { name: 'wallets', id: userId, data: { held: inc(credits), op: id } },
+  ]);
+}
+
+export function buyProductWithCredits(userId: string, product: Product) {
+  const id = newId();
+  return db.batch([
+    { name: 'orders', id, data: { userId, productId: product.id, productName: product.name, pay: 'kredi', credits: product.priceCredits, kurus: 0, status: 'Ödendi', createdAt: Date.now() } },
+    { name: 'wallets', id: userId, data: { balance: inc(-product.priceCredits), op: id } },
+  ]);
+}
+
+/** Alıcıdan düşme, satıcıya ekleme ve satın alma kaydı birlikte yazılır. */
+export function buyListing(buyerId: string, listing: { id: string; sellerId: string; priceCredits: number }) {
+  const id = `${buyerId}_${listing.id}`;
+  return db.batch([
+    { name: 'purchases', id, data: { buyerId, listingId: listing.id, sellerId: listing.sellerId, createdAt: Date.now() } },
+    { name: 'wallets', id: buyerId, data: { balance: inc(-listing.priceCredits), op: id } },
+    { name: 'wallets', id: listing.sellerId, data: { balance: inc(listing.priceCredits), held: inc(0), op: id } },
+  ]).then(() => id);
+}
 
 const MAX_INLINE = 1_500_000;
 

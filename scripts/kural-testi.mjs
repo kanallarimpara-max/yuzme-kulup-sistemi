@@ -1,7 +1,7 @@
 // Firestore kurallarını yalnız yerel emülatörde, kurgusal veriyle dener: npm run test:rules
 import { readFileSync } from 'node:fs';
 import { assertFails, assertSucceeds, initializeTestEnvironment } from '@firebase/rules-unit-testing';
-import { addDoc, collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, getDocs, increment, query, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
 
 const env = await initializeTestEnvironment({
   projectId: 'demo-yuzme-kural',
@@ -39,6 +39,16 @@ const seed = {
   notices: { n1: { clubId: 'c1', senderId: 'admin1', recipientIds: ['parentA'] } },
   chats: { sohbet1: { clubId: 'c1', memberIds: ['coach1', 'parentA'] } },
   prereg: { o1: { clubId: 'c1', parentId: 'parentA', status: 'yeni' } },
+  products: { urun1: { name: 'Bone', priceCredits: 100, priceKurus: 10000 } },
+  wallets: { coach1: { balance: 1000, held: 0 }, coach2: { balance: 50, held: 0 }, fakir: { balance: 10, held: 0 } },
+  listings: { ilan1: { sellerId: 'coach2', title: 'Set', priceCredits: 50 }, ilan2: { sellerId: 'yenisatici', title: 'Set', priceCredits: 10 } },
+  listingSets: { ilan1: { sellerId: 'coach2', sets: [] }, ilan2: { sellerId: 'yenisatici', sets: [] } },
+};
+
+const batch = (f, ops) => {
+  const b = writeBatch(f);
+  ops.forEach(([name, id, data]) => b.set(doc(f, name, id), data, { merge: true }));
+  return b.commit();
 };
 
 await env.clearFirestore();
@@ -109,6 +119,25 @@ const checks = [
   no('başka kulüp admini gider okuyamaz', () => getDocs(q(X, 'expenses', ['clubId', 'c1']))),
 
   ok('süper admin kredi yazar', () => addDoc(collection(Z, 'ledger'), { userId: 'coach1', delta: 10 })),
+  ok('antrenör krediyle ürün alır', () => batch(C, [['orders', 'o-ok', { userId: 'coach1', productId: 'urun1', productName: 'x', pay: 'kredi', credits: 100, kurus: 0, status: 'Ödendi' }], ['wallets', 'coach1', { balance: increment(-100), op: 'o-ok' }]])),
+  no('aynı siparişle iki kez düşülemez', () => batch(C, [['orders', 'o-ok', { userId: 'coach1', productId: 'urun1', productName: 'x', pay: 'kredi', credits: 100, kurus: 0, status: 'Ödendi' }], ['wallets', 'coach1', { balance: increment(-100), op: 'o-ok' }]])),
+  no('ürün fiyatından az ödenemez', () => batch(C, [['orders', 'o-az', { userId: 'coach1', productId: 'urun1', productName: 'x', pay: 'kredi', credits: 1, kurus: 0, status: 'Ödendi' }], ['wallets', 'coach1', { balance: increment(-1), op: 'o-az' }]])),
+  no('bakiye düşmeden kredili sipariş açılamaz', () => setDoc(doc(C, 'orders', 'o-bedava'), { userId: 'coach1', productId: 'urun1', pay: 'kredi', credits: 100, status: 'Ödendi' })),
+  no('sipariş bahanesiyle bakiye artırılamaz', () => batch(C, [['orders', 'o-art', { userId: 'coach1', productId: 'urun1', productName: 'x', pay: 'kredi', credits: 100, kurus: 0, status: 'Ödendi' }], ['wallets', 'coach1', { balance: increment(100), op: 'o-art' }]])),
+  no('bakiyeden fazla ürün alınamaz', () => batch(as('fakir'), [['orders', 'o-fakir', { userId: 'fakir', productId: 'urun1', productName: 'x', pay: 'kredi', credits: 100, kurus: 0, status: 'Ödendi' }], ['wallets', 'fakir', { balance: increment(-100), op: 'o-fakir' }]])),
+  no('antrenör bakiyesini doğrudan yazamaz', () => updateDoc(doc(C, 'wallets', 'coach1'), { balance: 999999 })),
+  no('başkasının cüzdanı okunamaz', () => getDoc(doc(C, 'wallets', 'coach2'))),
+  ok('bozdurma tutarı bloke edilir', () => batch(C, [['creditRequests', 'b-ok', { userId: 'coach1', type: 'bozdurma', credits: 100, kurus: 500, status: 'bekliyor' }], ['wallets', 'coach1', { held: increment(100), op: 'b-ok' }]])),
+  no('bloke olmadan bozdurma açılamaz', () => setDoc(doc(C, 'creditRequests', 'b-no'), { userId: 'coach1', type: 'bozdurma', credits: 100, kurus: 500, status: 'bekliyor' })),
+  no('bakiyeden fazla bozdurulamaz', () => batch(C, [['creditRequests', 'b-cok', { userId: 'coach1', type: 'bozdurma', credits: 99999, kurus: 500, status: 'bekliyor' }], ['wallets', 'coach1', { held: increment(99999), op: 'b-cok' }]])),
+  no('antrenör talebini kendi onaylayamaz', () => updateDoc(doc(C, 'creditRequests', 'q1'), { status: 'onaylandi' })),
+  no('satın almadan setler okunamaz', () => getDoc(doc(C, 'listingSets', 'ilan1'))),
+  no('alıcı satıcıya eksik ödeyemez', () => batch(C, [['purchases', 'coach1_ilan1', { buyerId: 'coach1', listingId: 'ilan1', sellerId: 'coach2' }], ['wallets', 'coach1', { balance: increment(-1), op: 'coach1_ilan1' }], ['wallets', 'coach2', { balance: increment(1), op: 'coach1_ilan1' }]])),
+  no('satıcıya fazla kredi yazılamaz', () => batch(C, [['purchases', 'coach1_ilan1', { buyerId: 'coach1', listingId: 'ilan1', sellerId: 'coach2' }], ['wallets', 'coach1', { balance: increment(-50), op: 'coach1_ilan1' }], ['wallets', 'coach2', { balance: increment(5000), op: 'coach1_ilan1' }]])),
+  ok('antrenör antrenman satın alır', () => batch(C, [['purchases', 'coach1_ilan1', { buyerId: 'coach1', listingId: 'ilan1', sellerId: 'coach2' }], ['wallets', 'coach1', { balance: increment(-50), op: 'coach1_ilan1' }], ['wallets', 'coach2', { balance: increment(50), op: 'coach1_ilan1' }]])),
+  ok('satın alınca setler okunur', () => getDoc(doc(C, 'listingSets', 'ilan1'))),
+  no('aynı ilan iki kez satın alınamaz', () => batch(C, [['purchases', 'coach1_ilan1', { buyerId: 'coach1', listingId: 'ilan1', sellerId: 'coach2' }], ['wallets', 'coach1', { balance: increment(-50), op: 'coach1_ilan1' }], ['wallets', 'coach2', { balance: increment(50), op: 'coach1_ilan1' }]])),
+  ok('satıcının ilk cüzdanı satışla açılır', () => batch(C, [['purchases', 'coach1_ilan2', { buyerId: 'coach1', listingId: 'ilan2', sellerId: 'yenisatici' }], ['wallets', 'coach1', { balance: increment(-10), op: 'coach1_ilan2' }], ['wallets', 'yenisatici', { balance: increment(10), held: increment(0), op: 'coach1_ilan2' }]])),
   ok('süper admin tüm öğrencileri okur', () => getDocs(collection(Z, 'students'))),
   ok('süper admin tasarım yazar', () => setDoc(doc(Z, 'appDesign', 'main'), { appName: 'Kurgu' })),
   ok('oturumsuz tasarım okur', () => getDoc(doc(U, 'appDesign', 'main'))),

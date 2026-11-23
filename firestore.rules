@@ -141,14 +141,53 @@ service cloud.firestore {
       allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
     }
 
-    // Kredi defterine istemci yazamaz: tek yetkili süper admin. Harcama için Worker gerekir.
+    // Kredi geçmişine yalnız süper admin yazar.
     match /ledger/{id} {
       allow read: if isSuper() || (signedIn() && resource.data.userId == request.auth.uid);
       allow create: if isSuper();
     }
+    function path(name, id) { return /databases/$(database)/documents/$(name)/$(id); }
+    function myWalletOp() { return getAfter(path('wallets', request.auth.uid)).data.op; }
+
+    // Bakiye yalnız aynı işlemde yazılan yeni bir sipariş, satın alma veya bozdurma talebiyle değişir.
+    match /wallets/{uid} {
+      function next() { return request.resource.data; }
+      function validKeys() { return next().keys().hasOnly(['balance', 'held', 'op']) && next().balance is int && next().held is int; }
+      function isOwner() { return signedIn() && request.auth.uid == uid; }
+      function holdsForRedeem() {
+        let r = getAfter(path('creditRequests', next().op)).data;
+        return isOwner() && !exists(path('creditRequests', next().op)) && r.userId == uid && r.type == 'bozdurma' && r.status == 'bekliyor'
+          && r.credits is int && r.credits > 0 && next().balance == resource.data.balance
+          && next().held == resource.data.held + r.credits && next().held <= next().balance;
+      }
+      function paysOrder() {
+        let o = getAfter(path('orders', next().op)).data;
+        let p = get(path('products', o.productId)).data;
+        return isOwner() && !exists(path('orders', next().op)) && o.userId == uid && o.pay == 'kredi' && p.priceCredits > 0 && o.credits == p.priceCredits
+          && next().balance == resource.data.balance - o.credits && next().held == resource.data.held && next().balance >= next().held;
+      }
+      function paysListing() {
+        let b = getAfter(path('purchases', next().op)).data;
+        let l = get(path('listings', b.listingId)).data;
+        return isOwner() && !exists(path('purchases', next().op)) && b.buyerId == uid && l.sellerId != uid && l.priceCredits > 0
+          && next().balance == resource.data.balance - l.priceCredits && next().held == resource.data.held && next().balance >= next().held;
+      }
+      function receivesSale(before) {
+        let b = getAfter(path('purchases', next().op)).data;
+        let l = get(path('listings', b.listingId)).data;
+        return signedIn() && !exists(path('purchases', next().op)) && b.buyerId == request.auth.uid && l.sellerId == uid
+          && next().balance == before + l.priceCredits;
+      }
+      allow read: if isSuper() || (signedIn() && request.auth.uid == uid);
+      allow create: if isSuper() || (validKeys() && next().held == 0 && receivesSale(0));
+      allow update: if isSuper() || (validKeys() && (holdsForRedeem() || paysOrder() || paysListing()
+        || (receivesSale(resource.data.balance) && next().held == resource.data.held)));
+    }
     match /creditRequests/{id} {
       allow read: if isSuper() || (signedIn() && resource.data.userId == request.auth.uid);
-      allow create: if signedIn() && request.resource.data.userId == request.auth.uid && request.resource.data.status == 'bekliyor';
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid && request.resource.data.status == 'bekliyor'
+        && request.resource.data.credits is int && request.resource.data.credits > 0
+        && (request.resource.data.type == 'yukleme' || (request.resource.data.type == 'bozdurma' && myWalletOp() == id));
       allow update: if isSuper();
     }
     // Tasarım giriş ekranında da uygulanır; yalnız süper admin değiştirir.
@@ -160,16 +199,30 @@ service cloud.firestore {
     match /sales/{id} { allow read, write: if isSuper(); }
     match /orders/{id} {
       allow read: if isSuper() || (signedIn() && resource.data.userId == request.auth.uid);
-      allow create: if signedIn() && request.resource.data.userId == request.auth.uid && request.resource.data.pay == 'tl';
+      allow create: if signedIn() && request.resource.data.userId == request.auth.uid && (
+        (request.resource.data.pay == 'tl' && request.resource.data.credits == 0 && request.resource.data.status == 'Ödeme bekliyor')
+        || (request.resource.data.pay == 'kredi' && myWalletOp() == id));
       allow update: if isSuper();
     }
     match /listings/{id} {
       allow read: if signedIn();
-      allow create: if signedIn() && request.resource.data.sellerId == request.auth.uid;
+      allow create: if hasRole(me().clubId, ['coach']) && request.resource.data.sellerId == request.auth.uid
+        && request.resource.data.priceCredits is int && request.resource.data.priceCredits > 0;
+      allow delete: if signedIn() && resource.data.sellerId == request.auth.uid;
+    }
+    // Setler satın almadan görünmez.
+    match /listingSets/{id} {
+      allow get: if signedIn() && (resource.data.sellerId == request.auth.uid || exists(path('purchases', request.auth.uid + '_' + id)));
+      allow create: if signedIn() && request.resource.data.sellerId == request.auth.uid
+        && getAfter(path('listings', id)).data.sellerId == request.auth.uid;
       allow delete: if signedIn() && resource.data.sellerId == request.auth.uid;
     }
     match /purchases/{id} {
       allow read: if signedIn() && resource.data.buyerId == request.auth.uid;
+      allow create: if signedIn() && request.resource.data.buyerId == request.auth.uid
+        && id == request.auth.uid + '_' + request.resource.data.listingId
+        && request.resource.data.sellerId == get(path('listings', request.resource.data.listingId)).data.sellerId
+        && myWalletOp() == id && getAfter(path('wallets', request.resource.data.sellerId)).data.op == id;
     }
   }
 }
