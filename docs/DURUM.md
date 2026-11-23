@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-FCM web bildirim anahtarini (VAPID) olustur, sonra kotuye kullanim siniri ve ilk super admin
+Ilk super admin hesabini kur, sonra kotuye kullanim siniri
 
 ## Modüller
 
@@ -39,6 +39,7 @@ FCM web bildirim anahtarini (VAPID) olustur, sonra kotuye kullanim siniri ve ilk
 
 ## Son kayıtlar
 
+- 2026-11-23: FCM web bildirim anahtari olusturuldu ve yerel ayara eklendi, build gecti. Gercek bildirim henuz denenmedi
 - 2026-11-23: Firebase servis anahtari Worker secret olarak kaydedildi, indirilen kopya silindi. AI, bildirim ve yukleme kotasi gercek oturumla henuz denenmedi
 - 2026-11-23: Dosya yukleme API secret gerektirmeden Worker uzerinden kuruldu. Cloudinary ozel yukleme gercekte denendi: imzali adres 200, imzasiz 401. 29 Worker testi, 37 test, build gecti
 - 2026-11-23: Cloudinary ve Firebase anahtarlarini gizli kaydeden kurulum araclari eklendi. Worker secret listesi hala bos
