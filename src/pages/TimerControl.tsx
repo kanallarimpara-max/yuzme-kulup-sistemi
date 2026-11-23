@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Flag, Maximize2, Pause, Play, Plus, RotateCcw, Trash2 } from 'lucide-react';
+import { serverNow } from '../lib/clock';
 import { finishLane, jumpLane, pauseLane, startLane } from '../lib/timer';
 import type { TimerLane } from '../lib/types';
 import { useTimerDoc } from './useTimerDoc';
@@ -27,10 +28,10 @@ export default function TimerControl() {
       </header>
 
       <section className="card toolbar">
-        <button className="primary" onClick={() => all((l) => ({ ...l, clock: startLane(l.clock, Date.now()) }))}><Play size={16} />Tümünü başlat</button>
-        <button onClick={() => all((l) => (l.clock.status === 'running' ? { ...l, clock: pauseLane(l.clock, Date.now()) } : l))}><Pause size={16} />Tümünü durdur</button>
+        <button className="primary" onClick={() => all((l) => ({ ...l, clock: startLane(l.clock, serverNow()) }))}><Play size={16} />Tümünü başlat</button>
+        <button onClick={() => all((l) => (l.clock.status === 'running' ? { ...l, clock: pauseLane(l.clock, serverNow()) } : l))}><Pause size={16} />Tümünü durdur</button>
         <button onClick={() => all((l) => ({ ...l, clock: finishLane() }))}><Flag size={16} />Tümünü bitir</button>
-        <button onClick={() => all((l) => ({ ...l, clock: jumpLane(setsOf(l), 0, Date.now()) }))}><RotateCcw size={16} />Tümü baştan</button>
+        <button onClick={() => all((l) => ({ ...l, clock: jumpLane(setsOf(l), 0, serverNow()) }))}><RotateCcw size={16} />Tümü baştan</button>
         <button onClick={addLane}><Plus size={16} />Kulvar ekle</button>
       </section>
 
@@ -49,14 +50,14 @@ export default function TimerControl() {
               </select>
             </label>
             <label>Setten başlat
-              <select value="" disabled={!lane.workoutId} onChange={(e) => patch(lane.id, (l) => ({ ...l, clock: jumpLane(setsOf(l), Number(e.target.value), Date.now()) }))}>
+              <select value="" disabled={!lane.workoutId} onChange={(e) => patch(lane.id, (l) => ({ ...l, clock: jumpLane(setsOf(l), Number(e.target.value), serverNow()) }))}>
                 <option value="" disabled>Set seçin</option>
                 {setsOf(lane).map((s, i) => <option key={i} value={i}>{i + 1}. {s.name} · {s.reps}×{s.distance} m</option>)}
               </select>
             </label>
             <div className="lane-actions">
-              <button className="primary" disabled={!lane.workoutId || lane.clock.status === 'running'} onClick={() => patch(lane.id, (l) => ({ ...l, clock: startLane(l.clock, Date.now()) }))}><Play size={15} />Başlat</button>
-              <button disabled={lane.clock.status !== 'running'} onClick={() => patch(lane.id, (l) => ({ ...l, clock: pauseLane(l.clock, Date.now()) }))}><Pause size={15} />Durdur</button>
+              <button className="primary" disabled={!lane.workoutId || lane.clock.status === 'running'} onClick={() => patch(lane.id, (l) => ({ ...l, clock: startLane(l.clock, serverNow()) }))}><Play size={15} />Başlat</button>
+              <button disabled={lane.clock.status !== 'running'} onClick={() => patch(lane.id, (l) => ({ ...l, clock: pauseLane(l.clock, serverNow()) }))}><Pause size={15} />Durdur</button>
               <button disabled={!lane.workoutId} onClick={() => patch(lane.id, (l) => ({ ...l, clock: finishLane() }))}><Flag size={15} />Bitir</button>
             </div>
           </article>

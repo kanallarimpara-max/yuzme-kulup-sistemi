@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici acik yayin onayi verirse deploy; kalan: grup sesli arama, kronometre saat esitleme, Worker ile AI/TYF otomatik/bildirim, Cloudinary, APK izni
+worker/ altinda AI analiz ve TYF sonuc cekme Worker kodunu yaz, Performance ve TyfImport ekranlarina bagla
 
 ## Modüller
 
@@ -37,6 +37,7 @@ Kullanici acik yayin onayi verirse deploy; kalan: grup sesli arama, kronometre s
 
 ## Son kayıtlar
 
+- 2026-11-23: Kronometre sunucu saatiyle esitlendi, sunucusuz grup sesli arama eklendi (en fazla 6 kisi). 33 test, build, 85/85 kural testi gecti; arama iki gercek cihazda denenmedi
 - 2026-11-23: Kredi harcama Worker gerektirmeden atomik islem + Firestore kurallariyla yazildi (wallets, listingSets). Secili ogrenci bildirimi, super admin istek beklemeden sohbet, antrenor paneli kisi sayisi ve logo eklendi. 31 test, build, 75/75 kural testi gecti
 - 2026-11-23: Super admin: kulup+admin acma, uygulama tasarimi. Reklam gosterimi, veli TYF canli sonuc, kurulabilir web uygulamasi (PWA) eklendi. tsc, 31 test, build, 56/56 kural testi gecti. Yayin izin denetiminde durdu
 - 2026-11-23: Veli verisi kapatildi (sonuc, yorum, yoklama yalniz kendi cocugu). Kural testi eklendi: 49/49 emulatorde gecti, JDK kullanici klasorunde (LOCALAPPDATA/yuzme-tools), test icin JAVA_HOME oraya ayarlanir

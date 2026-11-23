@@ -4,6 +4,7 @@ import { useSession } from '../lib/session';
 import { db, useCollection } from '../lib/store';
 import { uploadFile } from '../lib/credits';
 import { answerCall, applyAnswer, closeCall, startCall, type ActiveCall } from '../lib/call';
+import { GroupCall, livePeers, MAX_GROUP_CALL, type GroupPeer } from '../lib/groupCall';
 import { ROLE_LABEL, type CallDoc, type Chat as ChatRow, type Contact, type Message, type User } from '../lib/types';
 
 export default function Chat() {
@@ -25,6 +26,10 @@ export default function Chat() {
   const [callId, setCallId] = useState<string | null>(null);
   const answered = useRef(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const groupPeers = useCollection<GroupPeer>('groupPeers', { contains: ['memberIds', uid] });
+  const groupCall = useRef<GroupCall | null>(null);
+  const [groupChatId, setGroupChatId] = useState<string | null>(null);
+  const [groupCount, setGroupCount] = useState(0);
 
   const nameOf = (id: string) => users.find((u) => u.id === id)?.name ?? 'Kullanıcı';
   const title = (c: ChatRow) => (c.direct ? nameOf(c.memberIds.find((m) => m !== uid) ?? '') : c.name);
@@ -48,7 +53,10 @@ export default function Chat() {
     }
   }, [current?.status, current?.answer]);
 
-  useEffect(() => () => closeCall(activeCall.current), []);
+  useEffect(() => () => {
+    closeCall(activeCall.current);
+    void groupCall.current?.leave();
+  }, []);
   if (!user) return null;
 
   const findPerson = async (e: FormEvent) => {
@@ -146,7 +154,30 @@ export default function Chat() {
     setCallId(null);
   };
 
+  const joinGroup = async () => {
+    if (!open || open.direct || groupCall.current) return;
+    if (livePeers(groupPeers, open.id).length >= MAX_GROUP_CALL) return setError(`Grup aramasına en fazla ${MAX_GROUP_CALL} kişi katılabilir.`);
+    const session = new GroupCall(open, uid, setGroupCount);
+    try {
+      setError('');
+      await session.join();
+      groupCall.current = session;
+      setGroupChatId(open.id);
+      setGroupCount(1);
+    } catch {
+      await session.leave();
+      setError('Grup aramasına katılınamadı. Mikrofon iznini kontrol edin.');
+    }
+  };
+  const leaveGroup = async () => {
+    const session = groupCall.current;
+    groupCall.current = null;
+    setGroupChatId(null);
+    await session?.leave();
+  };
+
   const requests = contacts.filter((c) => c.toId === uid && c.status === 'bekliyor');
+  const liveGroup = open && !open.direct ? livePeers(groupPeers, open.id).length : 0;
   const lastOf = (id: string) => messages.filter((m) => m.chatId === id).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0))[0];
   return (
     <div className="page chat-page">
@@ -155,6 +186,7 @@ export default function Chat() {
       {info && <p className="ok" role="status">{info}</p>}
       {incoming && <section className="card call-bar"><strong>{nameOf(incoming.callerId)} arıyor</strong><span className="form-actions"><button className="primary" onClick={() => pickUp(incoming)}><Phone size={16} />Aç</button><button onClick={() => db.update('calls', incoming.id, { status: 'bitti' })}><PhoneOff size={16} />Reddet</button></span></section>}
       {current && current.status !== 'bitti' && <section className="card call-bar"><strong>{current.status === 'bagli' ? 'Görüşme sürüyor' : 'Aranıyor…'} · {nameOf(current.callerId === uid ? current.calleeId : current.callerId)}</strong><button onClick={() => hangUp(current.id)}><PhoneOff size={16} />Kapat</button></section>}
+      {groupChatId && <section className="card call-bar"><strong>Grup araması · {chats.find((c) => c.id === groupChatId)?.name} · {groupCount} kişi</strong><button onClick={leaveGroup}><PhoneOff size={16} />Ayrıl</button></section>}
       <div className={open ? 'chat-layout has-open' : 'chat-layout'}>
         <aside className="card chat-list">
           <form className="inline-form" onSubmit={findPerson}><input aria-label="Etiketle kişi ara" placeholder="@etiket" value={tag} onChange={(e) => setTag(e.target.value)} /><button className="icon" aria-label="İstek gönder"><Search size={16} /></button></form>
@@ -174,6 +206,7 @@ export default function Chat() {
               <strong>{title(open)}</strong>
               {open.direct && <small>{ROLE_LABEL[users.find((u) => u.id === open.memberIds.find((m) => m !== uid))?.role ?? 'parent']}</small>}
               {open.direct && !current && <button className="icon" aria-label="Sesli ara" title="Sesli ara" onClick={call}><Phone size={16} /></button>}
+              {!open.direct && !groupChatId && <button onClick={joinGroup} title="Grup araması"><Phone size={16} />{liveGroup ? `Aramaya katıl (${liveGroup})` : 'Grubu ara'}</button>}
             </header>
             <div className="messages">
               {thread.map((m) => (

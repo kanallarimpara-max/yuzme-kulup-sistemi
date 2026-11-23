@@ -1,7 +1,7 @@
 // Firestore kurallarını yalnız yerel emülatörde, kurgusal veriyle dener: npm run test:rules
 import { readFileSync } from 'node:fs';
 import { assertFails, assertSucceeds, initializeTestEnvironment } from '@firebase/rules-unit-testing';
-import { addDoc, collection, doc, getDoc, getDocs, increment, query, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, getDocs, increment, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
 
 const env = await initializeTestEnvironment({
   projectId: 'demo-yuzme-kural',
@@ -138,6 +138,16 @@ const checks = [
   ok('satın alınca setler okunur', () => getDoc(doc(C, 'listingSets', 'ilan1'))),
   no('aynı ilan iki kez satın alınamaz', () => batch(C, [['purchases', 'coach1_ilan1', { buyerId: 'coach1', listingId: 'ilan1', sellerId: 'coach2' }], ['wallets', 'coach1', { balance: increment(-50), op: 'coach1_ilan1' }], ['wallets', 'coach2', { balance: increment(50), op: 'coach1_ilan1' }]])),
   ok('satıcının ilk cüzdanı satışla açılır', () => batch(C, [['purchases', 'coach1_ilan2', { buyerId: 'coach1', listingId: 'ilan2', sellerId: 'yenisatici' }], ['wallets', 'coach1', { balance: increment(-10), op: 'coach1_ilan2' }], ['wallets', 'yenisatici', { balance: increment(10), held: increment(0), op: 'coach1_ilan2' }]])),
+  ok('grup üyesi aramaya katılır', () => setDoc(doc(C, 'groupPeers', 'sohbet1_coach1'), { chatId: 'sohbet1', memberIds: ['coach1', 'parentA'], uid: 'coach1', session: 's1', lastSeen: 1 })),
+  no('grup dışı kişi aramaya katılamaz', () => setDoc(doc(as('parentB'), 'groupPeers', 'sohbet1_parentB'), { chatId: 'sohbet1', memberIds: ['coach1', 'parentA'], uid: 'parentB', session: 's2', lastSeen: 1 })),
+  no('grup dışı kişi aramayı göremez', () => getDoc(doc(as('parentB'), 'groupPeers', 'sohbet1_coach1'))),
+  ok('grup üyesi sinyal gönderir', () => setDoc(doc(C, 'groupSignals', 's1_s3'), { chatId: 'sohbet1', memberIds: ['coach1', 'parentA'], from: 'coach1', to: 'parentA', fromSession: 's1', toSession: 's3', offer: '{}' })),
+  no('başkası adına sinyal gönderilemez', () => setDoc(doc(as('parentB'), 'groupSignals', 's9'), { chatId: 'sohbet1', memberIds: ['coach1', 'parentB'], from: 'coach1', to: 'parentB', offer: '{}' })),
+  no('sinyal alıcısı teklifi değiştiremez', () => updateDoc(doc(A, 'groupSignals', 's1_s3'), { offer: 'x' })),
+  ok('sinyal alıcısı yanıt yazar', () => updateDoc(doc(A, 'groupSignals', 's1_s3'), { answer: '{}' })),
+  ok('kullanıcı saatini eşitler', () => setDoc(doc(C, 'clockSync', 'coach1'), { at: serverTimestamp() })),
+  no('saat kaydı elle yazılamaz', () => setDoc(doc(C, 'clockSync', 'coach1'), { at: new Date(0) })),
+  no('başkasının saat kaydı yazılamaz', () => setDoc(doc(C, 'clockSync', 'coach2'), { at: serverTimestamp() })),
   ok('süper admin tüm öğrencileri okur', () => getDocs(collection(Z, 'students'))),
   ok('süper admin tasarım yazar', () => setDoc(doc(Z, 'appDesign', 'main'), { appName: 'Kurgu' })),
   ok('oturumsuz tasarım okur', () => getDoc(doc(U, 'appDesign', 'main'))),

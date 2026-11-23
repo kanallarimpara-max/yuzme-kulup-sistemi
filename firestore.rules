@@ -134,6 +134,28 @@ service cloud.firestore {
       allow read, update: if isMember();
       allow create: if willBeMember() && request.resource.data.callerId == request.auth.uid;
     }
+    // Grup araması: yalnız sohbetin üyeleri katılır ve sinyal alışverişi yapar.
+    match /groupPeers/{id} {
+      allow read: if isMember();
+      allow create, update: if signedIn() && request.resource.data.uid == request.auth.uid
+        && id == request.resource.data.chatId + '_' + request.auth.uid
+        && request.auth.uid in get(/databases/$(database)/documents/chats/$(request.resource.data.chatId)).data.memberIds
+        && request.resource.data.memberIds == get(/databases/$(database)/documents/chats/$(request.resource.data.chatId)).data.memberIds;
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+    match /groupSignals/{id} {
+      allow read, delete: if isMember();
+      allow create: if willBeMember() && request.resource.data.from == request.auth.uid
+        && request.resource.data.memberIds.size() == 2 && request.resource.data.to in request.resource.data.memberIds
+        && request.auth.uid in get(/databases/$(database)/documents/chats/$(request.resource.data.chatId)).data.memberIds
+        && request.resource.data.to in get(/databases/$(database)/documents/chats/$(request.resource.data.chatId)).data.memberIds;
+      allow update: if signedIn() && resource.data.to == request.auth.uid && onlyChanges(['answer']);
+    }
+    // Kronometre sunucu saatiyle eşitlenir.
+    match /clockSync/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if signedIn() && request.auth.uid == uid && request.resource.data.keys().hasOnly(['at']) && request.resource.data.at == request.time;
+    }
     match /posts/{id} {
       allow read: if signedIn() && (resource.data.isPublic == true || request.auth.uid in resource.data.audience);
       allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;

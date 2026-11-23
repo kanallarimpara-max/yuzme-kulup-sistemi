@@ -77,6 +77,9 @@ export function timerView(sets: WorkoutSet[], elapsedMs: number): TimerView {
   };
 }
 
+/** İstek gidiş-dönüşünün ortasını sunucu saatiyle karşılaştırır. */
+export const clockOffset = (sentAt: number, serverAt: number, receivedAt: number) => Math.round(serverAt - (sentAt + receivedAt) / 2);
+
 export type LaneClock = { status: 'idle' | 'running' | 'paused' | 'done'; startedAt: number | null; offsetMs: number };
 
 export const laneElapsed = (lane: LaneClock, now: number) =>

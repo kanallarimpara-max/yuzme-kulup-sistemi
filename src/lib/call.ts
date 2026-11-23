@@ -2,9 +2,9 @@ import { db } from './store';
 import type { CallDoc } from './types';
 
 // Ücretsiz STUN ile doğrudan bağlantı kurulur. Sinyal mesajları veri deposundan geçer, ses sunucuya gitmez.
-const CONFIG: RTCConfiguration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+export const CONFIG: RTCConfiguration = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-const gathered = (pc: RTCPeerConnection) => new Promise<void>((resolve) => {
+export const gathered = (pc: RTCPeerConnection) => new Promise<void>((resolve) => {
   if (pc.iceGatheringState === 'complete') return resolve();
   const timer = window.setTimeout(resolve, 3000);
   pc.addEventListener('icegatheringstatechange', () => {

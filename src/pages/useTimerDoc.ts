@@ -1,4 +1,5 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import { syncClock } from '../lib/clock';
 import { useSession } from '../lib/session';
 import { db, useCollection } from '../lib/store';
 import type { TimerDoc, TimerLane, Workout } from '../lib/types';
@@ -10,6 +11,9 @@ export function useTimerDoc() {
   const docs = useCollection<TimerDoc>('timers', { clubId });
   const workouts = useCollection<Workout>('workouts', { clubId });
   const lanes = docs.find((d) => d.id === id)?.lanes ?? [];
+  useEffect(() => {
+    if (user?.id) void syncClock(user.id);
+  }, [user?.id]);
   const save = useCallback((next: TimerLane[]) => db.put('timers', id, { clubId, lanes: next }), [id, clubId]);
   return { lanes, workouts, save };
 }

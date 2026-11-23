@@ -17,6 +17,7 @@ export interface DataStore {
   get<T extends Row>(name: string, id: string): Promise<T | null>;
   /** Tüm yazımlar birlikte olur veya hiçbiri olmaz. Alanlar mevcut belgeyle birleştirilir. */
   batch(ops: BatchOp[]): Promise<void>;
+  serverTime(uid: string): Promise<number>;
 }
 
 export type BatchOp = { name: string; id: string; data: Record<string, unknown> };
@@ -142,6 +143,10 @@ class LocalStore implements DataStore {
     }
     this.commit();
   }
+
+  async serverTime() {
+    return Date.now();
+  }
 }
 
 class FirestoreStore implements DataStore {
@@ -225,6 +230,14 @@ class FirestoreStore implements DataStore {
       batch.set(f.doc(f.db, name, id), row, { merge: true });
     }
     await batch.commit();
+  }
+
+  async serverTime(uid: string) {
+    const f = await this.sdk;
+    const ref = f.doc(f.db, 'clockSync', uid);
+    await f.setDoc(ref, { at: f.serverTimestamp() });
+    const snap = await f.getDocFromServer(ref);
+    return (snap.data()?.at as { toMillis(): number }).toMillis();
   }
 }
 

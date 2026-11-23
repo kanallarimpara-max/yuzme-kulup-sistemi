@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Volume2, VolumeX } from 'lucide-react';
+import { serverNow } from '../lib/clock';
 import { beepsBetween, laneElapsed, laneGrid, timerView } from '../lib/timer';
 import type { TimerLane, Workout } from '../lib/types';
 import { useTimerDoc } from './useTimerDoc';
@@ -59,14 +60,14 @@ function Lane({ lane, workout, now }: { lane: TimerLane; workout?: Workout; now:
 
 export default function TimerDisplay() {
   const { lanes, workouts } = useTimerDoc();
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState(() => serverNow());
   const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight });
   const [sound, setSound] = useState(false);
   const audio = useRef<AudioContext | null>(null);
   const previous = useRef<Record<string, number>>({});
 
   useEffect(() => {
-    const tick = window.setInterval(() => setNow(Date.now()), 100);
+    const tick = window.setInterval(() => setNow(serverNow()), 100);
     const resize = () => setSize({ w: window.innerWidth, h: window.innerHeight });
     window.addEventListener('resize', resize);
     return () => {
