@@ -1,8 +1,6 @@
 // Worker'ı Cloudflare hesabı olmadan, ağ çağrılarını taklit ederek dener: npm run test:worker
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import worker from './index.js';
-import { signParams } from './files.js';
 
 const PROJECT = 'test-projesi';
 const pair = await crypto.subtle.generateKey({ name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' }, true, ['sign', 'verify']);
@@ -86,20 +84,29 @@ globalThis.fetch = async (url, init) => {
   const google = await googleApis(target, init);
   if (google) return google;
   if (target.includes('googleapis.com')) return Response.json({ keys: [jwk] });
+  if (target.startsWith('https://api.cloudinary.com/v1_1/bulut/')) {
+    uploaded = { target, preset: init.body.get('upload_preset') };
+    return Response.json({ secure_url: 'https://res.cloudinary.com/bulut/image/authenticated/s--x--/v1/abc.pdf' });
+  }
   if (target === page) return new Response('<a href="StartList_1.pdf">b</a><a href="ResultList_7.pdf?v=2">s</a>');
   if (target === `${page}ResultList_7.pdf?v=2`) return new Response(new Uint8Array([37, 80, 68, 70]));
   throw new Error(`beklenmeyen istek: ${target}`);
 };
 
 let aiInput;
+let uploaded = null;
 const pkcs8 = Buffer.from(await crypto.subtle.exportKey('pkcs8', other.privateKey)).toString('base64');
 const env = { FIREBASE_PROJECT_ID: PROJECT, FIREBASE_SERVICE_ACCOUNT: JSON.stringify({ client_email: 'test@test.invalid', private_key: `-----BEGIN PRIVATE KEY-----\n${pkcs8}\n-----END PRIVATE KEY-----\n` }), AI: { run: async (_model, input) => { aiInput = input; return { response: ' Tavsiye ' }; } } };
 const call = async (path, t, init = {}) => worker.fetch(new Request(`https://w.test${path}`, { ...init, headers: { ...(t ? { Authorization: `Bearer ${t}` } : {}), 'Content-Type': 'application/json' } }), env);
 const meetPath = `/tyf/meet?url=${encodeURIComponent(page)}`;
 const valid = await token();
 const notify = (collection, id, t = valid) => call('/push/notify', t, { method: 'POST', body: JSON.stringify({ collection, id }) });
-const sign = (kind, t = valid) => call('/files/sign', t, { method: 'POST', body: JSON.stringify({ kind }) });
-const cloudinary = { CLOUDINARY_CLOUD_NAME: 'bulut', CLOUDINARY_API_KEY: 'anahtar', CLOUDINARY_API_SECRET: 'cok-gizli-deger' };
+const cloudinary = { CLOUDINARY_CLOUD_NAME: 'bulut', CLOUDINARY_UPLOAD_PRESET: 'gizli-ayar-adi' };
+const upload = async (type, size = 10, t = valid) => {
+  const body = new FormData();
+  body.append('file', new File([new Uint8Array(size)], 'dosya', { type }));
+  return worker.fetch(new Request('https://w.test/files/upload', { method: 'POST', body, headers: t ? { Authorization: `Bearer ${t}` } : {} }), env);
+};
 
 const checks = [
   ['oturumsuz istek reddedilir', async () => assert.equal((await call(meetPath)).status, 401)],
@@ -169,31 +176,33 @@ const checks = [
     assert.equal(new Set(sent.map((m) => m.token)).size, 45);
     assert.equal(sent.length, 45);
   }],
-  ['oturumsuz dosya imzası alınamaz', async () => assert.equal((await sign('image', null)).status, 401)],
-  ['Cloudinary ayarı yoksa imza verilmez', async () => assert.equal((await sign('image')).status, 503)],
-  ['izinsiz dosya türüne imza verilmez', async () => {
+  ['oturumsuz dosya yüklenemez', async () => assert.equal((await upload('image/png', 10, null)).status, 401)],
+  ['Cloudinary ayarı yoksa yükleme kapalıdır', async () => assert.equal((await upload('image/png')).status, 503)],
+  ['izinsiz dosya türü hak harcamadan reddedilir', async () => {
     Object.assign(env, cloudinary);
     aiCount = 0;
-    for (const kind of ['exe', 'constructor', '__proto__']) assert.equal((await sign(kind)).status, 400);
+    for (const type of ['application/x-msdownload', 'text/html']) assert.equal((await upload(type)).status, 400);
     assert.equal(aiCount, 0);
   }],
-  ['dosya özel yüklenir, imza doğrudur, gizli anahtar sızmaz', async () => {
-    const res = await sign('pdf');
-    const raw = await res.clone().text();
-    const { url, fields } = await res.json();
-    assert.equal(url, 'https://api.cloudinary.com/v1_1/bulut/image/upload');
-    assert.equal(fields.type, 'authenticated');
-    assert.equal(fields.allowed_formats, 'pdf');
-    assert.ok(!raw.includes(cloudinary.CLOUDINARY_API_SECRET));
-    assert.ok(!fields.public_id.includes('u1'));
-    const { signature, api_key: _key, ...signed } = fields;
-    assert.equal(signature, await signParams(signed, cloudinary.CLOUDINARY_API_SECRET));
-    // Cloudinary belgesindeki örnek imza.
-    assert.equal(await signParams({ timestamp: '1315060510', public_id: 'sample' }, 'abcd'), createHash('sha1').update('public_id=sample&timestamp=1315060510abcd').digest('hex'));
+  ['10 MB üstü dosya reddedilir', async () => assert.equal((await upload('image/png', 10_000_001)).status, 413)],
+  ['dosya yüklenir, ayar adı istemciye sızmaz', async () => {
+    const res = await upload('application/pdf');
+    const raw = await res.text();
+    assert.equal(res.status, 200);
+    assert.deepEqual(JSON.parse(raw), { url: 'https://res.cloudinary.com/bulut/image/authenticated/s--x--/v1/abc.pdf' });
+    assert.ok(!raw.includes(cloudinary.CLOUDINARY_UPLOAD_PRESET));
+    assert.equal(uploaded.target, 'https://api.cloudinary.com/v1_1/bulut/image/upload');
+    assert.equal(uploaded.preset, cloudinary.CLOUDINARY_UPLOAD_PRESET);
+  }],
+  ['ses dosyası doğru kaynağa gider', async () => {
+    await upload('audio/webm');
+    assert.equal(uploaded.target, 'https://api.cloudinary.com/v1_1/bulut/video/upload');
   }],
   ['günlük yükleme hakkı aşılamaz', async () => {
     aiCount = 30;
-    assert.equal((await sign('image')).status, 429);
+    uploaded = null;
+    assert.equal((await upload('image/png')).status, 429);
+    assert.equal(uploaded, null);
   }],
 ];
 
