@@ -5,6 +5,7 @@ import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-rou
 import { isRinging } from './lib/call';
 import { useSession } from './lib/session';
 import { useLiveImport } from './lib/useLiveImport';
+import { ThemeToggle } from './lib/theme';
 import { useCollection } from './lib/store';
 import { AdSlot, useAppDesign } from './lib/design';
 import { pushAvailable, usePushToggle } from './lib/push';
@@ -134,6 +135,7 @@ function Shell() {
         <div className="sidebar-foot">
           <span className="who"><CalendarDays size={15} />{user.tag}</span>
           <button className="ghost icon menu-toggle" aria-expanded={menuOpen} aria-label={menuOpen ? 'Menüyü kapat' : 'Tüm menü'} onClick={() => setMenuOpen((o) => !o)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
+          <ThemeToggle />
           {pushAvailable && <PushButton uid={user.id} />}
           <button className="ghost icon" onClick={signOut} aria-label="Çıkış yap" title="Çıkış yap"><LogOut size={18} /></button>
         </div>

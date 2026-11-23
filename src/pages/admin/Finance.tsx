@@ -52,7 +52,7 @@ export default function Finance() {
       </section>
       <section className="card"><h2>Aylık tahsilat ve gider</h2>
         {chart.length === 0 ? <p className="muted">Henüz finans hareketi yok.</p> : <div className="chart"><ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chart}><CartesianGrid stroke="#24445f" vertical={false} /><XAxis dataKey="month" stroke="#9db4c5" fontSize={12} /><YAxis stroke="#9db4c5" fontSize={12} width={64} /><Tooltip formatter={(v) => money(Number(v) * 100)} contentStyle={{ background: '#0e2439', border: '1px solid #24445f' }} /><Legend /><Bar dataKey="Tahsilat" fill="#27c4d8" radius={[4, 4, 0, 0]} /><Bar dataKey="Gider" fill="#f28c1e" radius={[4, 4, 0, 0]} /></BarChart>
+          <BarChart data={chart}><CartesianGrid stroke="var(--line)" vertical={false} /><XAxis dataKey="month" stroke="var(--muted)" fontSize={12} /><YAxis stroke="var(--muted)" fontSize={12} width={64} /><Tooltip cursor={{ fill: 'var(--panel-2)' }} formatter={(v) => money(Number(v) * 100)} contentStyle={{ background: 'var(--panel)', border: '1px solid var(--line)', color: 'var(--text)' }} /><Legend /><Bar dataKey="Tahsilat" fill="var(--accent)" radius={[4, 4, 0, 0]} /><Bar dataKey="Gider" fill="var(--orange)" radius={[4, 4, 0, 0]} /></BarChart>
         </ResponsiveContainer></div>}
       </section>
       <div className="two-col">

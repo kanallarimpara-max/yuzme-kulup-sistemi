@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Waves } from 'lucide-react';
 import { useAppDesign } from '../lib/design';
 import { useSession } from '../lib/session';
+import { ThemeToggle } from '../lib/theme';
 import { firebaseEnabled, useCollection } from '../lib/store';
 import { ROLE_LABEL, type User } from '../lib/types';
 
@@ -42,6 +43,7 @@ export default function Login() {
   return (
     <div className="login">
       <section className="login-card">
+        <ThemeToggle className="ghost icon login-theme" />
         <span className="brand-mark large"><Waves size={28} /></span>
         <h1>{appName}</h1>
         <Link className="login-back" to="/"><ArrowLeft size={15} />Ana sayfaya dön</Link>

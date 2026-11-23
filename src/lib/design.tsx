@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useCollection, type Row } from './store';
+import { useTheme } from './theme';
 
 export type AppDesign = Row & { appName: string; logoUrl: string; accent: string; background: string; panel: string };
 export type Ad = Row & { title: string; imageUrl: string; linkUrl: string; slot: string; active: boolean };
@@ -17,15 +18,22 @@ const inkFor = (hex: string) => {
 export function useAppDesign() {
   const saved = useCollection<AppDesign>('appDesign', { id: 'main' })[0];
   const design = { ...DEFAULT_DESIGN, ...saved };
+  const theme = useTheme();
   useEffect(() => {
     const root = document.documentElement.style;
     root.setProperty('--accent', design.accent);
     root.setProperty('--accent-ink', inkFor(design.accent));
-    root.setProperty('--bg', design.background);
-    root.setProperty('--panel', design.panel);
+    // Süper adminin zemin renkleri karanlık moda aittir; aydınlık mod okunabilir kendi zeminini kullanır.
+    if (theme === 'dark') {
+      root.setProperty('--bg', design.background);
+      root.setProperty('--panel', design.panel);
+    } else {
+      root.removeProperty('--bg');
+      root.removeProperty('--panel');
+    }
     document.title = design.appName;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', design.background);
-  }, [design.accent, design.background, design.panel, design.appName]);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? design.background : '#eff5f9');
+  }, [design.accent, design.background, design.panel, design.appName, theme]);
   return design;
 }
 

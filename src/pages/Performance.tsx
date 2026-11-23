@@ -80,11 +80,11 @@ export default function Performance() {
         {chart.length === 0 ? <p className="muted">Henüz derece yok.</p> : (
           <div className="chart"><ResponsiveContainer width="100%" height="100%">
             <LineChart data={chart} margin={{ left: 8, right: 16, top: 10 }}>
-              <CartesianGrid stroke="#24445f" vertical={false} />
-              <XAxis dataKey="date" stroke="#9db4c5" fontSize={12} />
-              <YAxis reversed domain={['auto', 'auto']} tickFormatter={formatSwimTime} stroke="#9db4c5" fontSize={12} width={62} />
-              <Tooltip formatter={(v) => [formatSwimTime(Number(v)), 'Süre']} contentStyle={{ background: '#0e2439', border: '1px solid #24445f' }} />
-              <Line type="monotone" dataKey="ms" stroke="#27c4d8" strokeWidth={2.5} dot={{ r: 4 }} />
+              <CartesianGrid stroke="var(--line)" vertical={false} />
+              <XAxis dataKey="date" stroke="var(--muted)" fontSize={12} />
+              <YAxis reversed domain={['auto', 'auto']} tickFormatter={formatSwimTime} stroke="var(--muted)" fontSize={12} width={62} />
+              <Tooltip formatter={(v) => [formatSwimTime(Number(v)), 'Süre']} contentStyle={{ background: 'var(--panel)', border: '1px solid var(--line)', color: 'var(--text)' }} />
+              <Line type="monotone" dataKey="ms" stroke="var(--accent)" strokeWidth={2.5} dot={{ r: 4 }} />
             </LineChart>
           </ResponsiveContainer></div>
         )}

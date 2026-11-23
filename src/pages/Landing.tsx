@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Banknote, ClipboardCheck, Coins, LineChart, MessagesSquare, Smartphone, Timer, Trophy, UserPlus, Waves } from 'lucide-react';
 import { useAppDesign } from '../lib/design';
+import { ThemeToggle } from '../lib/theme';
 
 const FEATURES = [
   { icon: Timer, title: 'Çok kulvarlı kronometre', text: 'Her kulvara ayrı antrenman ata, başka bir cihazdan başlat, durdur ve seti yönet.' },
@@ -29,7 +30,7 @@ export default function Landing() {
           <span className="brand-mark">{logoUrl ? <img src={logoUrl} alt="" /> : <Waves size={20} />}</span>
           <strong>{appName}</strong>
         </span>
-        <Link className="button primary" to="/giris">Giriş yap</Link>
+        <span className="landing-actions"><ThemeToggle /><Link className="button primary" to="/giris">Giriş yap</Link></span>
       </header>
 
       <section className="landing-hero">
