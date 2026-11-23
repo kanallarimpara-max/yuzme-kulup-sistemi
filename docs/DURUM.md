@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Android ve Windows son surum acilis testlerini kontrol et
+Android ve Windows son surum testlerini ve TYF yaris listesinin dolmasini kontrol et
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Android ve Windows son surum acilis testlerini kontrol et
 
 ## Son kayıtlar
 
+- 2026-11-24: Kronometre kontrolune canli kulvar panosu, sonraki cikis ve bitis saati, dokunma kilidi ve kulvar basina cikis sesi eklendi. Iki cihazla denendi, 53 test gecti
 - 2026-11-24: Telefon alt menusundeki kaydirma cubugu kaldirildi, deneme sunucusu suresi uzatildi
 - 2026-11-24: Yoklama telefon tarih ve saatine baglandi: ders disinda Suan dersiniz gorunmuyor, ders saatinde otomatik acilir, altta kaydet. Rapor ogrenci sayfasinda 1. 2. ders tablosu ve Yoklama girilmedi. 52 test gecti
 - 2026-11-24: Canli sonuclar uygulama icine alindi: TYF yarislari otomatik bulunur, tablo, kulup filtresi, resmi liste. Yaris derecesi yalniz admin, antrenor yalniz antrenman derecesi. Baraj yalniz yaris derecesiyle. 171 kural, 51 test gecti

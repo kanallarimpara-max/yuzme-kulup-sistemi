@@ -3,7 +3,7 @@ import {
   addMonths, financeSummary, analyzeAthlete, lessonsAt, applyDiscount, buildInstallments, classifyMatch, clubMatchScore, coachFit, creditBalance, formatSwimTime,
   hourSlots, lessonDates, lessonEndDate, normalizeName, parseSwimTime, passedStandards, paymentSummary, redeemKurus, sessionDates, sessionState,
 } from './rules';
-import { beepsBetween, buildSteps, jumpLane, laneElapsed, pauseLane, startLane, timerView, totalMs, type WorkoutSet } from './timer';
+import { beepsBetween, buildSteps, jumpLane, laneElapsed, laneStatus, pauseLane, startLane, timerView, totalMs, type WorkoutSet } from './timer';
 
 describe('ders takvimi', () => {
   it('seçili günlere göre bitiş tarihini hesaplar', () => {
@@ -131,6 +131,17 @@ describe('yoklama ve analiz', () => {
     expect(lessonsAt([lesson], new Date(2026, 10, 23, 17, 30)).active?.id).toBe('l');
     expect(lessonsAt([lesson], new Date(2026, 10, 23, 18, 0)).active).toBeNull();
     expect(lessonsAt([lesson], new Date(2026, 10, 24, 17, 30)).todays).toEqual([]);
+  });
+  it('kulvarın durumunu ve çıkış saatini hesaplar', () => {
+    const sets = [{ name: 'Ana', reps: 2, distance: 50, stroke: 'Serbest', intervalMs: 60000, restMs: 30000 }];
+    expect(laneStatus([], { status: 'idle', startedAt: null, offsetMs: 0 }, 0).state).toBe('secilmedi');
+    expect(laneStatus(sets, { status: 'idle', startedAt: null, offsetMs: 0 }, 0).state).toBe('hazir');
+    const running = laneStatus(sets, { status: 'running', startedAt: 1000, offsetMs: 0 }, 11000);
+    expect(running).toMatchObject({ state: 'yuzuyor', remainingMs: 50000, nextAt: 61000, endAt: 151000 });
+    expect(running.detail).toContain('Tekrar 1/2');
+    expect(laneStatus(sets, { status: 'running', startedAt: 0, offsetMs: 0 }, 130000)).toMatchObject({ state: 'dinleniyor', remainingMs: 20000 });
+    expect(laneStatus(sets, { status: 'paused', startedAt: null, offsetMs: 10000 }, 99999)).toMatchObject({ state: 'duraklatildi', nextAt: null, remainingMs: 50000 });
+    expect(laneStatus(sets, { status: 'running', startedAt: 0, offsetMs: 0 }, 200000).state).toBe('bitti');
   });
   it('yoklama seanslarını ve girilmeyen dersi ayırır', () => {
     expect(sessionDates({ weekdays: [1, 3], startDate: '2026-11-23', endDate: '2026-12-02' })).toEqual(['2026-11-23', '2026-11-25', '2026-11-30', '2026-12-02']);

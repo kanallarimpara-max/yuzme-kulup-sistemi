@@ -1,15 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeft, Lock, Volume2, VolumeX } from 'lucide-react';
 import { serverNow } from '../lib/clock';
-import { beepsBetween, laneElapsed, laneGrid, timerView } from '../lib/timer';
+import { beepsBetween, clockText, laneElapsed, laneGrid, timerView } from '../lib/timer';
 import type { TimerLane, Workout } from '../lib/types';
 import { useTimerDoc } from './useTimerDoc';
-
-const clockText = (ms: number) => {
-  const total = Math.ceil(ms / 1000);
-  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
-};
 
 function playBeeps(ctx: AudioContext, beeps: Array<'short' | 'final'>) {
   let at = ctx.currentTime;
@@ -59,7 +54,7 @@ function Lane({ lane, workout, now }: { lane: TimerLane; workout?: Workout; now:
 }
 
 export default function TimerDisplay() {
-  const { lanes, workouts } = useTimerDoc();
+  const { lanes, workouts, touchLocked, setTouchLocked } = useTimerDoc();
   const [now, setNow] = useState(() => serverNow());
   const [size, setSize] = useState({ w: window.innerWidth, h: window.innerHeight });
   const [sound, setSound] = useState(false);
@@ -82,11 +77,54 @@ export default function TimerDisplay() {
       const elapsed = laneElapsed(lane.clock, now);
       const before = previous.current[lane.id];
       const workout = workouts.find((w) => w.id === lane.workoutId);
-      if (workout && lane.clock.status === 'running' && before !== undefined) beeps.push(...beepsBetween(workout.sets, before, elapsed));
+      if (workout && !lane.muted && lane.clock.status === 'running' && before !== undefined) beeps.push(...beepsBetween(workout.sets, before, elapsed));
       previous.current[lane.id] = elapsed;
     });
     if (sound && audio.current && beeps.length) playBeeps(audio.current, beeps.slice(0, 8));
   }, [now, lanes, workouts, sound]);
+
+  // Kilitliyken su damlası dahil hiçbir dokunma, tıklama veya geri hareketi uygulamaya ulaşmaz.
+  useEffect(() => {
+    if (!touchLocked) return;
+    const block = (e: Event) => {
+      if (e.cancelable) e.preventDefault();
+      e.stopPropagation();
+    };
+    const events = ['touchstart', 'touchmove', 'touchend', 'touchcancel', 'pointerdown', 'pointerup', 'mousedown', 'mouseup', 'click', 'dblclick', 'contextmenu', 'wheel', 'gesturestart', 'dragstart', 'selectstart'];
+    events.forEach((name) => window.addEventListener(name, block, { capture: true, passive: false }));
+    const keepHere = () => history.pushState(history.state, '', location.href);
+    keepHere();
+    window.addEventListener('popstate', keepHere);
+    // Windows'ta klavyeden kilit açılabilir; su klavyeye basamaz.
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') void setTouchLocked(false); };
+    window.addEventListener('keydown', onKey);
+    void document.documentElement.requestFullscreen?.().catch(() => undefined);
+    return () => {
+      events.forEach((name) => window.removeEventListener(name, block, { capture: true }));
+      window.removeEventListener('popstate', keepHere);
+      window.removeEventListener('keydown', onKey);
+      if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
+    };
+  }, [touchLocked, setTouchLocked]);
+
+  // Havuz başındaki tablet kronometre açıkken uykuya geçmez.
+  useEffect(() => {
+    let lock: WakeLockSentinel | null = null;
+    let alive = true;
+    const acquire = async () => {
+      if (document.hidden || !navigator.wakeLock) return;
+      const next = await navigator.wakeLock.request('screen').catch(() => null);
+      if (alive) lock = next;
+      else void next?.release();
+    };
+    void acquire();
+    document.addEventListener('visibilitychange', acquire);
+    return () => {
+      alive = false;
+      document.removeEventListener('visibilitychange', acquire);
+      void lock?.release();
+    };
+  }, []);
 
   const toggleSound = async () => {
     audio.current ??= new AudioContext();
@@ -96,13 +134,14 @@ export default function TimerDisplay() {
 
   const grid = laneGrid(lanes.length, size.w, size.h);
   return (
-    <div className="timer-screen" style={{ gridTemplateColumns: `repeat(${grid.cols}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${grid.rows}, minmax(0, 1fr))` }}>
+    <div className={touchLocked ? 'timer-screen touch-locked' : 'timer-screen'} style={{ gridTemplateColumns: `repeat(${grid.cols}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${grid.rows}, minmax(0, 1fr))` }}>
       {lanes.length === 0 && <div className="center-screen">Kontrol ekranından kulvar ekleyin.</div>}
       {lanes.map((lane) => <Lane key={lane.id} lane={lane} now={now} workout={workouts.find((w) => w.id === lane.workoutId)} />)}
-      <div className="timer-tools">
+      {touchLocked ? <div className="touch-shield" role="status" aria-label="Ekran dokunmaya kilitli"><span><Lock size={15} />Kilitli</span></div> : <div className="timer-tools">
         <Link to="/kronometre/kontrol" aria-label="Kontrol ekranına dön" title="Kontrol ekranı"><ArrowLeft size={18} /></Link>
         <button onClick={toggleSound} aria-label={sound ? 'Sesi kapat' : 'Sesi aç'} title={sound ? 'Sesi kapat' : 'Sesi aç'}>{sound ? <Volume2 size={18} /> : <VolumeX size={18} />}</button>
-      </div>
+        <button onClick={() => setTouchLocked(true)} aria-label="Ekranı dokunmaya kilitle" title="Ekranı dokunmaya kilitle"><Lock size={18} /></button>
+      </div>}
     </div>
   );
 }

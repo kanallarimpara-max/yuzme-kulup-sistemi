@@ -91,6 +91,30 @@ export const pauseLane = (lane: LaneClock, now: number): LaneClock => ({ status:
 export const finishLane = (): LaneClock => ({ status: 'done', startedAt: null, offsetMs: 0 });
 export const jumpLane = (sets: WorkoutSet[], setIndex: number, now: number): LaneClock => ({ status: 'running', startedAt: now, offsetMs: setOffsetMs(sets, setIndex) });
 
+export const clockText = (ms: number) => {
+  const total = Math.ceil(ms / 1000);
+  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+};
+
+export type LaneState = 'secilmedi' | 'hazir' | 'yuzuyor' | 'dinleniyor' | 'duraklatildi' | 'bitti';
+export type LaneStatus = { state: LaneState; label: string; detail: string; remainingMs: number; nextAt: number | null; endAt: number | null };
+const LANE_LABEL: Record<LaneState, string> = {
+  secilmedi: 'Antrenman seçilmedi', hazir: 'Hazır', yuzuyor: 'Yüzüyor', dinleniyor: 'Dinleniyor', duraklatildi: 'Duraklatıldı', bitti: 'Bitti',
+};
+
+/** Kontrol ekranı için kulvarın şu anki işi, kalan süresi, sıradaki çıkış ve bitiş saati. */
+export function laneStatus(sets: WorkoutSet[], clock: LaneClock, now: number): LaneStatus {
+  const make = (state: LaneState, detail = '', remainingMs = 0, nextAt: number | null = null, endAt: number | null = null): LaneStatus => ({ state, label: LANE_LABEL[state], detail, remainingMs, nextAt, endAt });
+  if (!sets.length) return make('secilmedi');
+  const elapsed = laneElapsed(clock, now);
+  const view = timerView(sets, elapsed);
+  if (clock.status === 'done' || view.phase === 'done') return make('bitti');
+  const detail = view.set ? `${view.set.name} · ${view.set.distance} m ${view.set.stroke} · Set ${view.setIndex + 1}/${view.setCount} · Tekrar ${view.rep}/${view.reps}` : '';
+  if (clock.status === 'idle') return make('hazir', detail, view.remainingMs);
+  if (clock.status === 'paused') return make('duraklatildi', detail, view.remainingMs);
+  return make(view.phase === 'rest' ? 'dinleniyor' : 'yuzuyor', detail, view.remainingMs, now + view.remainingMs, now + totalMs(sets) - elapsed);
+}
+
 /** Tüm kulvarlara birebir eşit alan veren, ekrana en uygun satır-sütun düzenini seçer. */
 export function laneGrid(count: number, width: number, height: number) {
   const n = Math.max(1, count);

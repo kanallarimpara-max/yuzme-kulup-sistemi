@@ -291,3 +291,25 @@ input[type='color'] { cursor: pointer; min-height: 42px; padding: 4px; }
   .sidebar nav { scrollbar-width: none; }
   .sidebar nav::-webkit-scrollbar { display: none; }
 }
+
+/* Kronometre durum panosu ve dokunma kilidi */
+.board-now { font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.lane-board { display: grid; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.lane-board li { align-items: center; background: var(--panel-2); border-left: 5px solid var(--line); border-radius: 9px; display: grid; gap: 10px 16px; grid-template-columns: minmax(0, 1fr) auto auto; padding: 10px 14px; }
+.board-main { align-items: center; display: flex; flex-wrap: wrap; gap: 4px 10px; min-width: 0; }
+.board-main em { font-size: .8rem; font-style: normal; font-weight: 700; }
+.board-main small { flex-basis: 100%; overflow-wrap: anywhere; }
+.board-clock { font-size: 1.7rem; font-variant-numeric: tabular-nums; }
+.lane-board dl { display: flex; gap: 14px; margin: 0; }
+.lane-board dt { color: var(--muted); font-size: .72rem; }
+.lane-board dd { font-variant-numeric: tabular-nums; font-weight: 700; margin: 0; }
+.lane-board .board-yuzuyor { border-left-color: var(--green); } .board-yuzuyor em { color: #5fe39a; }
+.lane-board .board-dinleniyor { border-left-color: var(--purple); } .board-dinleniyor em { color: #c9a7ff; }
+.lane-board .board-duraklatildi { border-left-color: var(--orange); } .board-duraklatildi em { color: #ffc266; }
+@media (max-width: 620px) {
+  .lane-board li { grid-template-columns: minmax(0, 1fr) auto; }
+  .lane-board dl { grid-column: 1 / -1; justify-content: space-between; }
+}
+.touch-locked, .touch-locked * { -webkit-touch-callout: none; touch-action: none; user-select: none; }
+.touch-shield { inset: 0; position: fixed; z-index: 50; }
+.touch-shield span { align-items: center; background: rgba(0,0,0,.55); border-radius: 8px; bottom: 8px; color: #fff; display: inline-flex; font-size: .78rem; font-weight: 700; gap: 5px; padding: 5px 9px; position: absolute; right: 8px; }

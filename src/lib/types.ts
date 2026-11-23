@@ -72,5 +72,5 @@ export type SwimResult = Row & {
 export const isRaceResult = (r: Pick<SwimResult, 'kind'>) => r.kind !== 'antrenman';
 export type TyfMeet = Row & { url: string; title: string; info: string; startDate: string };
 export type CoachComment = Row & { clubId: string; studentId: string; parentId?: string; coachId: string; text: string; date: string };
-export type TimerLane = { id: string; name: string; workoutId: string | null; clock: LaneClock };
-export type TimerDoc = Row & { clubId: string; lanes: TimerLane[] };
+export type TimerLane = { id: string; name: string; workoutId: string | null; clock: LaneClock; muted?: boolean };
+export type TimerDoc = Row & { clubId: string; lanes: TimerLane[]; touchLocked?: boolean };
