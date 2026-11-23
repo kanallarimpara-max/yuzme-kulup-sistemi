@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanıcı firebase login işlemini bitirince proje ve web uygulamasını bağla. Sonra sorguları kurallarla uyumlu yap: veli ve antrenör clubId ile students/enrollments listeleyemez, enrollments içine parentId yazılmalı. Emülatör testi için Java gerekir.
+Kullanici Firestore API ve E-posta/Sifre girisini acinca: firestore:databases:create (default) --location europe-west3, sonra sorgulari kurallarla uyumlu yap
 
 ## Modüller
 
@@ -37,6 +37,7 @@ Kullanıcı firebase login işlemini bitirince proje ve web uygulamasını bağl
 
 ## Son kayıtlar
 
+- 2026-11-23: Firebase projesi yuzme-kulup-sistemi ve web uygulamasi olusturuldu, yerel .env yazildi (repoya girmez)
 - 2026-11-23: Firebase CLI projeye eklendi
 - 2026-11-23: Paketleme durumu ve kalan eksikler kaydedildi
 - 2026-11-23: TYF sonuç aktarımı, resmi barajlar ve Firestore kuralları eklendi
