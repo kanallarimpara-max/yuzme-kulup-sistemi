@@ -30,7 +30,8 @@ if (wrangler('secret put FIREBASE_SERVICE_ACCOUNT', JSON.stringify(key)).status 
   console.log('Anahtar kaydedilemedi. Dosya silinmedi.');
   process.exit(1);
 }
-const saved = JSON.parse(wrangler('secret list --format json').stdout || '[]').some((s) => s.name === 'FIREBASE_SERVICE_ACCOUNT');
+// Wrangler JSON'dan önce başlık yazabilir; yalnız secret adları aranır.
+const saved = (wrangler('secret list --format json').stdout || '').includes('"FIREBASE_SERVICE_ACCOUNT"');
 if (!saved) {
   console.log('Kayit dogrulanamadi. Dosya silinmedi.');
   process.exit(1);
