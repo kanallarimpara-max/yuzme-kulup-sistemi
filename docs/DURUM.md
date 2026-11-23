@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Sahte hesap ve on kayit icin kotuye kullanim sinirini (App Check veya Worker hiz siniri) kur
+GitHub Actions APK derlemesinin sonucunu kontrol et
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Sahte hesap ve on kayit icin kotuye kullanim sinirini (App Check veya Worker hiz
 
 ## Son kayıtlar
 
+- 2026-11-23: APK is akisi GitHub'a eklendi, Firebase Android kaydi ve depo ayarlari tamamlandi
 - 2026-11-23: Ilk super admin hesabi ve profil kaydi canli Firebase'de olusturuldu, sifre yalniz kullanicida. Giris henuz denenmedi cunku canli kurallar yayinlanmadi
 - 2026-11-23: FCM web bildirim anahtari olusturuldu ve yerel ayara eklendi, build gecti. Gercek bildirim henuz denenmedi
 - 2026-11-23: Firebase servis anahtari Worker secret olarak kaydedildi, indirilen kopya silindi. AI, bildirim ve yukleme kotasi gercek oturumla henuz denenmedi
