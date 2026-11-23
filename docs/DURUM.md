@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-worker/ altinda AI analiz ve TYF sonuc cekme Worker kodunu yaz, Performance ve TyfImport ekranlarina bagla
+Kullanici: Cloudflare ve Cloudinary hesabi, gh workflow izni, acik yayin onayi. Sonra wrangler deploy, VITE_WORKER_URL, firebase deploy, ilk super admin. Kapali uygulamaya bildirim henuz yazilmadi
 
 ## Modüller
 
@@ -37,6 +37,7 @@ worker/ altinda AI analiz ve TYF sonuc cekme Worker kodunu yaz, Performance ve T
 
 ## Son kayıtlar
 
+- 2026-11-23: Cloudflare Worker yazildi: Firebase oturumu dogrulamali AI analiz ve TYF yarisindan otomatik PDF cekme, ekranlara baglandi. 37 test, 11 Worker testi, build, 85/85 kural testi gecti. Worker yayinlanmadi, gercek AI cagrilmadi
 - 2026-11-23: Kronometre sunucu saatiyle esitlendi, sunucusuz grup sesli arama eklendi (en fazla 6 kisi). 33 test, build, 85/85 kural testi gecti; arama iki gercek cihazda denenmedi
 - 2026-11-23: Kredi harcama Worker gerektirmeden atomik islem + Firestore kurallariyla yazildi (wallets, listingSets). Secili ogrenci bildirimi, super admin istek beklemeden sohbet, antrenor paneli kisi sayisi ve logo eklendi. 31 test, build, 75/75 kural testi gecti
 - 2026-11-23: Super admin: kulup+admin acma, uygulama tasarimi. Reklam gosterimi, veli TYF canli sonuc, kurulabilir web uygulamasi (PWA) eklendi. tsc, 31 test, build, 56/56 kural testi gecti. Yayin izin denetiminde durdu

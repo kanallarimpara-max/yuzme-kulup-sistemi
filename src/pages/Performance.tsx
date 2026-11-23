@@ -4,6 +4,7 @@ import { useSession } from '../lib/session';
 import { useCollection } from '../lib/store';
 import { athleteRecordScope, studentScope } from '../lib/access';
 import { useAttendance } from '../lib/useAttendance';
+import { aiAnalysis, workerEnabled } from '../lib/worker';
 import { analyzeAthlete, formatSwimTime, passedStandards } from '../lib/rules';
 import { dateTr, STROKE_LABEL } from '../lib/format';
 import { groupLabel, STANDARDS } from '../lib/standardData';
@@ -17,6 +18,9 @@ export default function Performance() {
   const attendance = useAttendance(user);
   const [picked, setPicked] = useState('');
   const [eventKey, setEventKey] = useState('');
+  const [ai, setAi] = useState({ studentId: '', text: '' });
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiError, setAiError] = useState('');
 
   // Veli yalnız kendi çocuğunu, antrenör yalnız kendi öğrencisini görür.
   const students = allStudents.filter((s) => (user?.role === 'parent' ? s.parentId === user.id : user?.role === 'coach' ? s.coachId === user.id : true));
@@ -32,6 +36,26 @@ export default function Performance() {
   const marks = attendance.flatMap((d) => (d.marks[student.id] ? [{ date: d.date, mark: d.marks[student.id] }] : []));
   const present = marks.filter((m) => m.mark === 'geldi').length;
   const notes = comments.filter((c) => c.studentId === student.id).sort((a, b) => b.date.localeCompare(a.date));
+  const aiText = ai.studentId === student.id ? ai.text : '';
+  const runAi = async () => {
+    setAiBusy(true);
+    setAiError('');
+    try {
+      // Ad, kulüp ve kimlik gönderilmez.
+      const text = await aiAnalysis({
+        age: season - student.birthYear,
+        gender: student.gender,
+        attendancePercent: marks.length ? Math.round((present / marks.length) * 100) : null,
+        passedStandards: passed.length,
+        events: analysis.trends.map((t) => ({ stroke: t.stroke, distance: t.distance, bestMs: t.bestMs, lastMs: t.lastMs, changePercent: t.changePercent, count: t.count })).slice(0, 18),
+      });
+      setAi({ studentId: student.id, text });
+    } catch (err) {
+      setAiError((err as Error).message);
+    } finally {
+      setAiBusy(false);
+    }
+  };
 
   return (
     <div className="page">
@@ -60,7 +84,11 @@ export default function Performance() {
         )}
       </section>
       <div className="two-col">
-        <section className="card"><h2>Otomatik analiz</h2><ul className="plain">{analysis.advice.map((a) => <li key={a}>{a}</li>)}</ul></section>
+        <section className="card stack"><h2>Otomatik analiz</h2><ul className="plain">{analysis.advice.map((a) => <li key={a}>{a}</li>)}</ul>
+          {workerEnabled && own.length > 0 && <div><button className="primary" disabled={aiBusy} onClick={runAi}>{aiBusy ? 'Analiz ediliyor…' : 'Yapay zekâ ile analiz et'}</button></div>}
+          {aiError && <p className="error" role="alert">{aiError}</p>}
+          {aiText && <div><p style={{ whiteSpace: 'pre-line' }}>{aiText}</p><small className="muted">Yapay zekâ önerisidir, antrenör değerlendirmesinin yerini tutmaz.</small></div>}
+        </section>
         <section className="card"><h2>Antrenör yorumları</h2>{notes.length === 0 ? <p className="muted">Henüz yorum yok.</p> : <ul className="plain">{notes.map((c) => <li key={c.id}>{c.text}<small>{dateTr(c.date)}</small></li>)}</ul>}</section>
       </div>
       <section className="card"><h2>Geçilen barajlar</h2>

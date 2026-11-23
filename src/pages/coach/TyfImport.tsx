@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
+import { normalizeMeetUrl } from '../../lib/tyfLinks';
+import { meetPdf, meetPdfLinks, workerEnabled } from '../../lib/worker';
 import { ExternalLink } from 'lucide-react';
 import { useSession } from '../../lib/session';
 import { db, useCollection } from '../../lib/store';
@@ -20,10 +22,32 @@ export default function TyfImport() {
   const [summary, setSummary] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [meetUrl, setMeetUrl] = useState('');
   if (!club) return null;
 
-  const read = async (files: FileList | null) => {
-    if (!files?.length) return;
+  const read = (files: FileList | null) => {
+    if (files?.length) void process(Array.from(files).map((file) => () => file.arrayBuffer()));
+  };
+  const fetchMeet = async (e: FormEvent) => {
+    e.preventDefault();
+    const url = normalizeMeetUrl(meetUrl);
+    if (!url) return setError('Adres şu biçimde olmalı: https://canli.tyf.gov.tr/live/2026/1005927/');
+    setBusy(true);
+    setError('');
+    setSummary('');
+    try {
+      const links = await meetPdfLinks(url);
+      if (!links.length) {
+        setBusy(false);
+        return setError('Bu yarışta henüz yayınlanmış sonuç yok.');
+      }
+      await process(links.map((link) => () => meetPdf(link)));
+    } catch (err) {
+      setBusy(false);
+      setError((err as Error).message);
+    }
+  };
+  const process = async (sources: Array<() => Promise<ArrayBuffer>>) => {
     setBusy(true);
     setError('');
     setSummary('');
@@ -32,8 +56,8 @@ export default function TyfImport() {
     let skipped = 0;
     let rows = 0;
     try {
-      for (const file of Array.from(files)) {
-        const event = await readResultPdf(await file.arrayBuffer());
+      for (const source of sources) {
+        const event = await readResultPdf(await source());
         if (!event) {
           skipped += 1;
           continue;
@@ -74,6 +98,9 @@ export default function TyfImport() {
           <label>Havuz<select value={pool} onChange={(e) => setPool(e.target.value as '25m' | '50m')}><option value="50m">50 m</option><option value="25m">25 m</option></select></label>
           <label>Sonuç PDF dosyaları<input type="file" accept="application/pdf" multiple disabled={busy} onChange={(e) => read(e.target.files)} /></label>
         </div>
+        {workerEnabled
+          ? <form className="inline-form wrap" onSubmit={fetchMeet}><input aria-label="TYF yarış adresi" type="url" required placeholder="https://canli.tyf.gov.tr/live/2026/1005927/" value={meetUrl} onChange={(e) => setMeetUrl(e.target.value)} /><button className="primary" disabled={busy}>Sonuçları otomatik çek</button></form>
+          : <p className="muted">Yarış adresinden otomatik çekim, Worker bağlandığında açılır. Şimdilik PDF dosyalarını seçebilirsiniz.</p>}
         {busy && <p className="muted" role="status">PDF okunuyor…</p>}
         {summary && <p className="ok" role="status">{summary}</p>}
         {error && <p className="error" role="alert">{error}</p>}
