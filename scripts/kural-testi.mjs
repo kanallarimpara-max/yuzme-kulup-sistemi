@@ -110,6 +110,13 @@ const checks = [
 
   ok('süper admin kredi yazar', () => addDoc(collection(Z, 'ledger'), { userId: 'coach1', delta: 10 })),
   ok('süper admin tüm öğrencileri okur', () => getDocs(collection(Z, 'students'))),
+  ok('süper admin tasarım yazar', () => setDoc(doc(Z, 'appDesign', 'main'), { appName: 'Kurgu' })),
+  ok('oturumsuz tasarım okur', () => getDoc(doc(U, 'appDesign', 'main'))),
+  no('kulüp admini tasarım yazamaz', () => setDoc(doc(M, 'appDesign', 'main'), { appName: 'x' })),
+  ok('süper admin kulüp açar', () => setDoc(doc(Z, 'clubs', 'c3'), { name: 'Yeni', slug: 'yeni' })),
+  ok('süper admin kulüp admini açar', () => setDoc(doc(Z, 'users', 'admin3'), profile('admin', 'c3'))),
+  no('kulüp admini kulüp açamaz', () => setDoc(doc(M, 'clubs', 'c4'), { name: 'x', slug: 'x' })),
+  no('kulüp admini başka admin açamaz', () => setDoc(doc(M, 'users', 'admin4'), profile('admin', 'c1'))),
 ];
 
 let failed = 0;

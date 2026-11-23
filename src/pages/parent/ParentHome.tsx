@@ -51,6 +51,7 @@ export default function ParentHome() {
           </section>
         );
       })}
+      <section className="card stack"><h2>TYF canlı sonuçlar</h2><p className="muted">Devam eden yarışların resmi sonuçlarını Türkiye Yüzme Federasyonu sayfasından izleyin.</p><div><a className="button" href="https://www.tyf.gov.tr/canli-sonuc/" target="_blank" rel="noreferrer">Canlı sonuçları aç</a></div></section>
       <section className="card"><h2>Yarış planı</h2>{races.length === 0 ? <p className="muted">Planlı yarış yok.</p> : <ul className="simple-list">{races.map((r) => <li key={r.id}><span>{r.title}<small>{r.date ? dateTr(r.date) : ''} · {r.body}</small></span></li>)}</ul>}</section>
     </div>
   );

@@ -55,7 +55,7 @@ export async function createParentAccount(clubId: string, name: string, email: s
 }
 
 /** Yönetici personel açarken kendi oturumu kapanmasın diye Firebase'de ikinci uygulama örneği kullanılır. */
-export async function createStaffAccount(clubId: string, name: string, email: string, password: string, role: 'coach' | 'secretary') {
+export async function createStaffAccount(clubId: string, name: string, email: string, password: string, role: 'coach' | 'secretary' | 'admin') {
   const profile = { clubId, name, role, tag: makeTag(name), isPublic: true };
   if (!firebaseEnabled) return db.add('users', profile);
   const [{ deleteApp, getApp, initializeApp }, auth] = await Promise.all([import('firebase/app'), import('firebase/auth')]);

@@ -151,6 +151,8 @@ service cloud.firestore {
       allow create: if signedIn() && request.resource.data.userId == request.auth.uid && request.resource.data.status == 'bekliyor';
       allow update: if isSuper();
     }
+    // Tasarım giriş ekranında da uygulanır; yalnız süper admin değiştirir.
+    match /appDesign/{id} { allow read: if true; allow write: if isSuper(); }
     match /settings/{id} { allow read: if signedIn(); allow write: if isSuper(); }
     match /packages/{id} { allow read: if signedIn(); allow write: if isSuper(); }
     match /products/{id} { allow read: if signedIn(); allow write: if isSuper(); }

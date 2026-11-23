@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici onaylarsa firestore:rules ve hosting yayinla, sonra ilk super admini kur. Kredi harcama icin Worker gerekli
+Kullanici acikca yayin onayi verirse firebase deploy --only firestore:rules,hosting; sonra ilk super admin. Kalan: Worker (kredi harcama, AI, TYF otomatik, bildirim), Cloudinary, APK izni, grup sesli arama, kronometre saat farki
 
 ## Modüller
 
@@ -37,6 +37,7 @@ Kullanici onaylarsa firestore:rules ve hosting yayinla, sonra ilk super admini k
 
 ## Son kayıtlar
 
+- 2026-11-23: Super admin: kulup+admin acma, uygulama tasarimi. Reklam gosterimi, veli TYF canli sonuc, kurulabilir web uygulamasi (PWA) eklendi. tsc, 31 test, build, 56/56 kural testi gecti. Yayin izin denetiminde durdu
 - 2026-11-23: Veli verisi kapatildi (sonuc, yorum, yoklama yalniz kendi cocugu). Kural testi eklendi: 49/49 emulatorde gecti, JDK kullanici klasorunde (LOCALAPPDATA/yuzme-tools), test icin JAVA_HOME oraya ayarlanir
 - 2026-11-23: Firestore (default) europe-west3 konumunda yeniden kuruldu. Sorgular rol bazli kurallarla uyumlu yapildi (lib/access.ts), on kayit oturum sirasi ve enrollments.parentId duzeltildi. tsc, 31 test ve build gecti; kurallar henuz yayinlanmadi ve emulatorde test edilmedi
 - 2026-11-23: E-posta/sifre girisi ve Firestore acildi. DIKKAT: veritabani CLI ile otomatik nam5 (ABD) konumunda olustu, bos

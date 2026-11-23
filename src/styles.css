@@ -190,3 +190,9 @@ select.auto { width: auto; }
   .chat-layout.has-open .chat-list { display: none; }
   .thread-head .back { display: inline-flex; }
 }
+
+.brand-mark img { border-radius: 10px; height: 100%; object-fit: cover; width: 100%; }
+.ad-slot { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; color: var(--muted); display: block; margin: 0 auto 16px; max-width: 1200px; overflow: hidden; text-decoration: none; }
+.ad-slot img { display: block; max-height: 140px; object-fit: cover; width: 100%; }
+.ad-slot small { display: block; padding: 6px 10px; }
+input[type='color'] { cursor: pointer; min-height: 42px; padding: 4px; }

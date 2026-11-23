@@ -1,6 +1,7 @@
 import { Camera, FileUp, MessagesSquare, Target, Baby, BadgePlus, Banknote, Bell, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { useSession } from './lib/session';
+import { AdSlot, useAppDesign } from './lib/design';
 import { ROLE_LABEL, type Role } from './lib/types';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -63,9 +64,12 @@ const NAV: NavItem[] = [
   { to: '/market', label: 'Market', icon: ShoppingBag, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
 ];
 
+const AD_SLOT: Record<string, string> = { '/panel': 'panel', '/market': 'market', '/sosyal': 'sosyal' };
+
 function Shell() {
   const { user, club, signOut } = useSession();
   const { pathname } = useLocation();
+  const design = useAppDesign();
   if (!user) return <Navigate to="/giris" replace />;
   const items = NAV.filter((n) => n.roles.includes(user.role));
   // Menüde olmayan sayfa adres çubuğundan da açılamaz. Asıl veri yetkisi Firestore kurallarındadır.
@@ -74,8 +78,8 @@ function Shell() {
     <div className="shell">
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand-mark"><Waves size={20} /></span>
-          <span><strong>{club?.name ?? 'Yüzme Kulüp Sistemi'}</strong><small>{ROLE_LABEL[user.role]}</small></span>
+          <span className="brand-mark">{club?.logoUrl || design.logoUrl ? <img src={club?.logoUrl || design.logoUrl} alt="" /> : <Waves size={20} />}</span>
+          <span><strong>{club?.name ?? design.appName}</strong><small>{ROLE_LABEL[user.role]}</small></span>
         </div>
         <nav>
           {items.map(({ to, label, icon: Icon }) => (
@@ -87,13 +91,14 @@ function Shell() {
           <button className="ghost icon" onClick={signOut} aria-label="Çıkış yap" title="Çıkış yap"><LogOut size={18} /></button>
         </div>
       </aside>
-      <main className="content"><Outlet /></main>
+      <main className="content">{AD_SLOT[pathname] && <AdSlot slot={AD_SLOT[pathname]} />}<Outlet /></main>
     </div>
   );
 }
 
 export default function App() {
   const { ready, user } = useSession();
+  useAppDesign();
   if (!ready) return <div className="center-screen">Yükleniyor…</div>;
   return (
     <Routes>
