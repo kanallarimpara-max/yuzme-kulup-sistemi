@@ -42,6 +42,10 @@ jobs:
           fi
       - name: Sesli mesaj ve arama izinleri
         run: sed -i 's#</manifest>#    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />\n</manifest>#' android/app/src/main/AndroidManifest.xml
+      - name: Kulvar360 uygulama simgesi
+        run: |
+          rm -f android/app/src/main/res/mipmap-*/ic_launcher*.webp
+          cp -r android-res/. android/app/src/main/res/
       - run: npx cap sync android
       - run: chmod +x android/gradlew
       - run: ./gradlew assembleDebug --no-daemon

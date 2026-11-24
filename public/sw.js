@@ -15,7 +15,7 @@ self.addEventListener('push', (event) => {
   }
   const link = typeof data.link === 'string' && data.link.startsWith('#/') ? data.link : '#/panel';
   event.waitUntil(self.registration.showNotification(data.title || 'Yeni bildirim', {
-    body: data.body || 'Görmek için dokunun.', icon: 'icon.svg', badge: 'icon.svg', tag: link, renotify: true, data: { link },
+    body: data.body || 'Görmek için dokunun.', icon: 'icon-192.png', badge: 'icon.svg', tag: link, renotify: true, data: { link },
   }));
 });
 self.addEventListener('notificationclick', (event) => {

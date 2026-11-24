@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Waves } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useAppDesign } from '../lib/design';
 import { useSession } from '../lib/session';
 import { ThemeToggle } from '../lib/theme';
@@ -44,7 +44,7 @@ export default function Login() {
     <div className="login">
       <section className="login-card">
         <ThemeToggle className="ghost icon login-theme" />
-        <span className="brand-mark large"><Waves size={28} /></span>
+        <span className="brand-mark large logo"><img src="./icon.svg" alt="" /></span>
         <h1>{appName}</h1>
         <Link className="login-back" to="/"><ArrowLeft size={15} />Ana sayfaya dön</Link>
         {firebaseEnabled ? (

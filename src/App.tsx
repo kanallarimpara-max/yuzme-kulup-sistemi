@@ -126,7 +126,7 @@ function Shell() {
     <div className="shell">
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand-mark">{club?.logoUrl || design.logoUrl ? <img src={club?.logoUrl || design.logoUrl} alt="" /> : <Waves size={20} />}</span>
+          <span className={club?.logoUrl || design.logoUrl ? 'brand-mark' : 'brand-mark logo'}><img src={club?.logoUrl || design.logoUrl || './icon.svg'} alt="" /></span>
           <span><strong>{club?.name ?? design.appName}</strong><small>{ROLE_LABEL[user.role]}</small></span>
         </div>
         <nav className={menuOpen ? 'open' : ''}>

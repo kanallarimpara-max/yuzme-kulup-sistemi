@@ -42,6 +42,8 @@ input, select { background: var(--bg); border: 1px solid var(--line); border-rad
 .role-list button { align-items: flex-start; flex-direction: column; gap: 1px; text-align: left; }
 .brand-mark { align-items: center; background: var(--accent); border-radius: 10px; color: var(--accent-ink); display: inline-flex; flex: none; height: 36px; justify-content: center; width: 36px; }
 .brand-mark.large { height: 52px; width: 52px; }
+.brand-mark.logo { background: transparent; }
+.brand-mark.logo img { border-radius: 0; object-fit: contain; }
 
 .shell { display: grid; grid-template-columns: 250px minmax(0, 1fr); min-height: 100%; }
 .sidebar { background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 22px; height: 100vh; padding: 18px 14px; position: sticky; top: 0; }

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Banknote, ClipboardCheck, Coins, LineChart, MessagesSquare, Smartphone, Timer, Trophy, UserPlus, Waves } from 'lucide-react';
+import { ArrowRight, Banknote, ClipboardCheck, Coins, LineChart, MessagesSquare, Smartphone, Timer, Trophy, UserPlus } from 'lucide-react';
 import { useAppDesign } from '../lib/design';
 import { ThemeToggle } from '../lib/theme';
 
@@ -27,7 +27,7 @@ export default function Landing() {
     <div className="landing">
       <header className="landing-bar">
         <span className="landing-brand">
-          <span className="brand-mark">{logoUrl ? <img src={logoUrl} alt="" /> : <Waves size={20} />}</span>
+          <span className={logoUrl ? 'brand-mark' : 'brand-mark logo'}><img src={logoUrl || './icon.svg'} alt="" /></span>
           <strong>{appName}</strong>
         </span>
         <span className="landing-actions"><ThemeToggle /><Link className="button primary" to="/giris">Giriş yap</Link></span>
