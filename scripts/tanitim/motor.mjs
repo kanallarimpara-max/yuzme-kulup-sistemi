@@ -254,20 +254,22 @@ T.device = (g, s) => {
     const pts = (s.points ?? []).map((t, i) => `<li style="display:flex;gap:18px;align-items:center;${A(['slideL', 0.6, beat * (2 + i)])}"><span class="ic" style="display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:rgba(80,230,255,.14);color:#6ff2ff;flex:none">${icon(s.icons?.[i] ?? 'Check', 26, '#6ff2ff', 2.6)}</span>${esc(t)}</li>`).join('');
     body += `<div style="position:absolute;left:${tx}px;top:${H * 0.24}px;width:580px">
       <div class="kicker" style="font-size:22px;padding:10px 20px;${A(['fadeUp', 0.6, 0.05])}">${icon(s.kIcon ?? 'Sparkles', 22, '#8ff3ff', 2.4)}${esc(s.kicker)}</div>
-      <div class="title" style="font-size:${s.title.length > 26 ? 64 : 74}px;margin:26px 0 34px">${words(s.title, 0.15)}</div>
+      <div class="title" style="font-size:${s.title.length > 30 ? 58 : s.title.length > 22 ? 64 : 74}px;margin:26px 0 ${s.sub ? 18 : 34}px">${words(s.title, 0.15)}</div>
+      ${s.sub ? `<div class="sub" style="font-size:29px;line-height:1.38;margin-bottom:34px;color:#bcd6e4;${A(['fadeUp', 0.6, 0.7])}">${esc(s.sub)}</div>` : ''}
       <ul style="list-style:none;display:grid;gap:20px;font-size:30px;font-weight:650;color:#dcecf5">${pts}</ul></div>`;
     (s.chips ?? []).forEach((c, i) => { body += chip(c, right ? x + dev.w - 120 - i * 60 : x - 140 + i * 60, y + 80 + i * 150, 0.85, beat * (2.5 + i * 1.5), right ? 'r' : 'l'); });
   } else {
     let dev;
     if (kind === 'laptop') dev = laptop(s.shot, 880, { tapList });
     else if (kind === 'tablet') dev = tablet(s.shot, 900, { tapList });
-    else dev = phone(s.shot, 540, { tall: s.scroll, d, tapList });
-    const x = (W - dev.w) / 2; const y = kind === 'phone' ? 590 : 820;
+    else dev = phone(s.shot, 500, { tall: s.scroll, d, tapList });
+    const x = (W - dev.w) / 2; const y = kind === 'phone' ? (s.sub ? 700 : 600) : (s.sub ? 880 : 820);
     const p = placeDevice(dev, x, y, { d, from: 'bottom', tilt: [10, s.flip ? 16 : -16], tiltTo: [4, s.flip ? 6 : -6], push: s.push ?? (kind === 'phone' ? 1.04 : 1.12), pushAt: 0.5, origin: s.origin ?? '50% 30%' });
     css += p.css; body += p.html;
     body += `<div style="position:absolute;left:70px;right:70px;top:190px;text-align:center">
       <div class="kicker" style="font-size:30px;padding:12px 26px;${A(['fadeUp', 0.5, 0.05])}">${icon(s.kIcon ?? 'Sparkles', 30, '#8ff3ff', 2.4)}${esc(s.kicker)}</div>
-      <div class="title" style="font-size:${s.title.length > 22 ? 84 : 98}px;margin-top:26px">${words(s.title, 0.12, 0.06)}</div></div>`;
+      <div class="title" style="font-size:${s.title.length > 30 ? 74 : s.title.length > 22 ? 82 : 96}px;margin-top:24px">${words(s.title, 0.12, 0.06)}</div>
+      ${s.sub ? `<div class="sub" style="font-size:38px;line-height:1.32;margin-top:20px;color:#c4dceb;${A(['fadeUp', 0.6, 0.6])}">${esc(s.sub)}</div>` : ''}</div>`;
     (s.chips ?? []).forEach((c, i) => {
       const left = i % 2 === 0;
       body += chip(c, left ? 40 : W - 520, y + 260 + i * 210, 1, beat * (1.5 + i), left ? 'l' : 'r');
@@ -332,17 +334,17 @@ T.trio = (g, s) => {
 /** Kronometre: tablet dev ekran, telefon kumanda, aralarında canlı bağlantı. */
 T.remote = (g, s) => {
   const { W, H, wide, d, beat } = g;
-  const tw = wide ? 980 : 960; const pw = wide ? 330 : 360;
+  const tw = wide ? 900 : 960; const pw = wide ? 330 : 340;
   const tab = tablet(s.tablet, tw); const ph = phone(s.phone, pw);
-  const tx = wide ? 90 : (W - tw) / 2; const ty = wide ? 300 : 560;
-  const px = wide ? W - pw - 170 : W - pw - 70; const py = wide ? 150 : 1080;
+  const tx = wide ? 90 : (W - tw) / 2; const ty = wide ? 380 : 660;
+  const px = wide ? W - pw - 170 : W - pw - 70; const py = wide ? 150 : 1150;
   const a = placeDevice(tab, tx, ty, { d, from: 'left', tilt: [5, 10], tiltTo: [2, 4] });
   const b = placeDevice(ph, px, py, { d, delay: beat, from: 'right', tilt: [6, -14], tiltTo: [3, -6] });
   const sx = wide ? tx + tw - 40 : W / 2; const sy = wide ? ty + tab.h / 2 : ty + tab.h - 30;
   const ex = wide ? px + 30 : px + pw / 2; const ey = wide ? py + ph.h / 2 : py + 40;
   const path = `M${sx} ${sy} C ${(sx + ex) / 2} ${sy - 160}, ${(sx + ex) / 2} ${ey + 160}, ${ex} ${ey}`;
   const dots = [0, 1, 2].map((i) => `<div style="position:absolute;left:0;top:0;width:22px;height:22px;margin:-11px;border-radius:50%;background:#5ff6ff;box-shadow:0 0 24px #5ff6ff;offset-path:path('${path}');${A(['travel', beat * 2, beat * 2 + i * beat * 0.66, 'linear', 'infinite reverse'])}"></div>`).join('');
-  const title = `<div style="position:absolute;${wide ? 'left:110px;top:110px' : 'left:60px;right:60px;top:200px;text-align:center'}"><div class="kicker" style="font-size:${wide ? 22 : 30}px;padding:10px 22px;${A(['fadeUp', 0.5, 0])}">${icon('Timer', wide ? 22 : 30, '#8ff3ff')}${esc(s.kicker)}</div><div class="title" style="font-size:${wide ? 70 : 88}px;margin-top:20px">${words(s.title, 0.12)}</div></div>`;
+  const title = `<div style="position:absolute;${wide ? 'left:110px;top:100px;width:1180px' : 'left:60px;right:60px;top:200px;text-align:center'}"><div class="kicker" style="font-size:${wide ? 22 : 30}px;padding:10px 22px;${A(['fadeUp', 0.5, 0])}">${icon('Timer', wide ? 22 : 30, '#8ff3ff')}${esc(s.kicker)}</div><div class="title" style="font-size:${wide ? 64 : 84}px;margin-top:20px">${words(s.title, 0.12)}</div>${s.sub ? `<div class="sub" style="font-size:${wide ? 28 : 38}px;margin-top:14px;color:#c4dceb;${A(['fadeUp', 0.6, 0.6])}">${esc(s.sub)}</div>` : ''}</div>`;
   const chips = (s.chips ?? []).map((c, i) => chip(c, wide ? 1130 : (i % 2 ? W - 520 : 40), wide ? 905 + i * 85 : 1560 + i * 120, wide ? 0.8 : 0.95, beat * (3 + i), 'r')).join('');
   return { html: a.html + b.html + `<svg style="position:absolute;inset:0;overflow:visible" width="${W}" height="${H}"><path d="${path}" fill="none" stroke="rgba(95,246,255,.55)" stroke-width="4" stroke-dasharray="14 14" style="--len:600;${A(['fadeIn', 0.6, beat * 1.5])}"/></svg><div style="${A(['fadeIn', 0.3, beat * 2])}">${dots}</div>` + title + chips, css: a.css + b.css };
 };

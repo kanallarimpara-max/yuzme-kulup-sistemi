@@ -39,6 +39,7 @@ Kullanici giris yapinca canli rol, dekont ve telefon bildirimi denemelerini yap,
 
 ## Son kayıtlar
 
+- 2026-11-25: Tanitim videolarindaki butun yazilar duzgun Turkceyle yeniden yazildi, her sahneye aciklama satiri eklendi, seslendirme kaldirildi. Ana film (4:39) ve yonetici, sekreter, antrenor, veli videolari uretildi. Ekran yazilari docs/tanitim-metinleri.md
 - 2026-11-24: Kulvar360 logosu uygulama simgesi oldu: site, sekme simgesi, telefona kurulan web uygulamasi, bildirim, Android uyarlanabilir simge ve Windows program simgesi. Simgeler scripts/ikon-uret.mjs ile uretilir
 - 2026-11-24: Uygulamanin adi Kulvar360 yapildi: site basligi, giris ve tanitim ekrani, telefona kurulan web uygulamasi, Android ve Windows paket adi. Uygulama kimligi ve site adresi degismedi. 60 test gecti, web yayinlandi
 - 2026-11-24: Marka adi Kulvar360 secildi: film, 5 rol videosu ve seslendirme metinleri yeni adla uretildi
