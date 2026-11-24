@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici giris yapinca canli rol, dekont ve telefon bildirimi denemelerini yap, sahte kayit korumasini karara bagla
+Tanitim videolarini cihaz cerceveli, enerjik muzikli ve seslendirmesiz yeniden uret, seslendirme metinlerini yaz
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Kullanici giris yapinca canli rol, dekont ve telefon bildirimi denemelerini yap,
 
 ## Son kayıtlar
 
+- 2026-11-24: Antrenor icin Ders analizi eklendi: aktif ders saatindeki sporcularin stil bazli guclu ve eksik yonleri yaris ve antrenman derecelerine gore, yapay zeka grup analizi ve gunluk haftalik aylik program onerisi, programlar kaydedilir. 183 kural, 60 test, 33 Worker testi gecti, yayinlandi
 - 2026-11-24: Tum roller 168 sayfa, form ve dugme denetiminden gecti. Baraj sayfasi bos acilma hatasi duzeltildi, tanitim filmi ve 5 rol videosu uretildi, son surum yayinlandi. 173 kural, 56 test, 30 Worker testi gecti
 - 2026-11-24: Karanlik ve aydinlik mod eklendi, cihaz ayarini izler, secim saklanir. Tum sayfalar iki temada kontrast testinden gecti
 - 2026-11-24: Canli sonuc gercek Worker'da duzeltildi: TYF cekimi yonlendirme hatasi giderildi, yeni yarislar 30 dakikada bir, aktif yarislar dakikada bir kontrol edilir, admin acikken dereceler otomatik islenir

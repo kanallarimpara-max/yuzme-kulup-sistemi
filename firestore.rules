@@ -154,6 +154,14 @@ service cloud.firestore {
     match /standardSets/{id} {
       allow read: if true;
     }
+    // Yapay zekâ program önerisi yalnız onu kaydeden antrenöre ve kulüp yöneticisine görünür.
+    match /aiPrograms/{id} {
+      allow read: if signedIn() && (resource.data.coachId == request.auth.uid || hasRole(resource.data.clubId, ['admin']));
+      allow create: if hasRole(request.resource.data.clubId, ['coach', 'admin']) && request.resource.data.coachId == request.auth.uid
+        && request.resource.data.text is string && request.resource.data.text.size() <= 12000
+        && request.resource.data.period in ['gunluk', 'haftalik', 'aylik'];
+      allow delete: if signedIn() && resource.data.coachId == request.auth.uid;
+    }
     match /comments/{id} {
       allow read: if isSuper() || isStaff(resource.data.clubId) || (signedIn() && resource.data.parentId == request.auth.uid);
       allow create: if hasRole(request.resource.data.clubId, ['coach']) && request.resource.data.coachId == request.auth.uid && validAthleteRecord();

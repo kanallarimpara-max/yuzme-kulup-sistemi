@@ -44,3 +44,11 @@ export async function aiAnalysis(summary: object): Promise<string> {
   const res = await call('/ai/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ summary }) });
   return (await res.json()).text;
 }
+
+export type SessionAiRequest = { task: 'analiz' | 'program'; period?: 'gunluk' | 'haftalik' | 'aylik'; minutes?: number; daysPerWeek?: number; pool?: '25m' | '50m'; note?: string; group: object };
+
+/** Dersteki sporcular numarayla gider; ad ve kimlik gönderilmez. */
+export async function aiSession(request: SessionAiRequest): Promise<string> {
+  const res = await call('/ai/session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request) });
+  return String((await res.json()).text ?? '').replace(/\*\*|^#+\s*/gm, '');
+}

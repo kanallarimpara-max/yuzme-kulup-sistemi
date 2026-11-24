@@ -28,6 +28,7 @@ const seed = {
   },
   results: { r1: { clubId: 'c1', parentId: 'parentA', studentId: 's1' }, r2: { clubId: 'c1', parentId: 'parentB', studentId: 's2' }, rt: { clubId: 'c1', parentId: 'parentA', studentId: 's1', kind: 'antrenman', source: 'manuel' } },
   comments: { y1: { clubId: 'c1', parentId: 'parentA', studentId: 's1' }, y2: { clubId: 'c1', parentId: 'parentB', studentId: 's2' } },
+  aiPrograms: { p1: { clubId: 'c1', coachId: 'coach1', lessonId: 'l1', period: 'gunluk', text: 'Program', date: '2026-11-24' } },
   attendance: { a1: { clubId: 'c1', lessonId: 'l1', marks: { s1: 'geldi', s2: 'gelmedi' } } },
   attendanceMarks: {
     m1: { clubId: 'c1', parentId: 'parentA', studentId: 's1', mark: 'geldi' },
@@ -80,7 +81,18 @@ const ok = (label, run) => ({ label, run, allow: true });
 const no = (label, run) => ({ label, run, allow: false });
 const A = as('parentA'); const C = as('coach1'); const S = as('sec1'); const M = as('admin1'); const X = as('admin2'); const U = as(null); const Z = as('super1');
 
+const program = (coachId, extra = {}) => ({ clubId: 'c1', coachId, lessonId: 'l1', period: 'haftalik', text: 'Plan', date: '2026-11-24', ...extra });
 const checks = [
+  ok('antrenör kendi AI programını kaydeder', () => addDoc(collection(C, 'aiPrograms'), program('coach1'))),
+  no('antrenör başkası adına AI programı kaydedemez', () => addDoc(collection(C, 'aiPrograms'), program('coach2'))),
+  no('veli AI programı kaydedemez', () => addDoc(collection(A, 'aiPrograms'), program('parentA'))),
+  no('geçersiz süreli program kaydedilemez', () => addDoc(collection(C, 'aiPrograms'), program('coach1', { period: 'yillik' }))),
+  ok('antrenör kendi programlarını okur', () => getDocs(q(C, 'aiPrograms', ['clubId', 'c1'], ['coachId', 'coach1']))),
+  no('başka antrenör programı okuyamaz', () => getDoc(doc(as('coach2'), 'aiPrograms', 'p1'))),
+  no('veli AI programını okuyamaz', () => getDoc(doc(A, 'aiPrograms', 'p1'))),
+  ok('kulüp yöneticisi programı okur', () => getDoc(doc(M, 'aiPrograms', 'p1'))),
+  no('başka kulüp yöneticisi programı okuyamaz', () => getDoc(doc(X, 'aiPrograms', 'p1'))),
+  no('AI programı değiştirilemez', () => updateDoc(doc(C, 'aiPrograms', 'p1'), { text: 'x' })),
   ok('oturumsuz kulüp okur', () => getDoc(doc(U, 'clubs', 'c1'))),
   ok('oturumsuz ders okur', () => getDocs(q(U, 'lessons', ['clubId', 'c1']))),
   no('oturumsuz öğrenci okuyamaz', () => getDocs(q(U, 'students', ['clubId', 'c1']))),

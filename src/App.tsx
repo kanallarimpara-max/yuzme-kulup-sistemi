@@ -1,5 +1,5 @@
 import { Camera, FileUp, MessagesSquare, Target, Baby, BadgePlus, Banknote, Bell, BellOff, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
-import { Menu, Phone, Radio, X } from 'lucide-react';
+import { Menu, Phone, Radio, Sparkles, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { isRinging } from './lib/call';
@@ -24,6 +24,7 @@ import MyStudents from './pages/coach/MyStudents';
 import ResultsEntry from './pages/coach/ResultsEntry';
 import WorkoutBuilder from './pages/coach/WorkoutBuilder';
 import Performance from './pages/Performance';
+import SessionAnalysis from './pages/coach/SessionAnalysis';
 import Chat from './pages/Chat';
 import Standards from './pages/Standards';
 import LiveResults from './pages/LiveResults';
@@ -60,6 +61,7 @@ const NAV: NavItem[] = [
   { to: '/derece', label: 'Yarış derecesi', icon: Medal, roles: ['admin'] },
   { to: '/canli-sonuclar', label: 'Canlı sonuçlar', icon: Radio, roles: ['admin', 'secretary', 'coach', 'parent'] },
   { to: '/performans', label: 'Performans', icon: LineChartIcon, roles: ['coach', 'admin', 'parent'] },
+  { to: '/ders-analizi', label: 'Ders analizi', icon: Sparkles, roles: ['coach', 'admin'] },
   { to: '/barajlar', label: 'Barajlar', icon: Target, roles: ['admin', 'coach', 'parent'] },
   { to: '/tyf', label: 'TYF aktarım', icon: FileUp, roles: ['admin'] },
   { to: '/antrenman', label: 'Antrenman', icon: Dumbbell, roles: ['coach'] },
@@ -183,6 +185,7 @@ export default function App() {
         <Route path="/ogrencilerim" element={<MyStudents />} />
         <Route path="/derece" element={<ResultsEntry />} />
         <Route path="/performans" element={<Performance />} />
+        <Route path="/ders-analizi" element={<SessionAnalysis />} />
         <Route path="/antrenman" element={<WorkoutBuilder />} />
         <Route path="/kayit" element={<Registrations />} />
         <Route path="/ogrenciler" element={<StudentsPayments />} />

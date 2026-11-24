@@ -131,6 +131,20 @@ const checks = [
     assert.deepEqual(await res.json(), { text: 'Tavsiye' });
     assert.ok(aiInput.messages[1].content.includes('"age":12'));
   }],
+  ['ders analizi grubu saniyeyle gönderir', async () => {
+    const group = { athleteCount: 1, athletes: [{ no: 1, age: 11, strokes: [{ stroke: 'kelebek', race: { distance: 50, bestMs: 41230, gapPercent: 6.1 } }] }] };
+    const res = await call('/ai/session', valid, { method: 'POST', body: JSON.stringify({ task: 'analiz', group }) });
+    assert.deepEqual(await res.json(), { text: 'Tavsiye' });
+    assert.ok(aiInput.messages[1].content.includes('"bestSaniye":41.23'));
+    assert.ok(aiInput.messages[1].content.includes('Bu ders grubunu analiz et'));
+  }],
+  ['haftalık program isteği süreyi ve isteği iletir', async () => {
+    await call('/ai/session', valid, { method: 'POST', body: JSON.stringify({ task: 'program', period: 'haftalik', minutes: 999, daysPerWeek: 4, note: 'dönüşler', group: { athleteCount: 0 } }) });
+    const text = aiInput.messages[1].content;
+    assert.ok(text.includes('haftalık') && text.includes('180 dakika') && text.includes('haftada 4 gün') && text.includes('dönüşler'));
+    assert.equal(aiInput.max_tokens, 1300);
+  }],
+  ['aşırı büyük ders verisi reddedilir', async () => assert.equal((await call('/ai/session', valid, { method: 'POST', body: JSON.stringify({ group: 'x'.repeat(15000) }) })).status, 400)],
   ['baraj yayını kullanıcı oturumuyla yapılamaz', async () => assert.equal((await call('/standards/publish', valid, { method: 'POST', body: '{}' })).status, 401)],
   ['aşırı büyük AI verisi reddedilir', async () => assert.equal((await call('/ai/analyze', valid, { method: 'POST', body: JSON.stringify({ summary: 'x'.repeat(5000) }) })).status, 400)],
   ['günlük AI hakkı aşılamaz', async () => {
