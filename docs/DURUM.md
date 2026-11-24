@@ -39,6 +39,7 @@ Kullanici marka adini secince MARKA ile videolari yeniden uret, sahte kayit koru
 
 ## Son kayıtlar
 
+- 2026-11-24: Tanitim filminde sahne gecis parlamasi yumusatildi, film yeniden uretildi (3:44)
 - 2026-11-24: Tanitim videolari yeniden uretildi: cihaz cerceveli (telefon, tablet, dizustu) hareketli sahneler, projeye ozgu telifsiz enerjik muzik, seslendirmesiz. Seslendirme metinleri sureleriyle docs/seslendirme-metinleri.md icinde, her video icin altyazi dosyasi
 - 2026-11-24: Antrenor icin Ders analizi eklendi: aktif ders saatindeki sporcularin stil bazli guclu ve eksik yonleri yaris ve antrenman derecelerine gore, yapay zeka grup analizi ve gunluk haftalik aylik program onerisi, programlar kaydedilir. 183 kural, 60 test, 33 Worker testi gecti, yayinlandi
 - 2026-11-24: Tum roller 168 sayfa, form ve dugme denetiminden gecti. Baraj sayfasi bos acilma hatasi duzeltildi, tanitim filmi ve 5 rol videosu uretildi, son surum yayinlandi. 173 kural, 56 test, 30 Worker testi gecti
