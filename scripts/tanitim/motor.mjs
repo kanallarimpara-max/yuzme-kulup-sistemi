@@ -56,15 +56,43 @@ body{font-family:"Segoe UI",system-ui,sans-serif;color:#f2fbff;-webkit-font-smoo
 .cam,.beat{position:absolute;inset:0;transform-origin:50% 50%}
 .flash{position:absolute;inset:0;background:#dff9ff;pointer-events:none;mix-blend-mode:screen}
 .vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(0,0,0,.55) 100%);pointer-events:none}
-.hl{background:linear-gradient(92deg,#5ff6ff 0%,#4f9dff 45%,#b36bff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+:root{--a1:#3ff0ff;--a2:#4b6bff}
+.hl{background:linear-gradient(92deg,var(--a1) 0%,var(--a2) 40%,#fff 50%,var(--a2) 60%,var(--a1) 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:hlShine 2.6s linear infinite}
+@keyframes hlShine{from{background-position:100% 0}to{background-position:-150% 0}}
+.sweep{position:absolute;top:-30%;bottom:-30%;left:0;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.3),transparent);transform:translateX(-160%) skewX(-18deg);z-index:5;pointer-events:none;animation:sweep 1.1s cubic-bezier(.6,0,.3,1) .85s both}
+@keyframes sweep{from{transform:translateX(-160%) skewX(-18deg)}to{transform:translateX(320%) skewX(-18deg)}}
+.fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.ring{position:absolute;border-radius:50%;border:4px solid var(--a1);opacity:0}
+.streak{position:absolute;width:4px;height:620px;background:linear-gradient(180deg,transparent,var(--a1),transparent);opacity:.45;transform:rotate(30deg)}
+.dpulse{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,var(--a1),transparent 70%);opacity:0;mix-blend-mode:screen}
+.seg{position:absolute;top:40px;height:7px;border-radius:9px;background:rgba(255,255,255,.22);overflow:hidden}
+.seg i{position:absolute;inset:0;background:#fff;transform-origin:0 50%}
+.ltr{display:inline-block;background:linear-gradient(180deg,#fff 30%,var(--a1));-webkit-background-clip:text;background-clip:text;color:transparent}
+.ghost{position:absolute;inset:0;mix-blend-mode:screen}
+.orbit{position:absolute;left:50%;top:50%;width:0;height:0}
+.orbit b{position:absolute;width:16px;height:16px;margin:-8px;border-radius:50%;background:var(--a1);box-shadow:0 0 18px var(--a1)}
+@keyframes ringOut{0%{opacity:.75;transform:scale(.35)}100%{opacity:0;transform:scale(1.7)}}
+@keyframes streak{from{transform:translate(-300px,700px) rotate(30deg)}to{transform:translate(900px,-1400px) rotate(30deg)}}
+@keyframes dpulse{0%{opacity:.28}18%{opacity:0}100%{opacity:0}}
+@keyframes segFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes ltrIn{0%{opacity:0;transform:translateY(-70%) scale(1.9);filter:blur(10px)}60%{opacity:1;filter:blur(0)}100%{opacity:1;transform:none;filter:none}}
+@keyframes ghostL{0%{opacity:.9;transform:translateX(-18px)}100%{opacity:0;transform:none}}
+@keyframes ghostR{0%{opacity:.9;transform:translateX(18px)}100%{opacity:0;transform:none}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes trZoom{from{transform:scale(1.35);opacity:0;filter:blur(10px)}to{transform:none;opacity:1;filter:none}}
+@keyframes trWhip{from{transform:translateX(42%) skewX(-14deg);opacity:.2;filter:blur(16px)}to{transform:none;opacity:1;filter:none}}
+@keyframes trCircle{from{clip-path:circle(0% at 50% 55%)}to{clip-path:circle(80% at 50% 55%)}}
+@keyframes trUp{from{transform:translateY(32%) scale(.9) rotate(-4deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes trSpin{from{transform:rotate(-9deg) scale(1.3);opacity:0;filter:blur(8px)}to{transform:none;opacity:1;filter:none}}
+@keyframes trOut{from{transform:none;filter:none;opacity:1}to{transform:translateX(-36%) skewX(12deg);filter:blur(14px);opacity:.3}}
 .ww{display:inline-block;overflow:hidden;vertical-align:top;padding:.14em .02em .1em;margin:-.14em -.02em -.1em}
 .ww>span{display:inline-block}
-.kicker{display:inline-flex;align-items:center;gap:.5em;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#8ff3ff;background:rgba(60,220,255,.1);border:1.5px solid rgba(90,230,255,.35);border-radius:99px}
+.kicker{display:inline-flex;align-items:center;gap:.5em;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--a1);background:rgba(60,220,255,.1);border:1.5px solid rgba(90,230,255,.35);border-radius:99px}
 .kicker svg{flex:none}
 .title{font-weight:900;letter-spacing:-.035em;line-height:1.02}
 .sub{color:#a9c5d6;font-weight:600}
 .chip{position:absolute;display:flex;align-items:center;gap:.6em;white-space:nowrap;font-weight:700;color:#fff;border-radius:22px;background:linear-gradient(135deg,rgba(18,44,72,.96),rgba(9,24,44,.96));border:1.5px solid rgba(110,225,255,.4);box-shadow:0 18px 50px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.12)}
-.chip .ic{display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,#3ff0ff,#4b6bff);color:#03101e;flex:none}
+.chip .ic{display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,var(--a1),var(--a2));color:#03101e;flex:none}
 .shadow{position:absolute;border-radius:50%;background:radial-gradient(ellipse at center,rgba(0,0,0,.65) 0,transparent 70%)}
 /* Cihazlar */
 .phone{position:relative;background:linear-gradient(150deg,#59636f 0%,#1a1f26 18%,#0b0e12 50%,#1d232b 82%,#4d5763 100%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.12),0 50px 120px rgba(0,0,0,.6)}
@@ -186,7 +214,7 @@ function phone(id, w, { tall = false, d, tapList = [], scrollFrom = 0.25, scroll
       <div class="status" style="height:${sh}px;padding:0 ${sw * 0.09}px;font-size:${sw * 0.042}px;background:${s.top}"><span>17:30</span><span style="display:flex;gap:${sw * 0.015}px;align-items:center">${icon('Signal', sw * 0.045, '#fff', 2.6)}${icon('Wifi', sw * 0.045, '#fff', 2.6)}${icon('BatteryFull', sw * 0.055, '#fff', 2.2)}</span></div>
       <div class="isl" style="top:${sh * 0.2}px;width:${sw * 0.3}px;height:${sh * 0.6}px"></div>
       <div class="vp" style="height:${vh}px">${img}${t ? '' : taps(s.boxes, tapList)}</div>
-      <div class="glare"></div>
+      <div class="glare"></div><div class="sweep"></div>
     </div></div>`;
   return { html, h, w, css: extraCss };
 }
@@ -196,7 +224,7 @@ function tablet(id, w, { tapList = [] } = {}) {
   const s = shot('tablet', id);
   const html = `<div class="tablet" style="width:${w}px;height:${h}px;border-radius:${w * 0.045}px;padding:${pad}px">
     <div class="cam-dot" style="left:${pad * 0.38}px;top:${h / 2 - pad * 0.12}px;width:${pad * 0.24}px;height:${pad * 0.24}px"></div>
-    <div class="scr" style="height:${sh}px;border-radius:${w * 0.018}px"><div class="vp" style="height:${sh}px"><img src="${s.url}">${taps(s.boxes, tapList)}</div><div class="glare"></div></div></div>`;
+    <div class="scr" style="height:${sh}px;border-radius:${w * 0.018}px"><div class="vp" style="height:${sh}px"><img src="${s.url}">${taps(s.boxes, tapList)}</div><div class="glare"></div><div class="sweep"></div></div></div>`;
   return { html, h, w, css: '' };
 }
 
@@ -207,7 +235,7 @@ function laptop(id, w, { tapList = [], light = null, d = 0, wipeAt = 0 } = {}) {
   const html = `<div class="laptop" style="width:${w * 1.14}px">
     <div class="lid" style="width:${w}px;height:${lidH}px;margin:0 auto;border-radius:${w * 0.022}px ${w * 0.022}px ${w * 0.006}px ${w * 0.006}px;padding:${bz}px ${bz}px ${bz * 0.9}px">
       <div class="cam-dot" style="left:${w / 2 - bz * 0.15}px;top:${bz * 0.35}px;width:${bz * 0.3}px;height:${bz * 0.3}px"></div>
-      <div class="scr" style="height:${sh}px;border-radius:${w * 0.004}px"><div class="vp" style="height:${sh}px"><img src="${s.url}">${second}${taps(s.boxes, tapList)}</div><div class="glare"></div></div></div>
+      <div class="scr" style="height:${sh}px;border-radius:${w * 0.004}px"><div class="vp" style="height:${sh}px"><img src="${s.url}">${second}${taps(s.boxes, tapList)}</div><div class="glare"></div><div class="sweep"></div></div></div>
     <div class="base" style="width:${w * 1.14}px;height:${w * 0.028}px;border-radius:0 0 ${w * 0.03}px ${w * 0.03}px"><div class="notch" style="width:${w * 0.16}px;height:${w * 0.009}px;border-radius:0 0 ${w * 0.01}px ${w * 0.01}px"></div></div></div>`;
   return { html, h: lidH + w * 0.028, w: w * 1.14, css: '' };
 }
@@ -253,7 +281,7 @@ T.device = (g, s) => {
     const tx = right ? 100 : W - 680;
     const pts = (s.points ?? []).map((t, i) => `<li style="display:flex;gap:18px;align-items:center;${A(['slideL', 0.6, beat * (2 + i)])}"><span class="ic" style="display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:rgba(80,230,255,.14);color:#6ff2ff;flex:none">${icon(s.icons?.[i] ?? 'Check', 26, '#6ff2ff', 2.6)}</span>${esc(t)}</li>`).join('');
     body += `<div style="position:absolute;left:${tx}px;top:${H * 0.24}px;width:580px">
-      <div class="kicker" style="font-size:22px;padding:10px 20px;${A(['fadeUp', 0.6, 0.05])}">${icon(s.kIcon ?? 'Sparkles', 22, '#8ff3ff', 2.4)}${esc(s.kicker)}</div>
+      <div class="kicker" style="font-size:22px;padding:10px 20px;${A(['fadeUp', 0.6, 0.05])}">${icon(s.kIcon ?? 'Sparkles', 22, 'currentColor', 2.4)}${esc(s.kicker)}</div>
       <div class="title" style="font-size:${s.title.length > 30 ? 58 : s.title.length > 22 ? 64 : 74}px;margin:26px 0 ${s.sub ? 18 : 34}px">${words(s.title, 0.15)}</div>
       ${s.sub ? `<div class="sub" style="font-size:29px;line-height:1.38;margin-bottom:34px;color:#bcd6e4;${A(['fadeUp', 0.6, 0.7])}">${esc(s.sub)}</div>` : ''}
       <ul style="list-style:none;display:grid;gap:20px;font-size:30px;font-weight:650;color:#dcecf5">${pts}</ul></div>`;
@@ -267,7 +295,7 @@ T.device = (g, s) => {
     const p = placeDevice(dev, x, y, { d, from: 'bottom', tilt: [10, s.flip ? 16 : -16], tiltTo: [4, s.flip ? 6 : -6], push: s.push ?? (kind === 'phone' ? 1.04 : 1.12), pushAt: 0.5, origin: s.origin ?? '50% 30%' });
     css += p.css; body += p.html;
     body += `<div style="position:absolute;left:70px;right:70px;top:190px;text-align:center">
-      <div class="kicker" style="font-size:30px;padding:12px 26px;${A(['fadeUp', 0.5, 0.05])}">${icon(s.kIcon ?? 'Sparkles', 30, '#8ff3ff', 2.4)}${esc(s.kicker)}</div>
+      <div class="kicker" style="font-size:30px;padding:12px 26px;${A(['fadeUp', 0.5, 0.05])}">${icon(s.kIcon ?? 'Sparkles', 30, 'currentColor', 2.4)}${esc(s.kicker)}</div>
       <div class="title" style="font-size:${s.title.length > 30 ? 74 : s.title.length > 22 ? 82 : 96}px;margin-top:24px">${words(s.title, 0.12, 0.06)}</div>
       ${s.sub ? `<div class="sub" style="font-size:38px;line-height:1.32;margin-top:20px;color:#c4dceb;${A(['fadeUp', 0.6, 0.6])}">${esc(s.sub)}</div>` : ''}</div>`;
     (s.chips ?? []).forEach((c, i) => {
@@ -344,7 +372,7 @@ T.remote = (g, s) => {
   const ex = wide ? px + 30 : px + pw / 2; const ey = wide ? py + ph.h / 2 : py + 40;
   const path = `M${sx} ${sy} C ${(sx + ex) / 2} ${sy - 160}, ${(sx + ex) / 2} ${ey + 160}, ${ex} ${ey}`;
   const dots = [0, 1, 2].map((i) => `<div style="position:absolute;left:0;top:0;width:22px;height:22px;margin:-11px;border-radius:50%;background:#5ff6ff;box-shadow:0 0 24px #5ff6ff;offset-path:path('${path}');${A(['travel', beat * 2, beat * 2 + i * beat * 0.66, 'linear', 'infinite reverse'])}"></div>`).join('');
-  const title = `<div style="position:absolute;${wide ? 'left:110px;top:100px;width:1180px' : 'left:60px;right:60px;top:200px;text-align:center'}"><div class="kicker" style="font-size:${wide ? 22 : 30}px;padding:10px 22px;${A(['fadeUp', 0.5, 0])}">${icon('Timer', wide ? 22 : 30, '#8ff3ff')}${esc(s.kicker)}</div><div class="title" style="font-size:${wide ? 64 : 84}px;margin-top:20px">${words(s.title, 0.12)}</div>${s.sub ? `<div class="sub" style="font-size:${wide ? 28 : 38}px;margin-top:14px;color:#c4dceb;${A(['fadeUp', 0.6, 0.6])}">${esc(s.sub)}</div>` : ''}</div>`;
+  const title = `<div style="position:absolute;${wide ? 'left:110px;top:100px;width:1180px' : 'left:60px;right:60px;top:200px;text-align:center'}"><div class="kicker" style="font-size:${wide ? 22 : 30}px;padding:10px 22px;${A(['fadeUp', 0.5, 0])}">${icon('Timer', wide ? 22 : 30, 'currentColor')}${esc(s.kicker)}</div><div class="title" style="font-size:${wide ? 64 : 84}px;margin-top:20px">${words(s.title, 0.12)}</div>${s.sub ? `<div class="sub" style="font-size:${wide ? 28 : 38}px;margin-top:14px;color:#c4dceb;${A(['fadeUp', 0.6, 0.6])}">${esc(s.sub)}</div>` : ''}</div>`;
   const chips = (s.chips ?? []).map((c, i) => chip(c, wide ? 1130 : (i % 2 ? W - 520 : 40), wide ? 905 + i * 85 : 1560 + i * 120, wide ? 0.8 : 0.95, beat * (3 + i), 'r')).join('');
   return { html: a.html + b.html + `<svg style="position:absolute;inset:0;overflow:visible" width="${W}" height="${H}"><path d="${path}" fill="none" stroke="rgba(95,246,255,.55)" stroke-width="4" stroke-dasharray="14 14" style="--len:600;${A(['fadeIn', 0.6, beat * 1.5])}"/></svg><div style="${A(['fadeIn', 0.3, beat * 2])}">${dots}</div>` + title + chips, css: a.css + b.css };
 };
@@ -357,7 +385,7 @@ T.ai = (g, s) => {
   const cw = wide ? 640 : 900; const cx = wide ? (s.flip ? W - cw - 90 : 90) : (W - cw) / 2; const cy = wide ? 600 : 1300;
   const start = beat * 3;
   const card = `<div class="card3" style="left:${cx}px;top:${cy}px;width:${cw}px;padding:${wide ? 28 : 34}px;${A(['pop', 0.6, start - 0.4])}">
-    <div style="display:flex;align-items:center;gap:14px;font-weight:800;font-size:${wide ? 26 : 32}px;color:#8ff3ff;margin-bottom:16px">${icon('Sparkles', wide ? 30 : 36, '#8ff3ff')}Yapay zekâ analizi<span data-dots style="color:#6aa">…</span></div>
+    <div style="display:flex;align-items:center;gap:14px;font-weight:800;font-size:${wide ? 26 : 32}px;color:#8ff3ff;margin-bottom:16px">${icon('Sparkles', wide ? 30 : 36, 'currentColor')}Yapay zekâ analizi<span data-dots style="color:#6aa">…</span></div>
     <div style="position:relative;font-size:${wide ? 24 : 31}px;line-height:1.45;font-weight:600;color:#e6f6ff;white-space:pre-line"><div style="visibility:hidden">${esc(lines.join('\n'))}</div><div data-type="${esc(JSON.stringify({ start, cps: 46 }))}" style="position:absolute;inset:0">${esc(lines.join('\n'))}</div></div></div>`;
   return { html: base.html + card, css: base.css };
 };
@@ -369,7 +397,7 @@ T.wall = (g, s) => {
   const x0 = (W - (cols * cw + (cols - 1) * gap)) / 2; const y0 = wide ? 300 : 520;
   const tiles = s.items.map(([ic, t], i) => {
     const x = x0 + (i % cols) * (cw + gap); const y = y0 + Math.floor(i / cols) * (ch + gap);
-    return `<div class="card3" style="left:${x}px;top:${y}px;width:${cw}px;height:${ch}px;display:flex;align-items:center;gap:22px;padding:0 28px;font-size:${wide ? 30 : 36}px;font-weight:750;${A(['pop', 0.5, beat * 0.5 + i * (beat / 2)])}"><span style="display:grid;place-items:center;width:${wide ? 72 : 84}px;height:${wide ? 72 : 84}px;border-radius:22px;background:linear-gradient(135deg,#3ff0ff,#4b6bff);flex:none">${icon(ic, wide ? 38 : 44, '#03101e', 2.4)}</span>${esc(t)}</div>`;
+    return `<div class="card3" style="left:${x}px;top:${y}px;width:${cw}px;height:${ch}px;display:flex;align-items:center;gap:22px;padding:0 28px;font-size:${wide ? 30 : 36}px;font-weight:750;${A(['pop', 0.5, beat * 0.5 + i * (beat / 2)])}"><span style="display:grid;place-items:center;width:${wide ? 72 : 84}px;height:${wide ? 72 : 84}px;border-radius:22px;background:linear-gradient(135deg,var(--a1),var(--a2));flex:none">${icon(ic, wide ? 38 : 44, '#03101e', 2.4)}</span>${esc(t)}</div>`;
   }).join('');
   return { html: `<div style="position:absolute;left:0;right:0;top:${wide ? 110 : 250}px;text-align:center"><div class="title" style="font-size:${wide ? 80 : 92}px;padding:0 60px">${words(s.title, 0)}</div></div>${tiles}`, css: '' };
 };
@@ -390,8 +418,9 @@ T.logo = (g, s) => {
     <div style="display:inline-block;filter:drop-shadow(0 30px 80px rgba(60,200,255,.45));${A(['spinIn', 1, 0, 'cubic-bezier(.2,1.3,.4,1)'])}">${logoSvg(ls, 0.2)}</div>
     <div class="title" style="font-size:${wide ? 120 : 112}px;margin-top:40px;padding:0 50px">${words(BRAND, beat * 1.2, 0.12)}</div>
     <div class="sub" style="font-size:${wide ? 44 : 50}px;margin-top:22px;padding:0 60px;${A(['fadeUp', 0.7, beat * 2.2])}">${s.tagline.replace(/\*(.+?)\*/g, '<span class="hl">$1</span>')}</div>
-    ${s.platforms ? `<div style="display:flex;justify-content:center;gap:${wide ? 26 : 20}px;margin-top:${wide ? 54 : 70}px;flex-wrap:wrap">${['Globe:Web', 'Smartphone:Android', 'Monitor:Windows'].map((x, i) => { const [ic, t] = x.split(':'); return `<div class="kicker" style="font-size:${wide ? 26 : 32}px;padding:14px 26px;letter-spacing:.06em;${A(['pop', 0.5, beat * (3 + i * 0.5)])}">${icon(ic, wide ? 28 : 34, '#8ff3ff')}${t}</div>`; }).join('')}</div>` : ''}
-    ${s.url ? `<div style="font-size:${wide ? 36 : 42}px;font-weight:800;margin-top:${wide ? 50 : 70}px;color:#fff;${A(['fadeUp', 0.6, beat * 4.5])}"><span style="padding:16px 34px;border-radius:99px;background:linear-gradient(90deg,#3ff0ff,#4b6bff);color:#03101e">${esc(s.url)}</span></div>` : ''}</div>`, css: '' };
+    ${s.platforms ? `<div style="display:flex;justify-content:center;gap:${wide ? 26 : 20}px;margin-top:${wide ? 54 : 70}px;flex-wrap:wrap">${['Globe:Web', 'Smartphone:Android', 'Monitor:Windows'].map((x, i) => { const [ic, t] = x.split(':'); return `<div class="kicker" style="font-size:${wide ? 26 : 32}px;padding:14px 26px;letter-spacing:.06em;${A(['pop', 0.5, beat * (3 + i * 0.5)])}">${icon(ic, wide ? 28 : 34, 'currentColor')}${t}</div>`; }).join('')}</div>` : ''}
+    ${s.cta ? `<div class="title" style="font-size:64px;margin-top:70px;${A(["stamp", 0.5, beat * 4, "cubic-bezier(.2,1.4,.4,1)"])}">Hemen dene</div>` : ""}
+    ${s.url ? `<div style="font-size:${wide ? 36 : 42}px;font-weight:800;margin-top:${wide ? 50 : s.cta ? 30 : 70}px;color:#fff;${A(['fadeUp', 0.6, beat * 4.5])}"><span style="padding:16px 34px;border-radius:99px;background:linear-gradient(90deg,var(--a1),var(--a2));color:#03101e">${esc(s.url)}</span></div>` : ''}</div>`, css: '' };
 };
 
 /** Roller */
@@ -399,22 +428,62 @@ T.roles = (g, s) => {
   const { W, wide, beat } = g;
   const cards = s.items.map(([ic, t, sub, color], i) => `<div class="card3" style="position:relative;padding:${wide ? 34 : 30}px;display:flex;${wide ? 'flex-direction:column;' : ''}gap:22px;align-items:${wide ? 'flex-start' : 'center'};${A(['pop', 0.55, beat * (0.5 + i * 0.5)])}"><span style="display:grid;place-items:center;width:${wide ? 92 : 96}px;height:${wide ? 92 : 96}px;border-radius:26px;background:linear-gradient(135deg,${color},#4b6bff);flex:none">${icon(ic, wide ? 48 : 52, '#03101e', 2.4)}</span><div><div style="font-size:${wide ? 36 : 44}px;font-weight:850">${esc(t)}</div><div class="sub" style="font-size:${wide ? 24 : 30}px;margin-top:6px">${esc(sub)}</div></div></div>`).join('');
   return { html: `<div style="position:absolute;left:0;right:0;top:${wide ? 110 : 230}px;text-align:center"><div class="title" style="font-size:${wide ? 80 : 92}px;padding:0 60px">${words(s.title, 0)}</div></div>
-    <div style="position:absolute;left:${wide ? 90 : 60}px;right:${wide ? 90 : 60}px;top:${wide ? 330 : 520}px;display:grid;grid-template-columns:repeat(${wide ? 5 : 1},1fr);gap:${wide ? 24 : 28}px">${cards}</div>`, css: '' };
+    <div style="position:absolute;left:${wide ? 90 : 60}px;right:${wide ? 90 : 60}px;top:${wide ? 330 : 520}px;display:grid;grid-template-columns:repeat(${wide ? s.items.length : 1},1fr);gap:${wide ? 24 : 28}px">${cards}</div>`, css: '' };
 };
+
+/** Rol videosunun açılışı: rol adı harf harf düşer, simge döner, şok dalgaları vuruşla yayılır. */
+T.roleIntro = (g, s) => {
+  const { W, H, wide, beat } = g;
+  const cx = W / 2; const cy = wide ? 330 : 760; const is = wide ? 190 : 260;
+  const words = s.role.split(' '); const longest = Math.max(...words.map((w) => w.length));
+  const fs = Math.min(wide ? 210 : 230, Math.floor((W - 120) / (longest * 0.66)));
+  let k = 0;
+  const nameHtml = (anim) => words.map((w) => `<div style="white-space:nowrap">${[...w].map((ch) => { const delay = beat * 0.5 + (k++) * 0.05; return `<span class="ltr" style="${A([anim, 0.55, delay, 'cubic-bezier(.2,1.4,.4,1)'])}">${esc(ch)}</span>`; }).join('')}</div>`).join('');
+  const main = nameHtml('ltrIn'); const reveal = beat * 0.5 + k * 0.05;
+  const rings = [0, 0.14, 0.28, beat * 2, beat * 2 + 0.14].map((dl, i) => `<div class="ring" style="left:${cx - is}px;top:${cy - is}px;width:${is * 2}px;height:${is * 2}px;border-width:${i % 2 ? 3 : 6}px;${A(['ringOut', 1.1, dl, 'cubic-bezier(.1,.7,.3,1)'])}"></div>`).join('');
+  const orbit = Array.from({ length: 6 }, (_, i) => `<b style="transform:rotate(${i * 60}deg) translateX(${is * 0.82}px)"></b>`).join('');
+  const ghost = (color, anim) => `<div class="ghost" style="color:${color}">${words.map((w) => `<div style="white-space:nowrap;-webkit-text-fill-color:${color};${A([anim, 0.4, reveal, 'ease-out'])}">${esc(w)}</div>`).join('')}</div>`;
+  return { html: `${rings}
+    <div style="position:absolute;left:${cx - is / 2}px;top:${cy - is / 2}px;width:${is}px;height:${is}px">
+      <div class="orbit" style="${A(['spin', beat * 8, 0, 'linear', 'infinite'], ['fadeIn', 0.4, 0.3])}">${orbit}</div>
+      <div style="width:${is}px;height:${is}px;border-radius:${is * 0.28}px;display:grid;place-items:center;background:linear-gradient(135deg,var(--a1),var(--a2));box-shadow:0 0 90px var(--a1),0 30px 80px rgba(0,0,0,.5);${A(['spinIn', 0.8, 0, 'cubic-bezier(.2,1.4,.4,1)'])}">${icon(s.icon, is * 0.52, '#03101e', 2.2)}</div></div>
+    <div style="position:absolute;left:0;right:0;top:${cy + is * 0.85}px;text-align:center">
+      <div style="position:relative;display:inline-block;margin-top:${wide ? 14 : 26}px;font-size:${fs}px;font-weight:900;letter-spacing:-.02em;line-height:.98">${main}${ghost('#ff3d77', 'ghostL')}${ghost('var(--a1)', 'ghostR')}</div>
+      <div class="title" style="font-size:${wide ? 56 : 66}px;margin-top:${wide ? 26 : 46}px;padding:0 60px">${wordsOf(s.line, beat * 2.5)}</div></div>`, css: '' };
+};
+const wordsOf = (t, t0) => words(t, t0, 0.08);
 
 // ---- Sahne kurulumu ----
 function buildScene(g, s, index, total) {
-  const { W, H, wide, d, beat, energy } = g;
+  const { W, H, wide, d, beat, energy, theme, seg, last } = g;
   const part = T[s.type](g, s);
   const out = Math.max(0, d - 0.2);
-  const progress = wide && s.progress !== false ? `<div style="position:absolute;left:0;bottom:0;height:6px;background:linear-gradient(90deg,#3ff0ff,#4b6bff);width:${((index + 1) / total) * 100}%"></div>` : '';
-  const bug = s.type === 'logo' ? '' : (wide ? brandBug(60, 44, 24) : brandBug(0, 86, 30, 'center'));
-  const html = `<!doctype html><meta charset="utf-8"><style>${CSS(W, H, beat)}${part.css}</style>
-  <div class="stage">${background(W, H, d, s.accent)}
-    <div class="cam" style="${A(['sceneIn', 0.55, 0], ['sceneOut', 0.2, out, 'ease-in'])}">
+  const bar = beat * 4;
+  const progress = wide && s.progress !== false ? `<div style="position:absolute;left:0;bottom:0;height:6px;background:linear-gradient(90deg,var(--a1),var(--a2));width:${((index + 1) / total) * 100}%"></div>` : '';
+  const bug = s.type === 'logo' || s.type === 'roleIntro' ? '' : (wide ? brandBug(60, 44, 24) : brandBug(0, 86, 30, 'center'));
+  // Dikey videolarda her sahne farklı bir geçişle, müziğin ölçü başında girer.
+  const TR = ['trZoom', 'trWhip', 'trCircle', 'trUp', 'trSpin'];
+  const camAnim = wide
+    ? A(['sceneIn', 0.55, 0], ['sceneOut', 0.2, out, 'ease-in'])
+    : A([index === 0 ? 'trZoom' : TR[index % TR.length], 0.45, 0], ...(last ? [] : [['trOut', 0.17, d - 0.17, 'ease-in']]));
+  // Hikâye çubuğu: kaçıncı özellikte olunduğunu gösterir.
+  const segs = !wide && seg ? Array.from({ length: seg.n }, (_, i) => {
+    const w = (W - 120 - (seg.n - 1) * 10) / seg.n; const x = 60 + i * (w + 10);
+    const fill = i < seg.i ? 'transform:none' : i === seg.i ? A(['segFill', d, 0, 'linear']) : 'transform:scaleX(0)';
+    return `<div class="seg" style="left:${x}px;width:${w}px"><i style="${fill}"></i></div>`;
+  }).join('') : '';
+  // Vuruşa göre parlayan halkalar, ışık çizgileri ve ölçü başı nabzı.
+  const beatFx = !wide && energy >= 2 ? `<div class="fx">
+    ${[0, 0.5].map((o) => `<div class="ring" style="left:${W / 2 - 420}px;top:${H * 0.62 - 420}px;width:840px;height:840px;border-width:3px;${A(['ringOut', beat * 2, beat * o * 2, 'cubic-bezier(.1,.7,.3,1)', 'infinite'])}"></div>`).join('')}
+    ${Array.from({ length: 6 }, (_, i) => `<div class="streak" style="left:${(i * 197) % W}px;top:${H * 0.3 + ((i * 271) % 700)}px;${A(['streak', beat * 2, -i * beat * 0.37, 'linear', 'infinite'])}"></div>`).join('')}
+    ${energy >= 3 ? `<div class="dpulse" style="${A(['dpulse', bar, 0, 'linear', 'infinite'])}"></div>` : ''}</div>` : '';
+  const [a1, a2] = theme ?? ['#3ff0ff', '#4b6bff'];
+  const html = `<!doctype html><html lang="tr"><meta charset="utf-8"><style>${CSS(W, H, beat)}:root{--a1:${a1};--a2:${a2}}${part.css}</style>
+  <div class="stage">${background(W, H, d, s.accent ?? [a1, a2])}${beatFx}
+    <div class="cam" style="${camAnim}">
       <div class="beat" style="${energy >= 2 ? A(['punch', beat, 0, 'cubic-bezier(.2,.8,.3,1)', 'infinite']) : ''}">${part.html}</div>
-    </div>${bug}${progress}
-    <div class="vig"></div><div class="flash" style="--flash:${wide ? (energy >= 3 ? 0.4 : 0.12) : 0.6};${A(['flash', wide ? 0.4 : 0.28, 0, 'ease-out'])}"></div></div>
+    </div>${bug}${progress}${segs}
+    <div class="vig"></div><div class="flash" style="--flash:${wide ? (energy >= 3 ? 0.4 : 0.12) : (energy >= 3 ? 0.55 : 0.3)};background:${wide ? '#dff9ff' : a1};${A(['flash', wide ? 0.4 : 0.3, 0, 'ease-out'])}"></div></div>
   <script>
   const typers=[...document.querySelectorAll('[data-type]')].map(e=>({e,full:e.textContent,o:JSON.parse(e.dataset.type)}));
   const counters=[...document.querySelectorAll('[data-count]')].map(e=>({e,o:JSON.parse(e.dataset.count)}));
@@ -441,7 +510,9 @@ export async function renderVideo(browser, video) {
     const endF = Math.round(((barAt + s.bars) * bar + (last ? video.tail : 0)) * FPS);
     barAt += s.bars;
     const frames = endF - startF; const d = frames / FPS;
-    const html = buildScene({ W, H, wide, d, beat, energy: s.energy }, s, i, video.scenes.length);
+    const feats = video.scenes.filter((x) => !["roleIntro", "logo", "hook", "strike"].includes(x.type));
+    const seg = feats.includes(s) ? { i: feats.indexOf(s), n: feats.length } : null;
+    const html = buildScene({ W, H, wide, d, beat, energy: s.energy, theme: video.theme, seg, last }, s, i, video.scenes.length);
     const id = hash([html, frames, W]);
     const mp4 = join(WORK, 'sahne', `${file}-${String(i).padStart(2, '0')}-${id}.mp4`);
     clips.push(mp4);

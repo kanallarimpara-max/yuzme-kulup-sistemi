@@ -41,7 +41,7 @@ const browser = await chromium.launch({ channel: 'msedge', headless: true, args:
 const queue = [...videos];
 await Promise.all(Array.from({ length: Math.min(3, queue.length) }, async () => {
   for (let v = queue.shift(); v; v = queue.shift()) {
-    const energies = v.scenes.flatMap((s) => Array(s.bars).fill(s.energy));
+    const energies = v.scenes.flatMap((s) => s.energies ?? Array(s.bars).fill(s.energy));
     const music = join(MUSIC, `${v.file}.wav`);
     compose(music, { bpm: v.bpm, energies, seed: v.seed, transpose: v.transpose, tail: v.tail });
     const clips = await renderVideo(browser, v);

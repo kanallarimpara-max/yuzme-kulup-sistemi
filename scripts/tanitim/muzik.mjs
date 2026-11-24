@@ -126,6 +126,20 @@ export function compose(file, { bpm, energies, seed = 1, transpose = 0, tail = 2
     noiseHit(fL, fR, t0, { len: 2.2, decay: 2.2, type: 'hp', f: 2800, vel: 0.32, pan: 0.5 });
   };
 
+  const [xL, xR] = bus(n); const [vL, vR] = bus(n);
+  const gate = new Float32Array(n).fill(1);
+  /** Kaymalı ve hafif distorsiyonlu 808 bas. */
+  const eight08 = (t0, len, midi, vel) => {
+    const s = at(t0); const m = Math.min(n - s, at(len + 0.05)); let ph = 0; const f1 = hz(midi - 12);
+    for (let i = 0; i < m; i += 1) {
+      const t = i / RATE; const f = f1 * (1 + 0.9 * Math.exp(-t * 40));
+      ph += (2 * Math.PI * f) / RATE;
+      const env = Math.min(1, t / 0.004) * Math.exp(-t * 1.6) * (t > len ? Math.max(0, 1 - (t - len) / 0.05) : 1);
+      const v = Math.tanh(Math.sin(ph) * 2.2) * env * vel;
+      xL[s + i] += v; xR[s + i] += v;
+    }
+  };
+
   energies.forEach((e, b) => {
     const t0 = b * bar; const ci = b % 4; const chord = CHORDS[ci].map(T); const root = T(ROOTS[ci]);
     const next = energies[b + 1] ?? 0; const prev = energies[b - 1] ?? 0;
@@ -152,8 +166,13 @@ export function compose(file, { bpm, energies, seed = 1, transpose = 0, tail = 2
       }
     }
     if (e === 0 && b > 0 && prev >= 2) impact(t0);
-    // Bas
-    if (e >= 1) sine(bL, bR, t0, bar, hz(root), hz(root), e === 1 ? 0.14 : 0.22);
+    // Bas: patlamada kaymalı 808, diğer yerlerde yumuşak alt bas.
+    if (e === 3) [[0, 1.4], [1.5, 0.9], [2.5, 1.4]].forEach(([at8, len]) => eight08(t0 + at8 * beat, len * beat, root + 12, 0.55));
+    else if (e >= 1) sine(bL, bR, t0, bar, hz(root), hz(root), e === 1 ? 0.14 : 0.22);
+    // Vokal benzeri ritmik kesitler
+    if (e === 3) [[0.5, 3], [1.75, 2], [2.5, 3], [3.5, 1]].forEach(([p, ix]) => saw(vL, vR, t0 + p * beat, beat * 0.32, chord[ix] + 12, { vel: 0.5, voices: 2, detune: 0.05, decay: 5, release: 0.05, spread: 0.4 }));
+    // Patlama ölçülerinde dördüncü ölçünün sonunda üçlü hi-hat geçişi
+    if (e === 3 && b % 4 === 3) for (let k = 0; k < 6; k += 1) hat(t0 + 3 * beat + (k * beat) / 6, false, 0.1 + k * 0.03, k % 2 ? 0.3 : 0.7);
     if (e >= 2) for (let k = 0; k < 4; k += 1) saw(bL, bR, t0 + (k + 0.5) * beat, beat * 0.42, root + 12, { vel: 0.28, voices: 3, detune: 0.08, decay: 5, release: 0.04 });
     // Melodi: her ölçü 8 sekizlik, dört ölçüde bir motif.
     if (e === 3) {
@@ -166,6 +185,10 @@ export function compose(file, { bpm, energies, seed = 1, transpose = 0, tail = 2
     // Yükselme ve davul kreşendosu
     if (build) {
       riser(t0, bar);
+      // Patlamadan hemen önce yarım vuruşluk sessizlik; yalnız ters süpürme sesi kalır.
+      for (let i = at(t0 + bar - beat / 2); i < Math.min(n, at(t0 + bar)); i += 1) gate[i] = 0;
+      { const s = at(t0 + bar - beat); const m = Math.min(n - s, at(beat)); const flt = new Biquad('hp', 1200);
+        for (let i = 0; i < m; i += 1) { const v = flt.run(rnd() * 2 - 1) * (i / m) ** 3 * 0.55; fL[s + i] += v; fR[s + i] += v; } }
       for (let k = 0; k < 16; k += 1) snare(t0 + (k * beat) / 4, 0.12 + (k / 16) * 0.42);
       for (let k = 0; k < 4; k += 1) snare(t0 + 3 * beat + (k * beat) / 4 + beat / 8, 0.5);
     }
@@ -184,6 +207,7 @@ export function compose(file, { bpm, energies, seed = 1, transpose = 0, tail = 2
   const lpBass = [new Biquad('lp', 900, 0.8), new Biquad('lp', 900, 0.8)];
   const lpLead = [new Biquad('lp', 5200, 0.7), new Biquad('lp', 5200, 0.7)];
   const hpPad = [new Biquad('hp', 140), new Biquad('hp', 140)];
+  const fv = [new Biquad('bp', 760, 3), new Biquad('bp', 1180, 4), new Biquad('bp', 760, 3), new Biquad('bp', 1180, 4)];
   const cutoff = (i) => {
     const b = Math.min(energies.length - 1, Math.floor(i / RATE / bar)); const e = energies[b] ?? 0;
     const target = [800, 1500, 2700, 6000][e];
@@ -202,10 +226,12 @@ export function compose(file, { bpm, energies, seed = 1, transpose = 0, tail = 2
     // Noktalı sekizlik çapraz gecikme
     const dl = i >= delay ? dlR[i - delay] : 0; const dr = i >= delay ? dlL[i - delay] : 0;
     dlL[i] = lead[0] + dr * 0.42; dlR[i] = lead[1] + dl * 0.42;
-    const p = pump[i];
-    outL[i] = kL[i] * 0.95 + dL[i] * 0.6 + pad[0] * p * 0.55 + arp[0] * p * 0.5 + bas[0] * (0.35 + 0.65 * p) * 0.9 + lead[0] * 0.5 + dl * 0.22 + fL[i] * 0.55;
-    outR[i] = kR[i] * 0.95 + dR[i] * 0.6 + pad[1] * p * 0.55 + arp[1] * p * 0.5 + bas[1] * (0.35 + 0.65 * p) * 0.9 + lead[1] * 0.5 + dr * 0.22 + fR[i] * 0.55;
-    send[i] = (pad[0] + pad[1]) * 0.12 * p + (lead[0] + lead[1]) * 0.25 + (dL[i] + dR[i]) * 0.12 + (fL[i] + fR[i]) * 0.2 + (arp[0] + arp[1]) * 0.1;
+    const p = pump[i]; const g = gate[i];
+    // Vokal kesitleri iki formant filtresinden geçer ("a" sesine benzer).
+    const vox = [fv[0].run(vL[i]) + fv[1].run(vL[i]) * 0.7, fv[2].run(vR[i]) + fv[3].run(vR[i]) * 0.7];
+    outL[i] = (kL[i] * 0.95 + dL[i] * 0.6 + pad[0] * p * 0.55 + arp[0] * p * 0.5 + bas[0] * (0.35 + 0.65 * p) * 0.9 + lead[0] * 0.5 + dl * 0.22 + xL[i] * 0.8 + vox[0] * p * 0.9) * g + fL[i] * 0.55;
+    outR[i] = (kR[i] * 0.95 + dR[i] * 0.6 + pad[1] * p * 0.55 + arp[1] * p * 0.5 + bas[1] * (0.35 + 0.65 * p) * 0.9 + lead[1] * 0.5 + dr * 0.22 + xR[i] * 0.8 + vox[1] * p * 0.9) * g + fR[i] * 0.55;
+    send[i] = ((pad[0] + pad[1]) * 0.12 * p + (lead[0] + lead[1]) * 0.25 + (dL[i] + dR[i]) * 0.12 + (arp[0] + arp[1]) * 0.1 + (vox[0] + vox[1]) * 0.2) * g + (fL[i] + fR[i]) * 0.2;
   }
   // Basit Freeverb yankısı
   const combs = [1557, 1617, 1491, 1422, 1277, 1356, 1188, 1116];
