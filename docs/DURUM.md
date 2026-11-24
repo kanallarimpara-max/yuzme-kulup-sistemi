@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Uygulamanin kendi adini (site basligi, Android, Windows) Kulvar360 yapmayi kullaniciyla karara bagla
+Kullanici giris yapinca canli rol, dekont ve telefon bildirimi denemelerini yap, sahte kayit korumasini karara bagla
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Uygulamanin kendi adini (site basligi, Android, Windows) Kulvar360 yapmayi kulla
 
 ## Son kayıtlar
 
+- 2026-11-24: Uygulamanin adi Kulvar360 yapildi: site basligi, giris ve tanitim ekrani, telefona kurulan web uygulamasi, Android ve Windows paket adi. Uygulama kimligi ve site adresi degismedi. 60 test gecti, web yayinlandi
 - 2026-11-24: Marka adi Kulvar360 secildi: film, 5 rol videosu ve seslendirme metinleri yeni adla uretildi
 - 2026-11-24: Tanitim filminde sahne gecis parlamasi yumusatildi, film yeniden uretildi (3:44)
 - 2026-11-24: Tanitim videolari yeniden uretildi: cihaz cerceveli (telefon, tablet, dizustu) hareketli sahneler, projeye ozgu telifsiz enerjik muzik, seslendirmesiz. Seslendirme metinleri sureleriyle docs/seslendirme-metinleri.md icinde, her video icin altyazi dosyasi

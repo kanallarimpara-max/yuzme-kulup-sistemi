@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "description": "Yüzme kulübü yönetim sistemi",
-  "author": "Yuzme Kulup Sistemi",
+  "author": "Kulvar360",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
@@ -20,7 +20,7 @@
   },
   "build": {
     "appId": "com.yuzmekulup.sistem",
-    "productName": "Yuzme Kulup Sistemi",
+    "productName": "Kulvar360",
     "directories": {
       "output": "release"
     },

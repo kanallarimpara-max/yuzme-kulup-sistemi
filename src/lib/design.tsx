@@ -5,7 +5,7 @@ import { useTheme } from './theme';
 export type AppDesign = Row & { appName: string; logoUrl: string; accent: string; background: string; panel: string };
 export type Ad = Row & { title: string; imageUrl: string; linkUrl: string; slot: string; active: boolean };
 
-export const DEFAULT_DESIGN = { appName: 'Yüzme Kulüp Sistemi', logoUrl: '', accent: '#27c4d8', background: '#07182b', panel: '#0e2439' };
+export const DEFAULT_DESIGN = { appName: 'Kulvar360', logoUrl: '', accent: '#27c4d8', background: '#07182b', panel: '#0e2439' };
 
 /** Açık renkli vurguda koyu, koyu vurguda açık yazı kullanılır. */
 const inkFor = (hex: string) => {
