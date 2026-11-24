@@ -23,7 +23,7 @@ function timeline(v) {
 }
 
 // Seslendirme metni ve altyazı
-const doc = [`# Seslendirme metinleri\n\nMarka: ${BRAND}. Her satırın başındaki süre, o cümlenin videoda başladığı ve bittiği andır.`,
+const doc = [`# Seslendirme metinleri\n\nMarka: ${BRAND}${BRAND === 'Kulvar360' ? ' (okunuşu: "Kulvar üç yüz altmış")' : ''}. Her satırın başındaki süre, o cümlenin videoda başladığı ve bittiği andır.`,
   'Kayıt önerisi: sessiz bir odada telefonu ağızdan bir karış uzakta tut, her sahneyi ayrı kaydet ve cümleyi süresinin içinde bitir. Videodaki müzik, sesin altında kalacak şekilde kısılabilir; müzik ayrıca muzik klasöründe.\n'];
 for (const v of videos) {
   const tl = timeline(v);

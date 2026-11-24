@@ -1,6 +1,6 @@
 # Seslendirme metinleri
 
-Marka: Yüzme Kulüp Sistemi. Her satırın başındaki süre, o cümlenin videoda başladığı ve bittiği andır.
+Marka: Kulvar360 (okunuşu: "Kulvar üç yüz altmış"). Her satırın başındaki süre, o cümlenin videoda başladığı ve bittiği andır.
 Kayıt önerisi: sessiz bir odada telefonu ağızdan bir karış uzakta tut, her sahneyi ayrı kaydet ve cümleyi süresinin içinde bitir. Videodaki müzik, sesin altında kalacak şekilde kısılabilir; müzik ayrıca muzik klasöründe.
 
 
@@ -10,9 +10,9 @@ Kayıt önerisi: sessiz bir odada telefonu ağızdan bir karış uzakta tut, her
    Ekranda: Artık hepsi tek kulvarda.
    Seslendirme: Bir yüzme kulübünü yönetmek; defterler, tablolar, onlarca mesaj grubu ve kaybolan dekontlar demekti. Artık değil.
 
-2. [00:08.1 - 00:16.3] (8.1 sn, 9 kelime)
+2. [00:08.1 - 00:16.3] (8.1 sn, 7 kelime)
    Ekranda: Kulübünün bütün işleri tek uygulamada.
-   Seslendirme: Karşınızda Yüzme Kulüp Sistemi. Kulübünüzün bütün işleri tek uygulamada.
+   Seslendirme: Karşınızda Kulvar360. Kulübünüzün bütün işleri tek uygulamada.
 
 3. [00:16.3 - 00:22.4] (6.1 sn, 11 kelime)
    Ekranda: Her cihazda aynı sistem.
@@ -150,6 +150,153 @@ Kayıt önerisi: sessiz bir odada telefonu ağızdan bir karış uzakta tut, her
    Ekranda: Rakamlarla
    Seslendirme: Beş rol, üç platform ve her gün güncellenen iki binden fazla federasyon barajı.
 
-37. [03:33.6 - 03:44.2] (10.6 sn, 7 kelime)
+37. [03:33.6 - 03:44.2] (10.6 sn, 5 kelime)
    Ekranda: Kulübünü tek kulvarda yönet.
-   Seslendirme: Yüzme Kulüp Sistemi. Kulübünüzü tek kulvarda yönetin.
+   Seslendirme: Kulvar360. Kulübünüzü tek kulvarda yönetin.
+
+
+## reels-1-sistem-sahibi.mp4 (dikey 1080x1920, 00:25)
+
+1. [00:00.0 - 00:03.9] (3.9 sn, 7 kelime)
+   Ekranda: Bütün kulüpler tek ekranda. Gerçekten.
+   Seslendirme: Bütün kulüplerini tek ekrandan yönetmek ister misin?
+
+2. [00:03.9 - 00:07.7] (3.9 sn, 5 kelime)
+   Ekranda: Nabız tek bakışta
+   Seslendirme: Kulüpler, kullanıcılar, satışlar tek bakışta.
+
+3. [00:07.7 - 00:11.6] (3.9 sn, 5 kelime)
+   Ekranda: Kulüp aç, tasarla
+   Seslendirme: Yeni kulüp aç, uygulamayı tasarla.
+
+4. [00:11.6 - 00:15.5] (3.9 sn, 5 kelime)
+   Ekranda: Dekont tek tıkla onay
+   Seslendirme: Kredi dekontlarını tek tıkla onayla.
+
+5. [00:15.5 - 00:19.4] (3.9 sn, 4 kelime)
+   Ekranda: Ürün ve sipariş
+   Seslendirme: Marketi ve siparişleri yönet.
+
+6. [00:19.4 - 00:24.8] (5.5 sn, 3 kelime)
+   Ekranda: Web · Android · Windows
+   Seslendirme: Platformun kontrolü sende.
+
+
+## reels-2-kulup-yoneticisi.mp4 (dikey 1080x1920, 00:25)
+
+1. [00:00.0 - 00:03.9] (3.9 sn, 7 kelime)
+   Ekranda: Hepsi tek uygulamada.
+   Seslendirme: Defter, tablo, mesaj grubu... Hepsi tek uygulamada.
+
+2. [00:03.9 - 00:07.7] (3.9 sn, 3 kelime)
+   Ekranda: Günün özeti cebinde
+   Seslendirme: Günün özeti cebinde.
+
+3. [00:07.7 - 00:11.6] (3.9 sn, 5 kelime)
+   Ekranda: Kârını anlık gör
+   Seslendirme: Tahsilatını ve kârını anlık gör.
+
+4. [00:11.6 - 00:15.5] (3.9 sn, 4 kelime)
+   Ekranda: Ders planı dakikalar içinde
+   Seslendirme: Dersleri dakikalar içinde planla.
+
+5. [00:15.5 - 00:19.4] (3.9 sn, 4 kelime)
+   Ekranda: Yarış uygulamanın içinde
+   Seslendirme: Yarışı uygulamadan çıkmadan izle.
+
+6. [00:19.4 - 00:24.8] (5.5 sn, 3 kelime)
+   Ekranda: Web · Android · Windows
+   Seslendirme: Kulübün tek kulvarda.
+
+
+## reels-3-sekreter.mp4 (dikey 1080x1920, 00:25)
+
+1. [00:00.0 - 00:03.9] (3.9 sn, 7 kelime)
+   Ekranda: Kayıt işleri dakikalar içinde.
+   Seslendirme: Kayıt ve aidat takibi artık dakikalar içinde.
+
+2. [00:03.9 - 00:07.7] (3.9 sn, 4 kelime)
+   Ekranda: Bağlantıyı paylaş
+   Seslendirme: Ön kayıt bağlantını paylaş.
+
+3. [00:07.7 - 00:11.6] (3.9 sn, 5 kelime)
+   Ekranda: Tek dokunuşla kayıt
+   Seslendirme: Başvuruyu tek dokunuşla kayda çevir.
+
+4. [00:11.6 - 00:15.5] (3.9 sn, 6 kelime)
+   Ekranda: Kim ne kadar ödedi?
+   Seslendirme: Kimin ne kadar ödediğini anında gör.
+
+5. [00:15.5 - 00:19.4] (3.9 sn, 5 kelime)
+   Ekranda: Tek tuşla tahsil et
+   Seslendirme: Taksiti tek tuşla tahsil et.
+
+6. [00:19.4 - 00:24.8] (5.5 sn, 4 kelime)
+   Ekranda: Web · Android · Windows
+   Seslendirme: Evrak değil, kulüp yönet.
+
+
+## reels-4-antrenor.mp4 (dikey 1080x1920, 00:33)
+
+1. [00:00.0 - 00:03.9] (3.9 sn, 6 kelime)
+   Ekranda: Havuz başındaki en iyi yardımcın.
+   Seslendirme: Antrenör, bu uygulama tam sana göre.
+
+2. [00:03.9 - 00:07.7] (3.9 sn, 5 kelime)
+   Ekranda: Ders saatinde kendiliğinden
+   Seslendirme: Yoklama ders saatinde kendiliğinden açılır.
+
+3. [00:07.7 - 00:11.6] (3.9 sn, 7 kelime)
+   Ekranda: Dersini analiz eder
+   Seslendirme: Yapay zekâ dersini stil stil analiz eder.
+
+4. [00:11.6 - 00:15.5] (3.9 sn, 4 kelime)
+   Ekranda: Haftalık program önerir
+   Seslendirme: Haftalık programını bile önerir.
+
+5. [00:15.5 - 00:19.4] (3.9 sn, 5 kelime)
+   Ekranda: Kumanda cebinde
+   Seslendirme: Çok kulvarlı kronometreyi telefonundan yönet.
+
+6. [00:19.4 - 00:23.2] (3.9 sn, 5 kelime)
+   Ekranda: Su ekranı bozamaz
+   Seslendirme: Su sıçrasa bile ekran bozulmaz.
+
+7. [00:23.2 - 00:27.1] (3.9 sn, 3 kelime)
+   Ekranda: Setlerini kur
+   Seslendirme: Antrenmanını setleriyle kur.
+
+8. [00:27.1 - 00:32.6] (5.5 sn, 3 kelime)
+   Ekranda: Web · Android · Windows
+   Seslendirme: Sen antrenmana odaklan.
+
+
+## reels-5-veli.mp4 (dikey 1080x1920, 00:29)
+
+1. [00:00.0 - 00:03.9] (3.9 sn, 7 kelime)
+   Ekranda: Çocuğunun gelişimi cebinde.
+   Seslendirme: Çocuğunun yüzmede nasıl ilerlediğini merak ediyor musun?
+
+2. [00:03.9 - 00:07.7] (3.9 sn, 6 kelime)
+   Ekranda: Ders, ödeme, devam
+   Seslendirme: Ders, ödeme ve devam tek ekranda.
+
+3. [00:07.7 - 00:11.6] (3.9 sn, 6 kelime)
+   Ekranda: Gelişimini izle
+   Seslendirme: Gelişim grafiğini ve antrenör yorumlarını izle.
+
+4. [00:11.6 - 00:15.5] (3.9 sn, 4 kelime)
+   Ekranda: Yaşına uygun barajlar
+   Seslendirme: Yaşına uygun barajları gör.
+
+5. [00:15.5 - 00:19.4] (3.9 sn, 5 kelime)
+   Ekranda: Yarışı anında takip et
+   Seslendirme: Yarış sonuçlarını anında takip et.
+
+6. [00:19.4 - 00:23.2] (3.9 sn, 3 kelime)
+   Ekranda: Antrenöre kolayca ulaş
+   Seslendirme: Antrenörüne kolayca ulaş.
+
+7. [00:23.2 - 00:28.7] (5.5 sn, 3 kelime)
+   Ekranda: Web · Android · Windows
+   Seslendirme: Her kulaçta yanında.

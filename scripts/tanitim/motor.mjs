@@ -10,7 +10,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import * as Lucide from 'lucide-react';
 
 export const FPS = 30;
-export const BRAND = process.env.MARKA || 'Yüzme Kulüp Sistemi';
+export const BRAND = process.env.MARKA || 'Kulvar360';
 export const URL_TEXT = 'yuzme-kulup-sistemi.web.app';
 const ROOT = resolve('tanitim-videolari');
 const SHOTS = join(ROOT, 'kaynak', 'ekran');
