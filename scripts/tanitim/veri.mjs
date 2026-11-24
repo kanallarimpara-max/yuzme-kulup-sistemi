@@ -43,6 +43,15 @@ const data = {
     ...series('s1', 'u-parent', 'sirt', 50, [['2026-10-12', 39800], ['2026-11-22', 38420]], 'yaris'),
     ...series('s1', 'u-parent', 'serbest', 50, [['2026-11-02', 33600], ['2026-11-09', 33100], ['2026-11-16', 32500], ['2026-11-20', 32180]], 'antrenman'),
     ...series('s2', 'u-parent', 'kelebek', 100, [['2026-10-12', 78200], ['2026-11-22', 75300]], 'yaris'),
+    // Ders analizi için ilk dersteki kurgusal sporcuların stil dereceleri.
+    ...students.filter((s) => s.lessonId === 'l1').flatMap((s, i) => {
+      const base = 27600 + i * 700;
+      const mix = [['serbest', 1], ['sirt', 1.13 + (i % 3) * 0.02], ['kurbaga', 1.27 + (i % 2) * 0.05], ['kelebek', i % 3 === 2 ? 0 : 1.1 + (i % 4) * 0.02], ['karisik', 0]];
+      return mix.flatMap(([stroke, ratio]) => ratio ? [
+        ...series(s.id, s.parentId, stroke, 50, [['2026-11-22', Math.round(base * ratio)]], 'yaris'),
+        ...series(s.id, s.parentId, stroke, 50, [['2026-11-18', Math.round(base * ratio * 1.04)]], 'antrenman'),
+      ] : []);
+    }),
   ],
   attendance, attendanceMarks,
   comments: [

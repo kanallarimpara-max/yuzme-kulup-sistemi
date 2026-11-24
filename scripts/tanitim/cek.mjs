@@ -1,5 +1,5 @@
 // Kurgusal veriyle çalışan yerel uygulamanın gerçek ekranlarını masaüstü ve telefon boyutunda çeker.
-import { mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright-core';
 
@@ -22,6 +22,16 @@ const EVENT = { gender: 'E', distance: 50, stroke: 'serbest', date: '2026-11-23'
   row(4, 'Ke*** Ş*n', 'Mavi Dalga Spor Kulübü', 31920), row(5, 'Ar** G***ş', 'Mavi Dalga Spor Kulübü', 32140), row(6, 'Ba** E***m', 'Lacivert Yüzme Akademisi', 32600), row(7, 'Oz** K***t', 'Dalga Spor Kulübü', 33010),
 ] };
 
+// Film bilgisayar, reel telefon, tablet yatay ekran görüntüsüdür.
+const DEVICES = {
+  film: { viewport: { width: 1440, height: 810 }, deviceScaleFactor: 1.3334 },
+  reel: { viewport: { width: 390, height: 800 }, deviceScaleFactor: 2.5, hasTouch: true },
+  tablet: { viewport: { width: 1180, height: 820 }, deviceScaleFactor: 1.5, hasTouch: true },
+};
+const TABLET = new Set(['krono-ekran', 'krono-kilit', 'krono-kontrol', 'admin-panel', 'canli-sonuc', 'ders-analizi', 'veli-performans', 'admin-finans']);
+// Tanıtım için kurgusal yapay zekâ yanıtı; "Sporcu 1" ekranda gerçek adla gösterilir.
+const AI_ANALYSIS = 'Grup\nEn güçlü stil serbest: ortalama katılım barajının %1,8 altında.\nEn eksik stil kurbağa: barajdan ortalama %9,6 uzak.\nKelebek 2 sporcuda hiç ölçülmedi, karışık hiç ölçülmedi.\nAntrenman dereceleri yarıştan ortalama %4 yavaş.\n\nSporcular\nSporcu 1: güçlü serbest, eksik kurbağa. Kurbağa ayak vuruşu ve kayış çalışması.\nSporcu 2: güçlü sırt, eksik kurbağa. Dönüş sonrası su altı evresine odaklan.\nSporcu 3: güçlü serbest, eksik sırt. Sırtta vücut pozisyonu drilleri.\nSporcu 4: güçlü kelebek, eksik kurbağa. Nefes zamanlamasını sabitle.\n\nBu derste öncelik\nKurbağa tekniği ve dönüşleri.\nKelebek ve karışık için ölçüm günü planla.';
+const AI_PROGRAM = '1. gün: kurbağa tekniği\nIsınma 300 m serbest, 4x50 m karışık drill\nAna set 8x50 m kurbağa, 20 sn dinlenme\nTeknik 6x25 m kurbağa dönüş + su altı\nSoğuma 200 m kolay\n\n2. gün: tempo ve hız\nIsınma 400 m\nAna set 6x100 m serbest, 1:50 çıkış\nHız 8x25 m kelebek, 30 sn dinlenme\nSoğuma 200 m\n\n3. gün: ölçüm\nKelebek ve karışık 50 m derece ölçümü\nHaftalık toplam 6.200 m';
 const SHOTS = [
   ['tanitim', null, async (p) => { await p.goto(`${BASE}/`); await p.waitForSelector('.landing'); await p.waitForTimeout(900); }],
   ['tanitim-acik', null, async (p) => { await p.goto(`${BASE}/`); await p.evaluate(() => localStorage.setItem('yuzme-tema', 'light')); await p.reload(); await p.waitForSelector('.landing'); await p.waitForTimeout(900); }],
@@ -44,12 +54,17 @@ const SHOTS = [
   ['canli-liste', 'veli', (p) => go(p, '/canli-sonuclar')],
   ['canli-program', 'veli', async (p) => { await go(p, '/canli-sonuclar'); await p.locator('.live-list button:has-text("KIŞ KUPASI")').click(); await p.waitForSelector('.live-list button:has-text("50m Serbest")'); await p.waitForTimeout(400); }],
   ['canli-sonuc', 'veli', async (p) => { await go(p, '/canli-sonuclar'); await p.locator('.live-list button:has-text("KIŞ KUPASI")').click(); await p.locator('.live-list button:has-text("50m Serbest")').click(); await p.waitForSelector('.live-table tbody tr'); await p.waitForTimeout(500); }],
+  ['ders-analizi', 'antrenor', async (p) => { await go(p, '/ders-analizi'); await p.click('button:has-text("Dersi analiz et")'); await p.waitForSelector('.ai-text'); await p.waitForTimeout(300); }],
+  ['ders-program', 'antrenor', async (p) => { await go(p, '/ders-analizi'); await p.click('button:has-text("Haftalık")'); await p.fill('textarea', 'Yarışa iki hafta var, kurbağa dönüşlerine ağırlık ver'); await p.click('button:has-text("Haftalık program öner")'); await p.waitForSelector('text=1. gün'); await toEl(p, '.ai-col'); }],
   ['aydinlik-panel', 'veli', async (p) => { await p.evaluate(() => localStorage.setItem('yuzme-tema', 'light')); await p.reload(); await p.waitForTimeout(1500); await go(p, '/performans'); }],
 ];
 
 async function context(browser, device, role, clock = true) {
-  const opt = device === 'film' ? { viewport: { width: 1440, height: 810 }, deviceScaleFactor: 1.3334 } : { viewport: { width: 390, height: 780 }, deviceScaleFactor: 2.5, hasTouch: true };
-  const ctx = await browser.newContext({ ...opt, colorScheme: 'dark' });
+  const ctx = await browser.newContext({ ...DEVICES[device], colorScheme: 'dark' });
+  await ctx.route('**/ai/session', (r) => {
+    const program = JSON.parse(r.request().postData() ?? '{}').task === 'program';
+    r.fulfill({ status: 200, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ text: program ? AI_PROGRAM : AI_ANALYSIS }) });
+  });
   await ctx.addInitScript(([event]) => { window.__fakeEvent = event; try { if (!localStorage.getItem('yuzme-tema')) localStorage.setItem('yuzme-tema', 'dark'); } catch { /* yok */ } }, [EVENT]);
   await ctx.route('**/tyf/meet-detail**', (r) => r.fulfill({ status: 200, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify(role === 'veli' ? LIVE : { ...LIVE, sessions: [] }) }));
   await ctx.route('**/tyf/pdf**', (r) => r.fulfill({ status: 200, contentType: 'application/pdf', headers: { 'Access-Control-Allow-Origin': '*' }, body: Buffer.from('%PDF-1.4') }));
@@ -71,15 +86,29 @@ async function context(browser, device, role, clock = true) {
   return { ctx, page };
 }
 
+const BOXES = join(OUT, 'kutular.json');
+const boxes = existsSync(BOXES) ? JSON.parse(readFileSync(BOXES, 'utf8')) : {};
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
-for (const device of ['film', 'reel']) {
+for (const device of ['film', 'reel', 'tablet']) {
   for (const role of [null, 'super', 'admin', 'sekreter', 'antrenor', 'veli']) {
-    for (const [id, owner, act] of SHOTS.filter((s) => s[1] === role && (!process.env.ONLY || s[0] === process.env.ONLY))) {
+    for (const [id, owner, act] of SHOTS.filter((s) => s[1] === role && (!process.env.ONLY || s[0] === process.env.ONLY) && (device !== 'tablet' || TABLET.has(s[0])))) {
       const { ctx, page } = await context(browser, device, role);
       try {
         await act(page);
         await page.mouse.move(1, 1);
         await page.screenshot({ path: join(OUT, `${device}-${id}.png`) });
+        // Videodaki dokunma halkası gerçek düğmenin üstüne gelsin diye görünen düğmelerin yeri saklanır.
+        boxes[`${device}-${id}`] = await page.evaluate(() => {
+          const vw = innerWidth; const vh = innerHeight;
+          const seen = (e) => { const r = e.getBoundingClientRect(); return r.width > 20 && r.height > 14 && r.top >= 0 && r.bottom <= vh && r.left >= 0 && r.right <= vw ? { x: (r.left + r.width / 2) / vw, y: (r.top + r.height / 2) / vh } : null; };
+          return [...document.querySelectorAll('button.primary, .chip.on, button[aria-pressed="true"], .live-list button, .chat-item, nav a.active')].map(seen).filter(Boolean).slice(0, 4);
+        });
+        // Telefonda sayfanın kaydırılmış hali de çekilir; videoda ekran içinde kayar.
+        if (device === 'reel') {
+          await page.evaluate(() => window.scrollTo(0, 0));
+          await page.waitForTimeout(250);
+          await page.screenshot({ path: join(OUT, `${device}-${id}-tam.png`), fullPage: true, clip: { x: 0, y: 0, width: 390, height: Math.min(2400, await page.evaluate(() => document.documentElement.scrollHeight)) } });
+        }
       } catch (e) {
         console.log('HATA', device, id, owner, e.message.split('\n')[0]);
       }
@@ -116,4 +145,5 @@ for (const device of ['film', 'reel']) {
   await ctx.close();
 }
 await browser.close();
+writeFileSync(BOXES, JSON.stringify(boxes, null, 1));
 console.log('ekranlar cekildi');
