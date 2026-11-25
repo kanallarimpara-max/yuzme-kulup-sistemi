@@ -5,8 +5,8 @@ Videoların tek tek paylaşım metinleri `docs/sosyal-medya-paylasimlari.md` iç
 
 ## Kullanıcı adı
 
-Her platformda aynı ad kullanılır: **kulvar360**
-Alınmışsa sırayla: **kulvar360app**, **kulvar360tr**
+Her platformda aynı ad kullanılır: **kulvar360app** (Instagram, TikTok, YouTube)
+"kulvar360" Instagram'da Kahramanmaraş'taki bir yüzme dersi hesabına ait olduğu için kullanılmadı (25.11.2026).
 
 Görünen ad: **Kulvar360**
 Web sitesi: https://yuzme-kulup-sistemi.web.app
