@@ -69,7 +69,8 @@ export function parseMeetPage(html: string, pageUrl: string): LiveMeet {
 }
 
 /** Sonuç dosyaları ve sürümleri değişmedikçe aynı kalır. */
-export const meetVersion = (html: string) => [...new Set([...html.matchAll(/ResultList_(\d+)\.pdf(?:\?v=(\d+))?/g)].map((m) => `${m[1]}:${m[2] ?? ''}`))].sort().join(',');
+/** Sonuç ya da start listesi eklenince veya değişince değişir; ekranlar bu değeri izler. */
+export const meetVersion = (html: string) => [...new Set([...html.matchAll(/(ResultList|StartList)_(\d+)\.pdf(?:\?v=(\d+))?/g)].map((m) => `${m[1][0]}${m[2]}:${m[3] ?? ''}`))].sort().join(',');
 
 /** "Ankara | 21.11.2026 - 22.11.2026 | 50 Metre Havuz" bilgisinden yarış tarihlerini alır. */
 export function meetDates(info: string) {

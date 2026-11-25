@@ -39,8 +39,10 @@ describe('TYF canlı sonuç bağlantıları', () => {
     expect(meetPool('Ankara | 25 Metre Havuz')).toBe('25m');
     expect(meetPool('Ankara | 50 Metre Havuz')).toBe('50m');
     const a = meetVersion('<a href="ResultList_2.pdf?v=5"><a href="ResultList_1.pdf?v=3"><a href="ResultList_1.pdf?v=3">');
-    expect(a).toBe('1:3,2:5');
+    expect(a).toBe('R1:3,R2:5');
     expect(meetVersion('<a href="ResultList_2.pdf?v=6"><a href="ResultList_1.pdf?v=3">')).not.toBe(a);
+    // Yeni start listesi açılınca da ekran yenilenir.
+    expect(meetVersion('<a href="ResultList_2.pdf?v=5"><a href="ResultList_1.pdf?v=3"><a href="StartList_3.pdf?v=1">')).toBe('R1:3,R2:5,S3:1');
   });
   it('start listesi yalnız TYF adresinden açılır ve yarış numaraları tekrarsızdır', () => {
     expect(isLivePdfUrl(`${page}StartList_1.pdf?v=1`)).toBe(true);

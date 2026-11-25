@@ -4,7 +4,7 @@ name: TYF Sonuclari
 # kulüplerin sporcularının yarış derecelerini kendiliğinden kaydeder. Anahtar saklanmaz; kimlik GitHub'ın imzalı belgesidir.
 on:
   schedule:
-    - cron: '0 4 * * *'
+    - cron: '15 */2 * * *'
   workflow_dispatch:
 
 permissions:

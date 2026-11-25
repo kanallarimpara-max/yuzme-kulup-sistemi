@@ -3,7 +3,7 @@ name: TYF Barajlari
 # Her gün Türkiye saatiyle 06:30'da TYF sayfasındaki reglamanları kontrol eder.
 on:
   schedule:
-    - cron: '30 3 * * *'
+    - cron: '30 3,9,15,21 * * *'
   workflow_dispatch:
 
 permissions:

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import worker from './index.js';
 import { sameClubRecipients } from './push.js';
 import { pickWrites, validResult } from './results.js';
-import { meetCandidates } from './tyfMeets.js';
+import { activeMeets, listedMeets, meetCandidates } from './tyfMeets.js';
 
 const PROJECT = 'test-projesi';
 const pair = await crypto.subtle.generateKey({ name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' }, true, ['sign', 'verify']);
@@ -251,20 +251,36 @@ const checks = [
     assert.equal((await upload('image/png')).status, 429);
     assert.equal(uploaded, null);
   }],
-  ['Süren yarışın canlı bağlantısı, açılmamış yarışların önüne geçer', () => {
-    const ids = Array.from({ length: 25 }, (_, i) => `<span data-section="yarisma_info" data-id="10059${String(i + 10)}">`).join('');
-    const html = `<a href="https://canli.tyf.gov.tr/live/2026/1005890/">Canlı Sonuçlar</a>${ids}<span data-section="yarisma_info" data-id="1005890">`;
-    const got = meetCandidates(html, 2026, new Set(['https://canli.tyf.gov.tr/live/2026/1005927/']), 0);
+  ['Süren yarışın canlı bağlantısı ve tarihi yaklaşan yarışlar önce denenir, kayıtlılar denenmez', () => {
+    const at = Date.parse('2026-11-26T09:00:00Z');
+    const html = `<a href="${'https://canli.tyf.gov.tr/live/2026/'}1005890/">Canlı Sonuçlar</a>`
+      + '<span data-section="yarisma_info" data-id="1005952"> x </span><td>26/11/2026 10:00</td>'
+      + '<span data-section="yarisma_info" data-id="1005977"> x </span><td>07/12/2026 10:00</td>';
+    const got = meetCandidates({ html, known: new Set(['https://canli.tyf.gov.tr/live/2026/1005445/']), at });
     assert.equal(got[0], 'https://canli.tyf.gov.tr/live/2026/1005890/');
-    assert.equal(got.length, 20);
+    assert.equal(got[1], 'https://canli.tyf.gov.tr/live/2026/1005952/');
+    assert.ok(!got.includes('https://canli.tyf.gov.tr/live/2026/1005445/'));
     assert.equal(new Set(got).size, got.length);
-    assert.ok(!got.includes('https://canli.tyf.gov.tr/live/2026/1005927/'));
+    assert.ok(got.length <= 1 + 4 + 3 + 6 + 4 + 2);
+    assert.deepEqual(listedMeets(html), [{ id: 1005952, date: '2026-11-26' }, { id: 1005977, date: '2026-12-07' }]);
   }],
-  ['Açılmamış yarışlar her turda kaydırılır, listedeki her yarış sırayla denenir', () => {
-    const html = Array.from({ length: 30 }, (_, i) => `<span data-section="yarisma_info" data-id="${2000 + i}">`).join('');
-    const seen = new Set();
-    for (let run = 0; run < 3; run++) meetCandidates(html, 2026, new Set(['https://canli.tyf.gov.tr/live/2026/1005927/']), run * 1800000).forEach((u) => seen.add(u));
-    assert.equal(seen.size, 30);
+  ['İlk taramada bulunan yarışların hepsi birkaç turda içeri alınır, yeni numaralar her turda aranır', () => {
+    const known = new Set();
+    for (let turn = 0; turn < 12; turn++) {
+      const got = meetCandidates({ html: '', known, at: Date.parse('2026-11-26T09:00:00Z') + turn * 60000 });
+      assert.ok(got.some((u) => Number(u.match(/(\d+)\/$/)[1]) > 1005968), 'yeni numara aranmadı');
+      got.forEach((u) => known.add(u));
+    }
+    for (const id of [1005445, 1005890, 1005968]) assert.ok(known.has(`https://canli.tyf.gov.tr/live/2026/${id}/`));
+  }],
+  ['Süren yarışlar bugünün tarihine göre seçilir, ileri tarihli yarış yer kaplamaz', () => {
+    const index = [
+      { key: 'a', url: 'https://canli.tyf.gov.tr/live/2026/1/', start: '2026-11-26', end: '2026-11-29' },
+      { key: 'b', url: 'https://canli.tyf.gov.tr/live/2026/2/', start: '2026-12-04', end: '2026-12-06' },
+      { key: 'c', url: 'https://canli.tyf.gov.tr/live/2026/3/', start: '2026-11-21', end: '2026-11-22' },
+      { key: 'd', url: 'https://canli.tyf.gov.tr/live/2026/4/', start: '2026-11-24', end: '2026-11-26' },
+    ];
+    assert.deepEqual(activeMeets(index, Date.parse('2026-11-26T09:00:00Z')).map((e) => e.key), ['a', 'd']);
   }],
 ];
 
