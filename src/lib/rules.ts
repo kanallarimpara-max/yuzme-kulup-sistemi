@@ -258,13 +258,15 @@ export function analyzeAthlete(results: DatedResult[]) {
   const measured = trends.filter((t) => t.count >= 2);
   const improving = measured.filter((t) => t.changePercent > 0).sort((a, b) => b.changePercent - a.changePercent);
   const declining = measured.filter((t) => t.changePercent < 0).sort((a, b) => a.changePercent - b.changePercent);
+  // Ekranda stil adı Türkçe karakterleriyle yazılır.
+  const name: Record<Stroke, string> = { serbest: 'serbest', sirt: 'sırtüstü', kurbaga: 'kurbağalama', kelebek: 'kelebek', karisik: 'karışık' };
   const advice: string[] = [];
   if (!results.length) advice.push('Analiz için en az bir derece girilmeli.');
   else if (!measured.length) advice.push('Gelişim ölçmek için aynı mesafe ve stilde ikinci bir derece girilmeli.');
-  if (improving[0]) advice.push(`En hızlı gelişim ${improving[0].distance} m ${improving[0].stroke}: %${improving[0].changePercent}. Bu branşta yarış temposu çalışmaları sürdürülebilir.`);
-  if (declining[0]) advice.push(`${declining[0].distance} m ${declining[0].stroke} son ölçümde %${Math.abs(declining[0].changePercent)} geriledi. Teknik ve toparlanma gözden geçirilmeli.`);
+  if (improving[0]) advice.push(`En hızlı gelişim ${improving[0].distance} m ${name[improving[0].stroke]}: %${improving[0].changePercent}. Bu branşta yarış temposu çalışmaları sürdürülebilir.`);
+  if (declining[0]) advice.push(`${declining[0].distance} m ${name[declining[0].stroke]} son ölçümde %${Math.abs(declining[0].changePercent)} geriledi. Teknik ve toparlanma gözden geçirilmeli.`);
   const untested = (Object.keys(EVENTS) as Stroke[]).filter((s) => !trends.some((t) => t.stroke === s));
-  if (results.length && untested.length) advice.push(`Henüz ölçülmeyen stiller: ${untested.join(', ')}.`);
+  if (results.length && untested.length) advice.push(`Henüz ölçülmeyen stiller: ${untested.map((x) => name[x]).join(', ')}.`);
   return { trends, advice };
 }
 

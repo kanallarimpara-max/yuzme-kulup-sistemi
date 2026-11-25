@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Chrome eklentisi baglaninca eski baraj gonderisini arsivle, duzeltileni paylas; kalan tum gorsel ve videolari paylas; 26 kulube mesaj gonder
+Kullanici node scripts/demo-kulup.mjs ile canli demo kulubu kursun; Instagram paylasimlari ve 26 kulube mesaj devam edecek
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Chrome eklentisi baglaninca eski baraj gonderisini arsivle, duzeltileni paylas; 
 
 ## Son kayıtlar
 
+- 2026-11-25: Demo kulup kurulum araci (scripts/demo-kulup.mjs): 4 personel, 8 veli, 16 ogrenci, 4 ders, taksitler, yoklama, antrenman ve yaris dereceleri, yorum, antrenman, duyuru, gider, maas, ders grubu mesajlari; her kayit ilgili rolun hesabiyla yazilir, emulatorde dogrulandi. Performans analizinde stil adlari Turkce yazildi, web yayinlandi
 - 2026-11-25: TYF baraj gonderisi duzeltildi: yildizli not kaldirildi, yarisin tam adi yazildi (Turkiye Sportive Kulupler Arasi Kisa Kulvar Yildiz, Genc ve Acik Yas Yuzme Sampiyonasi)
 - 2026-11-25: Instagram 2. tur: 9 ozellik gorseli uretildi (icerik.mjs), tum videolarin 10 MB alti kopyalari hazir. Deneme programi, veli 1, TYF barajlari, antrenor 2 paylasildi; profilde 7 gonderi
 - 2026-11-25: Instagram isletme hesabina cevrildi. Bu haftanin icerik paketi uretildi: deneme programi, TYF Kulupler Arasi Kisa Kulvar barajlari, veli kontrol listesi, antrenor ipuclari (scripts/tanitim/icerik.mjs). 11 yuzme kulubu hesabi bulundu, mesaj taslagi hazir
