@@ -74,3 +74,11 @@ Instagram kullanıcı adı **kulvar.360** olarak açıldı. Paylaşımlar Chrome
 | 25.11.2026 | Reels: antrenör 1, yoklama ve devam | Paylaşıldı |
 
 Sıradaki: veli 1, sekreter 1, antrenör 2 (takvimin 2. haftası).
+
+## Büyüme planı (25.11.2026)
+
+- Hesap işletme hesabına çevrildi, kategori: Yazılım.
+- Ücretsiz deneme programı: 2 hafta, kontenjan sınırsız. Denemeyi tamamlayıp görüş bildiren kulübe ana modelde 2 hafta hediye.
+- İçerik ağırlığı: veli ve antrenör (baraj tabloları, yarış günü listeleri, antrenör ipuçları) + rol videoları. Görseller `scripts/tanitim/icerik.mjs` ile üretilir.
+- Kulüplere ulaşma: yalnız kulüplerin resmi hesaplarına, günde en fazla 10 kişiye özel mesaj, her liste ve metin kullanıcı onayıyla. Bireysel sporcu ve veli hesaplarına toplu takip veya mesaj atılmaz (çoğu çocuk; Instagram da hesabı kısıtlar).
+- TYF notu: 22-26 Aralık 2026 Kulüpler Arası Kısa Kulvar reglamanının 25 m tablosunda 100 m karışık barajı 100 m sırtüstü ile aynı yazılmış; uygulamadaki veri belgeyle aynıdır.

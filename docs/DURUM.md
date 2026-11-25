@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Takvime gore 2. hafta Instagram paylasimlari (veli 1, sekreter 1, antrenor 2) metinleri kullaniciya onaylatilip paylasilacak; TikTok ve YouTube sonra
+Kullanici haftalik paketi ve kulup mesajini onaylayinca gonderileri zamanla, mesajlari gonder
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Takvime gore 2. hafta Instagram paylasimlari (veli 1, sekreter 1, antrenor 2) me
 
 ## Son kayıtlar
 
+- 2026-11-25: Instagram isletme hesabina cevrildi. Bu haftanin icerik paketi uretildi: deneme programi, TYF Kulupler Arasi Kisa Kulvar barajlari, veli kontrol listesi, antrenor ipuclari (scripts/tanitim/icerik.mjs). 11 yuzme kulubu hesabi bulundu, mesaj taslagi hazir
 - 2026-11-25: Instagram @kulvar.360 kuruldu: profil fotografi ve biyografi; tanitim gorseli, yonetici ve antrenor Reels videolari kullanici onayiyla paylasildi (3 gonderi). Kayit docs/sosyal-medya-profili.md
 - 2026-11-25: Sosyal medya kullanici adi kulvar360app secildi (Instagram'da kulvar360 Kahramanmarasta bir yuzme dersi hesabina ait). Instagram, TikTok ve YouTube kayit sayfalari uygulama ici tarayicida acildi
 - 2026-11-25: Sosyal medya kiti: profil fotografi, YouTube, Facebook, X ve LinkedIn kapaklari, tanitim gonderisi ve hikaye gorseli (scripts/tanitim/kit.mjs), profil aciklamalari ve 5 haftalik paylasim takvimi docs/sosyal-medya-profili.md
