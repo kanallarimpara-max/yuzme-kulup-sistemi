@@ -165,6 +165,29 @@ SETS.ozellik = [
   feature('yonetici', 'admin-duyuru', 'Duyurunuz <span class="hl">herkese anında</span>', [['Bell', 'Telefona bildirim'], ['Users', 'Ders veya kişi seçerek'], ['ShieldCheck', 'Yalnız kendi kulübünüze']]),
 ];
 
+// 6) 26-29 Kasım 2026 Arena 11-12 Yaş Ulusal Gelişim Ligi Türkiye Finali katılım barajları (TYF reglamanı, Revize 03.11.2026).
+// Sütunlar: Kız 11 (2015), Kız 12 (2014), Erkek 11 (2015), Erkek 12 (2014). "-" o yaşta yarış yok.
+const UGL = {
+  '25 m': [['50 m Serbest', '32.99', '30.99', '31.99', '29.99'], ['100 m Serbest', '1:11.99', '1:06.99', '1:09.99', '1:04.99'], ['200 m Serbest', '2:31.99', '2:21.99', '2:30.99', '2:18.99'], ['400 m Serbest', '5:20.99', '4:59.99', '5:13.99', '4:48.99'],
+    ['50 m Sırt', '36.99', '34.99', '36.99', '33.99'], ['100 m Sırt', '1:19.99', '1:14.99', '1:18.99', '1:13.99'], ['200 m Sırt', '2:52.99', '2:41.99', '2:49.99', '2:37.99'],
+    ['50 m Kurbağa', '41.99', '38.99', '40.99', '37.99'], ['100 m Kurbağa', '1:30.99', '1:24.99', '1:29.99', '1:22.99'], ['200 m Kurbağa', '3:14.99', '3:01.99', '3:12.99', '2:57.99'],
+    ['50 m Kelebek', '34.99', '32.99', '33.99', '31.99'], ['100 m Kelebek', '1:18.99', '1:13.99', '1:17.99', '1:11.99'], ['200 m Kelebek', '-', '2:46.99', '-', '2:40.99'], ['200 m Karışık', '2:53.99', '2:42.99', '2:49.99', '2:38.99']],
+  '50 m': [['50 m Serbest', '33.99', '31.99', '32.99', '30.99'], ['100 m Serbest', '1:12.99', '1:08.99', '1:11.99', '1:06.99'], ['200 m Serbest', '2:35.99', '2:25.99', '2:33.99', '2:23.99'], ['400 m Serbest', '5:29.99', '5:07.99', '5:22.99', '4:56.99'],
+    ['50 m Sırt', '37.99', '35.99', '37.99', '34.99'], ['100 m Sırt', '1:21.99', '1:16.99', '1:20.99', '1:15.99'], ['200 m Sırt', '2:56.99', '2:45.99', '2:54.99', '2:41.99'],
+    ['50 m Kurbağa', '42.99', '39.99', '41.99', '38.99'], ['100 m Kurbağa', '1:32.99', '1:26.99', '1:32.99', '1:24.99'], ['200 m Kurbağa', '3:19.99', '3:06.99', '3:17.99', '3:02.99'],
+    ['50 m Kelebek', '35.99', '33.99', '34.99', '32.99'], ['100 m Kelebek', '1:20.99', '1:15.99', '1:19.99', '1:13.99'], ['200 m Kelebek', '-', '2:50.99', '-', '2:45.99'], ['200 m Karışık', '2:58.99', '2:47.99', '2:54.99', '2:42.99']],
+};
+const uglTable = (pool) => `<table><tr><th>Yarış</th><th>Kız 11</th><th>Kız 12</th><th>Erkek 11</th><th>Erkek 12</th></tr>${UGL[pool].map(([ev, ...t]) => `<tr><td>${ev}</td>${t.map((x) => `<td>${x === '-' ? '—' : x}</td>`).join('')}</tr>`).join('')}</table>`;
+SETS['ugl-final-baraj'] = [
+  page(`${brand}<div style="margin-top:120px"><div class="kicker">${icon('Target', 30, 'currentColor', 2.4)}TYF · 26-29 Kasım 2026</div>
+    <h1 style="margin-top:28px;font-size:64px;line-height:1.08">Türkiye Yüzme Federasyonu Arena <span class="hl">11-12 Yaş</span> Ulusal Gelişim Ligi Türkiye Finali</h1><div style="font-size:52px;font-weight:900;margin-top:22px">Katılım barajları</div>
+    <p class="sub" style="margin-top:30px">11 yaş (2015) ve 12 yaş (2014), kızlar ve erkekler. 25 m ve 50 m havuz dereceleri ayrı tabloda.</p></div>${foot(1, 3)}`, T),
+  page(`${brand}<h2 style="margin-top:30px;font-size:50px">25 m havuz · <span class="hl">katılım barajları</span></h2><div class="sub" style="font-size:24px;margin:4px 0 12px">Arena 11-12 Yaş UGL Türkiye Finali · 26-29 Kasım 2026</div>${uglTable('25 m')}
+    <div class="sub" style="font-size:20px;margin-top:10px">Kaynak: TYF reglamanı (Revize 03.11.2026).</div>${foot(2, 3)}`, T),
+  page(`${brand}<h2 style="margin-top:30px;font-size:50px">50 m havuz · <span class="hl">katılım barajları</span></h2><div class="sub" style="font-size:24px;margin:4px 0 12px">Arena 11-12 Yaş UGL Türkiye Finali · 26-29 Kasım 2026</div>${uglTable('50 m')}
+    <div class="sub" style="font-size:20px;margin-top:10px">Kulvar360 veli ekranında barajlar her gün güncellenir.</div>${foot(3, 3, true)}`, T),
+];
+
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
 for (const [name, slides] of Object.entries(SETS)) {
   for (const [i, html] of slides.entries()) {
