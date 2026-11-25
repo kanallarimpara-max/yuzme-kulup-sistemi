@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Building2, Coins, MessagesSquare, ShoppingBag } from 'lucide-react';
 import { useSession } from '../../lib/session';
@@ -8,6 +9,9 @@ import type { Ad } from '../../lib/design';
 import type { Club, Student, User } from '../../lib/types';
 
 type Sale = Row & { clubName: string; date: string; plan: string; amountKurus: number };
+
+type SortKey = 'ad' | 'satis-yeni' | 'satis-eski' | 'personel' | 'veli' | 'ogrenci';
+const SORTS: Array<[SortKey, string]> = [['ad', 'Alfabetik (A-Z)'], ['satis-yeni', 'Satış tarihi (yeniden eskiye)'], ['satis-eski', 'Satış tarihi (eskiden yeniye)'], ['personel', 'Personel sayısı'], ['veli', 'Veli sayısı'], ['ogrenci', 'Öğrenci sayısı']];
 
 const sameName = (a: string, b: string) => a.trim().toLocaleLowerCase('tr-TR') === b.trim().toLocaleLowerCase('tr-TR');
 
@@ -20,6 +24,7 @@ export default function OwnerDashboard() {
   const sales = useCollection<Sale>('sales');
   const requests = useCollection<CreditRequest>('creditRequests');
   const ads = useCollection<Ad>('ads');
+  const [sort, setSort] = useState<SortKey>('ad');
   if (!user) return null;
 
   const count = (role: User['role']) => users.filter((u) => u.role === role).length;
@@ -27,6 +32,30 @@ export default function OwnerDashboard() {
   const topups = pending.filter((r) => r.type === 'yukleme');
   const payouts = pending.filter((r) => r.type === 'bozdurma');
   const recentSales = [...sales].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
+  const rows = clubs.map((c) => {
+    const members = users.filter((u) => u.clubId === c.id);
+    return {
+      club: c,
+      sale: sales.filter((x) => sameName(x.clubName, c.name)).sort((a, b) => b.date.localeCompare(a.date))[0],
+      staff: members.filter((u) => u.role !== 'parent').length,
+      parents: members.filter((u) => u.role === 'parent').length,
+      kids: students.filter((x) => x.clubId === c.id).length,
+    };
+  });
+  const byName = (a: (typeof rows)[number], b: (typeof rows)[number]) => a.club.name.localeCompare(b.club.name, 'tr');
+  const sorted = [...rows].sort((a, b) => {
+    if (sort === 'personel') return b.staff - a.staff || byName(a, b);
+    if (sort === 'veli') return b.parents - a.parents || byName(a, b);
+    if (sort === 'ogrenci') return b.kids - a.kids || byName(a, b);
+    if (sort === 'satis-yeni' || sort === 'satis-eski') {
+      // Satışı olmayan kulüpler her iki sırada da sonda kalır.
+      const da = a.sale?.date ?? '';
+      const dbb = b.sale?.date ?? '';
+      if (!da || !dbb) return (da ? -1 : dbb ? 1 : 0) || byName(a, b);
+      return (sort === 'satis-yeni' ? dbb.localeCompare(da) : da.localeCompare(dbb)) || byName(a, b);
+    }
+    return byName(a, b);
+  });
 
   return (
     <div className="page">
@@ -56,24 +85,20 @@ export default function OwnerDashboard() {
         </div>
       </section>
       <section className="card stack">
-        <h2>Kulüpler</h2>
+        <div className="race-tools"><h2>Kulüpler</h2><label className="inline-label">Sırala<select value={sort} onChange={(e) => setSort(e.target.value as SortKey)}>{SORTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label></div>
         {clubs.length === 0 ? <p className="muted">Henüz kulüp yok. İlk kulübü Platform ekranından açabilirsin.</p> : (
           <div className="table-wrap"><table>
             <thead><tr><th>Kulüp</th><th>Satış tarihi</th><th>Plan</th><th>Personel</th><th>Veli</th><th>Öğrenci</th></tr></thead>
-            <tbody>{clubs.map((c) => {
-              const sale = sales.filter((s) => sameName(s.clubName, c.name)).sort((a, b) => b.date.localeCompare(a.date))[0];
-              const members = users.filter((u) => u.clubId === c.id);
-              return (
-                <tr key={c.id}>
-                  <td>{c.name}</td>
-                  <td>{sale ? dateTr(sale.date) : '—'}</td>
-                  <td>{sale?.plan ?? '—'}</td>
-                  <td>{members.filter((u) => u.role !== 'parent').length}</td>
-                  <td>{members.filter((u) => u.role === 'parent').length}</td>
-                  <td>{students.filter((s) => s.clubId === c.id).length}</td>
-                </tr>
-              );
-            })}</tbody>
+            <tbody>{sorted.map(({ club: c, sale, staff, parents, kids }) => (
+              <tr key={c.id}>
+                <td>{c.name}</td>
+                <td>{sale ? dateTr(sale.date) : '—'}</td>
+                <td>{sale?.plan ?? '—'}</td>
+                <td>{staff}</td>
+                <td>{parents}</td>
+                <td>{kids}</td>
+              </tr>
+            ))}</tbody>
           </table></div>
         )}
       </section>

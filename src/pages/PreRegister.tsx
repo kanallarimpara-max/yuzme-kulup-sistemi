@@ -1,4 +1,5 @@
 import { useMemo, useState, type CSSProperties, type FormEvent } from 'react';
+import { accountError, validEmail } from '../lib/format';
 import { PasswordInput } from '../lib/PasswordInput';
 import { useParams } from 'react-router-dom';
 import { createParentAccount } from '../lib/session';
@@ -60,6 +61,7 @@ export default function PreRegister() {
     setError('');
     const birthYear = Number(form.birthYear);
     if (birthYear < year - 80 || birthYear > year) return setError('Doğum yılını kontrol edin.');
+    if (!validEmail(form.parentEmail)) return setError('Geçerli bir e-posta adresi yazın (örnek: ad@ornek.com).');
     if (form.password.length < 8) return setError('Şifre en az 8 karakter olmalı.');
     if (form.password !== form.password2) return setError('Şifreler aynı değil.');
     setBusy(true);
@@ -71,8 +73,8 @@ export default function PreRegister() {
       });
       setForm(blank);
       setDone(true);
-    } catch {
-      setError('Başvuru gönderilemedi. Bu e-posta kayıtlı olabilir.');
+    } catch (err) {
+      setError(accountError(err) || 'Başvuru gönderilemedi. Tekrar deneyin.');
     } finally {
       setBusy(false);
     }

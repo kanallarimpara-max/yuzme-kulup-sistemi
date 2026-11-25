@@ -235,9 +235,20 @@ service cloud.firestore {
           && (isSuper() || getAfter(path('contacts', 'contact-' + m[0] + '-' + m[1])).data.status == 'kabul');
       }
       function validGroup() { return n().get('direct', false) == false && canWrite(['admin', 'secretary']); }
+      // Antrenör de kendi kulübünde grup açar ve yalnız kendi açtığı grubu düzenler.
+      function coachGroup() {
+        return n().get('direct', false) == false && hasRole(n().clubId, ['coach']) && n().createdBy == request.auth.uid
+          && request.auth.uid in n().memberIds && n().memberIds.size() <= 60 && n().name is string && n().name.size() > 0 && n().name.size() <= 80;
+      }
+      // Üyeler mesaj sabitleyebilir; sabitlenen mesaj bu sohbete ait olmalı.
+      function pinOnly() {
+        return isMember() && onlyChanges(['pinnedId'])
+          && (n().pinnedId == null || (n().pinnedId is string && get(path('messages', n().pinnedId)).data.chatId == id));
+      }
       allow read: if isMember() || isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary']);
-      allow create: if validDirect() || validGroup();
-      allow update: if isSuper() || (resource.data.get('direct', false) == false && validGroup());
+      allow create: if validDirect() || validGroup() || coachGroup();
+      allow update: if isSuper() || pinOnly() || (resource.data.get('direct', false) == false && (validGroup()
+        || (resource.data.get('createdBy', '') == request.auth.uid && coachGroup())));
     }
     match /messages/{id} {
       function m() { return request.resource.data; }
@@ -250,6 +261,8 @@ service cloud.firestore {
         && m().keys().hasOnly(['chatId', 'memberIds', 'senderId', 'kind', 'text', 'url', 'createdAt'])
         && request.auth.uid in get(path('chats', m().chatId)).data.memberIds
         && m().memberIds == get(path('chats', m().chatId)).data.memberIds;
+      // Gönderen kendi mesajını geri alabilir.
+      allow delete: if signedIn() && resource.data.senderId == request.auth.uid;
     }
     match /calls/{id} {
       function k() { return request.resource.data; }
@@ -310,13 +323,35 @@ service cloud.firestore {
           && p().comments[size].keys().hasOnly(['userId', 'text', 'at']) && p().comments[size].userId == request.auth.uid
           && p().comments[size].text is string && p().comments[size].text.size() > 0 && p().comments[size].text.size() <= 500;
       }
+      // Yorum silme: kişi kendi yorumunu, gönderi sahibi kendi gönderisindeki herhangi bir yorumu siler.
+      function commentRemove() {
+        let removed = resource.data.comments.removeAll(p().comments);
+        return onlyChanges(['comments']) && p().comments.size() == resource.data.comments.size() - 1 && removed.size() == 1
+          && (removed[0].userId == request.auth.uid || resource.data.authorId == request.auth.uid);
+      }
+      // Gönderi sahibinin engellediği kişi yorum yapamaz.
+      function notBlocked() {
+        let prefs = path('socialPrefs', resource.data.authorId);
+        return !exists(prefs) || !(request.auth.uid in get(prefs).data.blocked);
+      }
       allow read: if signedIn() && (resource.data.isPublic == true || request.auth.uid in resource.data.audience);
       allow create: if signedIn() && p().authorId == request.auth.uid && p().likes == [] && p().comments == [] && request.auth.uid in p().audience
         && p().keys().hasOnly(['authorId', 'imageUrl', 'caption', 'kind', 'isPublic', 'audience', 'likes', 'comments', 'createdAt'])
         && (p().imageUrl == '' || safeFileUrl(p().imageUrl)) && p().caption.size() <= 2000;
       allow update: if signedIn() && ((resource.data.authorId == request.auth.uid && onlyChanges(['isPublic', 'caption', 'audience']))
-        || (canSee() && (likeOnly() || commentOnly())));
-      allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
+        || (canSee() && (likeOnly() || (commentOnly() && notBlocked()) || commentRemove())));
+      allow delete: if isSuper() || (signedIn() && resource.data.authorId == request.auth.uid);
+    }
+    // Kişisel sosyal tercihler (engellenenler, gizlenen gönderiler, istenmeyen türler) yalnız sahibine açıktır.
+    match /socialPrefs/{uid} {
+      function prefsOk() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['blocked', 'hiddenPosts', 'hiddenKinds']) && d.blocked is list && d.blocked.size() <= 500
+          && d.hiddenPosts is list && d.hiddenPosts.size() <= 500 && d.hiddenKinds is list && d.hiddenKinds.size() <= 3
+          && !(uid in d.blocked);
+      }
+      allow read, delete: if signedIn() && request.auth.uid == uid;
+      allow create, update: if signedIn() && request.auth.uid == uid && prefsOk();
     }
 
     // Kredi geçmişine yalnız süper admin yazar.
@@ -367,7 +402,9 @@ service cloud.firestore {
         && ((request.resource.data.type == 'yukleme' && safeFileUrl(request.resource.data.receiptUrl)
             && request.resource.data.credits == get(path('packages', request.resource.data.packageId)).data.credits
             && request.resource.data.kurus == get(path('packages', request.resource.data.packageId)).data.priceKurus)
-          || (request.resource.data.type == 'bozdurma' && myWalletOp() == id));
+          || (request.resource.data.type == 'bozdurma' && myWalletOp() == id
+            // 1 kredi = 1 TL: bozdurma tutarı krediyle aynı olmalı.
+            && request.resource.data.kurus == request.resource.data.credits * 100));
       allow update: if isSuper();
     }
     // Tasarım giriş ekranında da uygulanır; yalnız süper admin değiştirir.

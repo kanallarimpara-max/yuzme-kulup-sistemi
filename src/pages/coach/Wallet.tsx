@@ -2,8 +2,8 @@ import { useState, type FormEvent } from 'react';
 import { useSession } from '../../lib/session';
 import { db, useCollection } from '../../lib/store';
 import { money } from '../../lib/format';
-import { redeemKurus } from '../../lib/rules';
-import { requestRedeem, uploadFile, useWallet, type CreditPackage, type PlatformSettings } from '../../lib/credits';
+
+import { creditsToKurus, requestRedeem, uploadFile, useWallet, type CreditPackage, type PlatformSettings } from '../../lib/credits';
 
 const STATUS = { bekliyor: ['Bekliyor', 'warn'], onaylandi: ['Onaylandı', 'good'], reddedildi: ['Reddedildi', 'bad'] } as const;
 
@@ -23,7 +23,7 @@ export default function Wallet() {
   const [busy, setBusy] = useState(false);
   if (!user) return null;
 
-  const payoutKurus = settings ? redeemKurus(amount, settings.rateCredits, settings.rateKurus) : 0;
+  const payoutKurus = creditsToKurus(amount || 0);
   const sendTopUp = async (e: FormEvent) => {
     e.preventDefault();
     if (!pack || !receipt) return setError('Dekont yüklemek zorunlu.');
@@ -92,7 +92,7 @@ export default function Wallet() {
       </section>
       <form className="card stack" onSubmit={sendRedeem}>
         <h2>Kredi bozdur</h2>
-        <p className="muted">{settings ? `Oran: ${settings.rateCredits} kredi = ${money(settings.rateKurus)}` : 'Bozdurma oranı henüz tanımlanmadı.'}</p>
+        <p className="muted">1 kredi = 1 TL. Bozdurduğun kredinin karşılığı hesabına aynı tutarda gönderilir.</p>
         <div className="form-grid">
           <label>Bozdurulacak kredi<input type="number" min={1} max={wallet.available} required value={amount || ''} onChange={(e) => setAmount(Number(e.target.value))} /></label>
           <label>Alacağın tutar<input readOnly value={money(payoutKurus)} /></label>

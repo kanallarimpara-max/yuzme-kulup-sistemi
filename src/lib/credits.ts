@@ -1,5 +1,10 @@
 import { db, firebaseEnabled, inc, newId, useCollection, type BatchOp, type Row } from './store';
 
+/** Karışıklık olmasın diye 1 kredi her yerde 1 TL'dir (100 kuruş). */
+export const KURUS_PER_CREDIT = 100;
+export const creditsToKurus = (credits: number) => Math.round(credits) * KURUS_PER_CREDIT;
+export const kurusToCredits = (kurus: number) => Math.round(kurus / KURUS_PER_CREDIT);
+
 export type LedgerRow = Row & { userId: string; delta: number; reason: string };
 export type CreditRequest = Row & {
   userId: string; type: 'yukleme' | 'bozdurma'; credits: number; kurus: number; note?: string; receiptUrl?: string;

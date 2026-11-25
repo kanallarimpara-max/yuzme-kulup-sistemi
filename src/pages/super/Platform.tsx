@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { accountError, validEmail } from '../../lib/format';
 import { PasswordInput } from '../../lib/PasswordInput';
 import { Trash2 } from 'lucide-react';
 import { db, useCollection, type Row } from '../../lib/store';
@@ -39,6 +40,7 @@ export default function Platform() {
     const slug = slugOf(name);
     if (!slug) return setClubError('Kulüp adını kontrol edin.');
     if (clubs.some((c) => c.slug === slug)) return setClubError('Bu adla bir kulüp zaten var.');
+    if (!validEmail(newClub.email)) return setClubError('Geçerli bir e-posta adresi yaz (örnek: ad@ornek.com).');
     if (newClub.password.length < 8) return setClubError('Şifre en az 8 karakter olmalı.');
     setBusy(true);
     try {
@@ -52,8 +54,8 @@ export default function Platform() {
       }
       setNewClub({ name: '', adminName: '', email: '', password: '' });
       setClubStatus(`${name} ve kulüp admini oluşturuldu. Ön kayıt adresi: ${preRegLink(slug)}`);
-    } catch {
-      setClubError('Kulüp açılamadı. E-posta kayıtlı olabilir.');
+    } catch (error) {
+      setClubError(accountError(error) || 'Kulüp açılamadı. Tekrar dene.');
     } finally {
       setBusy(false);
     }
@@ -105,7 +107,7 @@ export default function Platform() {
           <label>Vurgu rengi<input type="color" value={shownLook.accent} onChange={(e) => setLook({ ...shownLook, accent: e.target.value })} /></label>
           <label>Arka plan<input type="color" value={shownLook.background} onChange={(e) => setLook({ ...shownLook, background: e.target.value })} /></label>
           <label>Kart rengi<input type="color" value={shownLook.panel} onChange={(e) => setLook({ ...shownLook, panel: e.target.value })} /></label>
-          <label>Destek e-postası<input type="email" placeholder="destek@ornek.com" value={shownLook.supportEmail ?? ''} onChange={(e) => setLook({ ...shownLook, supportEmail: e.target.value.trim() })} /><small className="muted">Giriş sayfasının altında ve Ayarlar'da görünür.</small></label>
+          <label>Destek e-postası<input type="email" placeholder="destek@ornek.com" value={shownLook.supportEmail ?? ''} onChange={(e) => setLook({ ...shownLook, supportEmail: e.target.value.trim() })} pattern="[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}" title="Örnek: destek@ornek.com" /><small className="muted">Giriş sayfasının altında ve Ayarlar'da görünür.</small></label>
           <div className="form-actions"><button className="primary">Tasarımı kaydet</button><button type="button" onClick={() => setLook({ ...DEFAULT_DESIGN })}>Varsayılana dön</button></div>
         </form>
       </section>

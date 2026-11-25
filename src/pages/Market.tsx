@@ -4,7 +4,7 @@ import { useSession } from '../lib/session';
 import { db, useCollection, type Row } from '../lib/store';
 import { ownScope } from '../lib/access';
 import { money, toKurus } from '../lib/format';
-import { buyProductWithCredits, uploadFile, useWallet, type Product } from '../lib/credits';
+import { buyProductWithCredits, kurusToCredits, uploadFile, useWallet, type Product } from '../lib/credits';
 import type { User } from '../lib/types';
 
 type Order = Row & { userId: string; productId: string; productName: string; pay: 'kredi' | 'tl'; credits: number; kurus: number; status: string };
@@ -17,7 +17,7 @@ export default function Market() {
   const orders = useCollection<Order>('orders', ownScope(user, 'userId'));
   const users = useCollection<User>('users', user?.role === 'super' ? {} : { skip: true });
   const wallet = useWallet(user?.id);
-  const [form, setForm] = useState({ name: '', description: '', imageUrl: '', price: '', credits: 0 });
+  const [form, setForm] = useState({ name: '', description: '', imageUrl: '', price: '' });
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
   if (!user) return null;
@@ -26,8 +26,8 @@ export default function Market() {
 
   const add = async (e: FormEvent) => {
     e.preventDefault();
-    await db.add('products', { name: form.name.trim(), description: form.description.trim(), imageUrl: form.imageUrl, priceKurus: toKurus(form.price), priceCredits: form.credits });
-    setForm({ name: '', description: '', imageUrl: '', price: '', credits: 0 });
+    await db.add('products', { name: form.name.trim(), description: form.description.trim(), imageUrl: form.imageUrl, priceKurus: toKurus(form.price), priceCredits: kurusToCredits(toKurus(form.price)) });
+    setForm({ name: '', description: '', imageUrl: '', price: '' });
   };
   const image = async (file?: File) => {
     if (!file) return;
@@ -67,7 +67,7 @@ export default function Market() {
           <label>Açıklama<input required value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
           <label>Fotoğraf<input type="file" accept="image/*" onChange={(e) => image(e.target.files?.[0])} /></label>
           <label>Fiyat (TL)<input required inputMode="decimal" pattern="[0-9₺ ]+([.,][0-9]+)*" title="Örnek: 1.500 veya 1.500,50" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></label>
-          <label>Kredi fiyatı<input type="number" min={0} value={form.credits} onChange={(e) => setForm({ ...form, credits: Number(e.target.value) })} /></label>
+          <p className="muted">Kredi fiyatı TL fiyatına eşittir (1 kredi = 1 TL).</p>
           <div className="form-actions"><button className="primary">Ürün ekle</button></div>
         </form>
       )}

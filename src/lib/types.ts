@@ -40,7 +40,7 @@ export type Enrollment = Row & {
   clubId: string; studentId: string; parentId: string; lessonId: string; coachId: string; listKurus: number; netKurus: number; totalKurus: number;
   discountCode?: string; installments: PaidInstallment[];
 };
-export type Chat = Row & { clubId?: string; name: string; lessonId?: string; memberIds: string[]; direct?: boolean };
+export type Chat = Row & { clubId?: string; name: string; lessonId?: string; memberIds: string[]; direct?: boolean; pinnedId?: string | null; createdBy?: string };
 export type Branch = Row & { clubId: string; name: string };
 export type Lesson = Row & {
   clubId: string; branchId: string; coachIds: string[]; name: string; weekdays: number[]; startTime: string;
@@ -51,7 +51,7 @@ export type Student = Row & {
   clubId: string; parentId: string; lessonId: string; coachId: string; firstName: string; lastName: string;
   birthYear: number; gender: 'K' | 'E';
 };
-export type TrainingModel = Row & { clubId: string; name: string; kind: 'grup' | 'ozel' | 'sporcu'; perCoach: number };
+export type TrainingModel = Row & { clubId: string; name: string; kind: 'grup' | 'altgrup' | 'performans' | 'sporcu' | 'ozel' | 'yetiskin' | 'minik'; perCoach: number };
 export type Availability = Row & { clubId: string; coachId: string; branchId: string; weekday: number; hour: number };
 export type Notice = Row & {
   clubId: string; senderId: string; kind: 'duyuru' | 'yaris' | 'ders'; title: string; body: string; date?: string;

@@ -1,4 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, Info } from 'lucide-react';
 import { useSession } from '../../lib/session';
 import { db, newId, useCollection } from '../../lib/store';
 import { coachFit, lessonEndDate, toIso, type CoachFit } from '../../lib/rules';
@@ -68,6 +70,17 @@ export default function Lessons() {
   return (
     <div className="page">
       <header className="page-head"><div><p className="eyebrow">Kulüp yönetimi</p><h1>Ders saatleri</h1></div></header>
+      {(branches.length === 0 || models.length === 0 || users.every((u) => u.role !== 'coach')) && (
+        <section className="card setup-steps" aria-label="Ders açmadan önce yapılacaklar">
+          <h2><Info size={18} /> Ders saati açmadan önce</h2>
+          <p className="muted">Bir ders saati bir şubeye, bir eğitim modeline ve en az bir antrenöre bağlanır. Eksik olanları ekleyin:</p>
+          <ol>
+            <li className={branches.length ? 'done' : ''}><span>Şube ekle {branches.length ? `(${branches.length} şube var)` : '(henüz yok)'}</span>{!branches.length && <Link className="button" to="/kulup">Kulüp ayarlarına git <ArrowRight size={15} /></Link>}</li>
+            <li className={models.length ? 'done' : ''}><span>Eğitim modeli ekle {models.length ? `(${models.length} model var)` : '(henüz yok)'}</span>{!models.length && <Link className="button" to="/kulup">Kulüp ayarlarına git <ArrowRight size={15} /></Link>}</li>
+            <li className={users.some((u) => u.role === 'coach') ? 'done' : ''}><span>Antrenör ekle {users.some((u) => u.role === 'coach') ? '' : '(henüz yok)'}</span>{!users.some((u) => u.role === 'coach') && <Link className="button" to="/personel">Personel ekranına git <ArrowRight size={15} /></Link>}</li>
+          </ol>
+        </section>
+      )}
       <form className="card stack" onSubmit={submit}>
         <h2>Yeni ders saati</h2>
         <div className="form-grid">

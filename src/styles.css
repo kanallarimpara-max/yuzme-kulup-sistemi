@@ -72,6 +72,37 @@ input, select { background: var(--bg); border: 1px solid var(--line); border-rad
 .modal-backdrop { align-items: center; background: rgba(2, 10, 20, .62); display: flex; inset: 0; justify-content: center; padding: 16px; position: fixed; z-index: 50; }
 .modal { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 30px 80px rgba(0,0,0,.45); display: grid; gap: 12px; max-width: 440px; padding: 22px; width: 100%; }
 .modal h2 { font-size: 1.15rem; margin: 0; }
+.post-menu { display: inline-flex; gap: 2px; margin-left: auto; }
+.suggest-list { background: var(--panel-2); border-radius: 10px; display: grid; list-style: none; margin: 0; overflow: hidden; padding: 0; }
+.suggest-list button { background: transparent; border: 0; border-radius: 0; display: grid; justify-items: start; min-height: 48px; text-align: left; width: 100%; }
+.suggest-list button:hover, .suggest-list button:focus-visible { background: var(--line); }
+.suggest-list small { color: var(--muted); }
+.chat-tools { display: flex; flex-wrap: wrap; gap: 6px; }
+.inline-label { align-items: center; display: flex; gap: 8px; }
+.row-actions { display: inline-flex; flex: none; gap: 2px; }
+.inline-form.grow { flex: 1; }
+.setup-steps h2 { align-items: center; display: flex; gap: 8px; margin: 0; }
+.setup-steps ol { display: grid; gap: 8px; margin: 0; padding-left: 20px; }
+.setup-steps li { align-items: center; display: flex; flex-wrap: wrap; gap: 8px 12px; justify-content: space-between; }
+.setup-steps li.done { color: var(--muted); text-decoration: line-through; }
+.setup-steps li.done::marker { color: var(--ok); }
+.help-note { background: var(--panel-2); border-left: 3px solid var(--accent); border-radius: 8px; margin: 8px 0; padding: 8px 12px; }
+.chips .chip svg { margin-right: 4px; vertical-align: -2px; }
+.edit-row > span { flex: 1; }
+.inline-label select { min-width: 0; }
+.chat-tools button { flex: 1; font-size: .85rem; justify-content: center; }
+.bulk-box { background: var(--panel-2); border-radius: 12px; padding: 12px; }
+.pick-list { display: grid; gap: 4px; max-height: 220px; overflow-y: auto; }
+.pick-list .check { background: var(--panel); min-height: 40px; }
+.pinned-bar { align-items: center; background: var(--panel-2); border-bottom: 1px solid var(--line); display: flex; font-size: .88rem; gap: 8px; padding: 6px 10px; }
+.pinned-bar span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bubble { position: relative; }
+.bubble-actions { display: none; gap: 2px; position: absolute; right: 4px; top: -14px; }
+.bubble:hover .bubble-actions, .bubble:focus-within .bubble-actions { display: inline-flex; }
+.bubble-actions button { background: var(--panel); border: 1px solid var(--line); min-height: 26px; min-width: 26px; padding: 0; }
+@media (hover: none) { .bubble-actions { display: inline-flex; position: static; margin-top: 4px; } }
+.comment { align-items: flex-start; display: flex; gap: 6px; justify-content: space-between; }
+.comment button { flex: none; min-height: 28px; min-width: 28px; }
 .temp-notice { align-items: center; background: var(--warn-bg); border-radius: 12px; color: var(--warn-text); display: flex; flex-wrap: wrap; gap: 8px 12px; justify-content: space-between; margin: 10px clamp(12px, 3vw, 28px) 0; padding: 10px 14px; position: relative; z-index: 4; }
 .temp-notice div { display: flex; gap: 6px; }
 .password-field input { flex: 1; min-width: 0; padding-right: 48px; }

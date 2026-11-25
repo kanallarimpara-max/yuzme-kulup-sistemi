@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from 'react';
-import { Heart, MessageCircle, Trash2 } from 'lucide-react';
+import { Ban, EyeOff, Heart, MessageCircle, Trash2, X } from 'lucide-react';
 import { useSession } from '../lib/session';
 import { db, useCollection, useMerged } from '../lib/store';
 import { uploadFile } from '../lib/credits';
 import { usePeople } from '../lib/people';
+import { useConfirm } from '../lib/confirm';
+import { useSocialPrefs } from '../lib/socialPrefs';
 import { ROLE_LABEL, type Contact, type Post } from '../lib/types';
 
 type Tab = 'akis' | 'kesfet' | 'profil';
@@ -21,6 +23,8 @@ export default function Social() {
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const prefs = useSocialPrefs(uid);
+  const [confirmDialog, confirm] = useConfirm();
   if (!user) return null;
 
   const friends = contacts.filter((c) => c.status === 'kabul').flatMap((c) => c.memberIds).filter((id) => id !== uid);
@@ -31,7 +35,10 @@ export default function Social() {
     ? posts.filter((p) => p.authorId === uid || friends.includes(p.authorId))
     : tab === 'kesfet'
       ? posts.filter((p) => p.authorId !== uid && !!authorOf(p.authorId)?.isPublic)
-      : posts.filter((p) => p.authorId === uid)).filter(canSee).sort(newest);
+      : posts.filter((p) => p.authorId === uid)).filter(canSee)
+    .filter((p) => p.authorId === uid || (!prefs.blocked.includes(p.authorId) && !prefs.hiddenPosts.includes(p.id) && !prefs.hiddenKinds.includes(p.kind)))
+    .sort(newest);
+  const blockedPeople = prefs.blocked.map((id) => authorOf(id) ?? { id, name: 'Kullanıcı', tag: '' });
 
   const share = async (e: FormEvent) => {
     e.preventDefault();
@@ -67,6 +74,18 @@ export default function Social() {
     await db.update('posts', p.id, { comments: [...p.comments, { userId: uid, text, at: Date.now() }] });
     setDrafts({ ...drafts, [p.id]: '' });
   };
+  const removePost = async (p: Post) => {
+    if (await confirm({ title: 'Gönderi silinsin mi?', text: 'Gönderi, beğeni ve yorumlarıyla birlikte kalıcı olarak silinir. Bu işlem geri alınamaz.', ok: 'Evet, sil', danger: true })) await db.remove('posts', p.id);
+  };
+  const removeComment = async (p: Post, at: number) => {
+    if (await confirm({ title: 'Yorum silinsin mi?', text: 'Bu işlem geri alınamaz.', ok: 'Evet, sil', danger: true })) {
+      await db.update('posts', p.id, { comments: p.comments.filter((c) => c.at !== at) });
+    }
+  };
+  const block = async (id: string) => {
+    const name = authorOf(id)?.name ?? 'Bu kişi';
+    if (await confirm({ title: `${name} engellensin mi?`, text: 'Gönderilerini ve yorumlarını görmezsin, senin gönderilerine yorum yapamaz. İstediğin zaman Profilim sekmesinden kaldırabilirsin.', ok: 'Engelle', danger: true })) await prefs.toggle('blocked', id);
+  };
   const setPublic = async (isPublic: boolean) => {
     await db.update('users', uid, { isPublic });
     await Promise.all(posts.filter((p) => p.authorId === uid).map((p) => db.update('posts', p.id, { isPublic })));
@@ -86,6 +105,16 @@ export default function Social() {
           <label className="check"><input type="checkbox" checked={user.isPublic} onChange={(e) => setPublic(e.target.checked)} /><span>Profilim açık, keşfette görünsün</span></label>
         </section>
       )}
+      {tab === 'profil' && (
+        <section className="card stack">
+          <h2>İçerik tercihlerim</h2>
+          <p className="muted">Akışında görmek istediğin gönderi türlerini seç.</p>
+          <div className="chips">{(Object.keys(KIND) as Post['kind'][]).map((k) => <button key={k} className={prefs.hiddenKinds.includes(k) ? 'chip' : 'chip on'} aria-pressed={!prefs.hiddenKinds.includes(k)} onClick={() => prefs.toggle('hiddenKinds', k)}>{KIND[k]}</button>)}</div>
+          {prefs.hiddenPosts.length > 0 && <button className="ghost" onClick={() => prefs.save({ hiddenPosts: [] })}>Gizlediğim {prefs.hiddenPosts.length} gönderiyi yeniden göster</button>}
+          <h2>Engellediklerim</h2>
+          {blockedPeople.length === 0 ? <p className="muted">Kimseyi engellemedin.</p> : <ul className="simple-list">{blockedPeople.map((b) => <li key={b.id}><span>{b.name}<small>{b.tag}</small></span><button onClick={() => prefs.toggle('blocked', b.id)}>Engeli kaldır</button></li>)}</ul>}
+        </section>
+      )}
       {tab !== 'kesfet' && (
         <form className="card stack" onSubmit={share}>
           <label>Paylaşım<textarea rows={2} placeholder="Ne paylaşmak istersin?" value={form.caption} onChange={(e) => setForm({ ...form, caption: e.target.value })} /></label>
@@ -101,15 +130,19 @@ export default function Social() {
         const author = authorOf(p.authorId);
         return (
           <article className="card post" key={p.id}>
-            <header><span className="avatar">{author?.name[0] ?? '?'}</span><span><strong>{author?.name}</strong><small>{author?.tag} · {KIND[p.kind]}</small></span>{p.authorId === uid && <button className="ghost icon" aria-label="Gönderiyi sil" onClick={() => db.remove('posts', p.id)}><Trash2 size={16} /></button>}</header>
+            <header><span className="avatar">{author?.name[0] ?? '?'}</span><span><strong>{author?.name}</strong><small>{author?.tag} · {KIND[p.kind]}</small></span><span className="post-menu">{p.authorId === uid || user.role === 'super'
+              ? <button className="ghost icon" aria-label="Gönderiyi sil" title="Gönderiyi sil" onClick={() => removePost(p)}><Trash2 size={16} /></button>
+              : <><button className="ghost icon" aria-label="İlgilenmiyorum, bu gönderiyi gizle" title="İlgilenmiyorum" onClick={() => prefs.toggle('hiddenPosts', p.id)}><EyeOff size={16} /></button>
+                <button className="ghost icon" aria-label={`${author?.name ?? 'Kişiyi'} engelle`} title="Engelle" onClick={() => block(p.authorId)}><Ban size={16} /></button></>}</span></header>
             {p.imageUrl && <img src={p.imageUrl} alt={p.caption || 'Paylaşılan fotoğraf'} />}
             {p.caption && <p>{p.caption}</p>}
             <div className="post-actions"><button className={p.likes.includes(uid) ? 'ghost liked' : 'ghost'} aria-pressed={p.likes.includes(uid)} onClick={() => like(p)}><Heart size={17} />{p.likes.length}</button><span className="muted"><MessageCircle size={16} /> {p.comments.length}</span></div>
-            {p.comments.map((c) => <p className="comment" key={c.at}><strong>{authorOf(c.userId)?.name}</strong> {c.text}</p>)}
+            {p.comments.filter((c) => !prefs.blocked.includes(c.userId)).map((c) => <p className="comment" key={c.at}><span><strong>{authorOf(c.userId)?.name}</strong> {c.text}</span>{(c.userId === uid || p.authorId === uid || user.role === 'super') && <button className="ghost icon" aria-label="Yorumu sil" title="Yorumu sil" onClick={() => removeComment(p, c.at)}><X size={14} /></button>}</p>)}
             <form className="inline-form" onSubmit={(e) => comment(e, p)}><input aria-label="Yorum yaz" placeholder="Yorum yaz" value={drafts[p.id] ?? ''} onChange={(e) => setDrafts({ ...drafts, [p.id]: e.target.value })} /><button>Gönder</button></form>
           </article>
         );
       })}</div>
+      {confirmDialog}
     </div>
   );
 }

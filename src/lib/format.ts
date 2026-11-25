@@ -28,3 +28,16 @@ export const dateTr = (iso: string) => {
 
 export const dayNames = (days: number[]) =>
   WEEKDAYS.filter((d) => days.includes(d.value)).map((d) => d.short).join(', ');
+
+/** E-posta biçimi: boşluk yok, tek @, alan adında nokta ve en az iki harfli uzantı. */
+export const validEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email.trim()) && !/\.\./.test(email);
+
+/** Hesap açarken Firebase'in döndürdüğü hatayı Türkçe açıklar. */
+export function accountError(error: unknown) {
+  const code = (error as { code?: string })?.code ?? '';
+  if (code.includes('email-already-in-use')) return 'Bu e-posta ile açılmış bir hesap zaten var.';
+  if (code.includes('invalid-email')) return 'E-posta adresi geçersiz.';
+  if (code.includes('weak-password')) return 'Şifre çok zayıf, en az 8 karakterli daha güçlü bir şifre seç.';
+  if (code.includes('network')) return 'Bağlantı kurulamadı, internetini kontrol et.';
+  return '';
+}
