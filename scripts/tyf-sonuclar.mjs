@@ -14,6 +14,8 @@ const MAX_FILES = Number(process.env.MAX_DOSYA ?? 40);
 const MAX_BYTES = 40_000_000;
 const MONTHS_BACK = 12;
 const CHUNK = 200;
+// Okuma kuralı değişince artırılır; daha önce okunamayan dosyalar da yeniden denenir.
+const PARSER_VERSION = 2;
 
 async function pagesOf(data) {
   const doc = await pdfjs.getDocument({ data: new Uint8Array(data), verbosity: 0, isEvalSupported: false }).promise;
@@ -51,6 +53,7 @@ const state = await call('/results/athletes', {});
 const done = new Map(state.done.map((f) => [f.id, f]));
 // Sporcu veya kulüp listesi değişirse eski dosyalar yeniden taranır; yeni kayıt olan sporcunun geçmiş dereceleri de gelir.
 const sig = createHash('sha256').update(JSON.stringify([
+  PARSER_VERSION,
   state.clubs.map((c) => [c.id, c.name]).sort(),
   state.athletes.map((a) => [a.id, a.clubId, a.firstName, a.lastName, a.birthYear, a.gender]).sort(),
 ])).digest('hex');
@@ -62,7 +65,7 @@ if (!listRes.ok) throw new Error(`Sonuç sayfası açılamadı: ${listRes.status
 const since = new Date();
 since.setMonth(since.getMonth() - MONTHS_BACK);
 const sinceMonth = since.toISOString().slice(0, 7);
-const files = parseResultList(await listRes.text()).filter((f) => f.month >= sinceMonth && !done.get(f.id)?.unreadable && done.get(f.id)?.sig !== sig).slice(0, MAX_FILES);
+const files = parseResultList(await listRes.text()).filter((f) => f.month >= sinceMonth && done.get(f.id)?.sig !== sig).slice(0, MAX_FILES);
 console.log(`Taranacak dosya: ${files.length}`);
 
 for (const file of files) {
@@ -76,7 +79,10 @@ for (const file of files) {
     continue;
   }
   try {
-    if (Number(res.headers.get('content-length') ?? 0) > MAX_BYTES) throw new Error('dosya çok büyük');
+    if (Number(res.headers.get('content-length') ?? 0) > MAX_BYTES) {
+      await res.body?.cancel();
+      throw new Error('dosya çok büyük, büyük ihtimalle taranmış görüntü');
+    }
     const events = parseTopluPages(await pagesOf(await res.arrayBuffer()));
     const pool = poolFor(file.title, events.map((e) => e.date), state.meets ?? []);
     results = state.athletes.length ? matchTopluEvents(events, state.athletes, clubNames, file.title.slice(0, 200), pool) : [];
