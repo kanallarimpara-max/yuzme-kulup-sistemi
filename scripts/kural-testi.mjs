@@ -81,6 +81,23 @@ const ok = (label, run) => ({ label, run, allow: true });
 const no = (label, run) => ({ label, run, allow: false });
 const A = as('parentA'); const C = as('coach1'); const S = as('sec1'); const M = as('admin1'); const X = as('admin2'); const U = as(null); const Z = as('super1');
 
+// Kulüp ayrımı: başka kulübün yöneticisi (o kulübün en yetkili rolü) bu kulübe ait hiçbir kaydı okuyamaz, listeleyemez, ekleyemez.
+const CLUB_DOCS = {
+  students: 's1', enrollments: 'e1', expenses: 'g1', salaries: 'p1', lessonPay: 'l1', prereg: 'o1', availability: 'v1', attendance: 'a1',
+  attendanceMarks: 'm1', results: 'r1', comments: 'y1', workouts: 'w1', timers: 'timer-coach2', aiPrograms: 'p1', notices: 'n1', chats: 'sohbet1', parentAccess: 'parentA',
+};
+const CLUB_LISTS = ['students', 'enrollments', 'discounts', 'expenses', 'salaries', 'lessonPay', 'prereg', 'availability', 'attendance', 'attendanceMarks', 'results', 'comments', 'workouts', 'timers', 'aiPrograms', 'chats'];
+const CLUB_WRITES = ['students', 'enrollments', 'discounts', 'expenses', 'salaries', 'lessonPay', 'prereg', 'availability', 'attendance', 'attendanceMarks', 'results', 'comments', 'workouts', 'aiPrograms', 'chats', 'branches', 'models', 'lessons', 'notices'];
+const crossClub = [
+  ...Object.entries(CLUB_DOCS).map(([name, id]) => no(`başka kulüp yöneticisi ${name} kaydını okuyamaz`, () => getDoc(doc(X, name, id)))),
+  ...CLUB_LISTS.map((name) => no(`başka kulüp yöneticisi ${name} listesini göremez`, () => getDocs(q(X, name, ['clubId', 'c1'])))),
+  ...CLUB_WRITES.map((name) => no(`başka kulüp yöneticisi bu kulübe ${name} ekleyemez`, () => addDoc(collection(X, name), { clubId: 'c1', studentId: 's1', parentId: 'parentA', coachId: 'admin2', senderId: 'admin2', name: 'x', recipientIds: ['parentA'], memberIds: ['admin2'] }))),
+  no('başka kulüp yöneticisi kulüp ayarlarını değiştiremez', () => updateDoc(doc(X, 'clubs', 'c1'), { name: 'Ele geçirildi' })),
+  no('başka kulüp yöneticisi ön kayıt görünümünü değiştiremez', () => updateDoc(doc(X, 'clubs', 'c1'), { preRegLook: { title: 'x' } })),
+  ok('yönetici kendi kulübünün giderlerini görür', () => getDocs(q(M, 'expenses', ['clubId', 'c1']))),
+  ok('yönetici kendi kulübünün öğrencilerini görür', () => getDocs(q(M, 'students', ['clubId', 'c1']))),
+];
+
 const program = (coachId, extra = {}) => ({ clubId: 'c1', coachId, lessonId: 'l1', period: 'haftalik', text: 'Plan', date: '2026-11-24', ...extra });
 const checks = [
   ok('antrenör kendi AI programını kaydeder', () => addDoc(collection(C, 'aiPrograms'), program('coach1'))),
@@ -277,6 +294,7 @@ const checks = [
   ok('süper admin kulüp admini açar', () => withTag(Z, 'admin3', profile('admin', 'c3'))),
   no('kulüp admini kulüp açamaz', () => setDoc(doc(M, 'clubs', 'c4'), { name: 'x', slug: 'x' })),
   no('kulüp admini başka admin açamaz', () => withTag(M, 'admin4', profile('admin', 'c1'))),
+  ...crossClub,
 ];
 
 let failed = 0;
