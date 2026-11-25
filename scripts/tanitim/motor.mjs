@@ -453,17 +453,36 @@ T.roleIntro = (g, s) => {
 };
 const wordsOf = (t, t0) => words(t, t0, 0.08);
 
+/** Büyük ekran kapanışı: solda logo ve adres, sağda telefonla okutulacak karekod. */
+const QR = readFileSync(new URL('./qr-site.svg', import.meta.url), 'utf8').replace(/<svg /, '<svg width="100%" height="100%" ');
+T.finale = (g, s) => {
+  const { beat } = g;
+  return { html: `<div style="position:absolute;left:150px;top:190px;width:1000px">
+      <div style="display:flex;align-items:center;gap:44px">
+        <div style="filter:drop-shadow(0 30px 80px rgba(60,200,255,.45));${A(['spinIn', 1, 0, 'cubic-bezier(.2,1.3,.4,1)'])}">${logoSvg(200, 0.2)}</div>
+        <div class="title" style="font-size:128px">${words(BRAND, beat * 0.8, 0.12)}</div></div>
+      <div class="title" style="font-size:66px;margin-top:50px">${words(s.tagline, beat * 1.6, 0.09)}</div>
+      <div style="display:flex;gap:22px;margin-top:46px">${['Globe:Web', 'Smartphone:Android', 'Monitor:Windows'].map((x, i) => { const [ic, t] = x.split(':'); return `<div class="kicker" style="font-size:26px;padding:14px 26px;letter-spacing:.06em;${A(['pop', 0.5, beat * (3 + i * 0.5)])}">${icon(ic, 28, 'currentColor')}${t}</div>`; }).join('')}</div>
+      <div style="font-size:40px;font-weight:800;margin-top:50px;${A(['fadeUp', 0.6, beat * 5])}"><span style="padding:18px 38px;border-radius:99px;background:linear-gradient(90deg,var(--a1),var(--a2));color:#03101e">${esc(s.url)}</span></div></div>
+    <div class="card3" style="left:1270px;top:210px;width:500px;padding:36px;text-align:center;${A(['pop', 0.7, beat * 2.5, 'cubic-bezier(.2,1.4,.4,1)'])}">
+      <div style="width:428px;height:428px;padding:18px;border-radius:26px;background:#fff">${QR}</div>
+      <div class="title" style="font-size:46px;margin-top:28px">${esc(s.qrTitle)}</div>
+      <div class="sub" style="font-size:28px;margin-top:10px">${esc(s.qrSub)}</div></div>`, css: '' };
+};
+
 // ---- Sahne kurulumu ----
 function buildScene(g, s, index, total) {
-  const { W, H, wide, d, beat, energy, theme, seg, last } = g;
+  const { W, H, wide, d, beat, energy, theme, seg, last, punchy } = g;
   const part = T[s.type](g, s);
+  // Dikey videolar ve büyük ekran reklamı vuruşlu geçiş ve efekt kullanır; uzun film sakin kalır.
+  const fancy = !wide || punchy;
   const out = Math.max(0, d - 0.2);
   const bar = beat * 4;
   const progress = wide && s.progress !== false ? `<div style="position:absolute;left:0;bottom:0;height:6px;background:linear-gradient(90deg,var(--a1),var(--a2));width:${((index + 1) / total) * 100}%"></div>` : '';
-  const bug = s.type === 'logo' || s.type === 'roleIntro' ? '' : (wide ? brandBug(60, 44, 24) : brandBug(0, 86, 30, 'center'));
+  const bug = ['logo', 'roleIntro', 'finale'].includes(s.type) ? '' : (wide ? brandBug(60, 44, 24) : brandBug(0, 86, 30, 'center'));
   // Dikey videolarda her sahne farklı bir geçişle, müziğin ölçü başında girer.
   const TR = ['trZoom', 'trWhip', 'trCircle', 'trUp', 'trSpin'];
-  const camAnim = wide
+  const camAnim = !fancy
     ? A(['sceneIn', 0.55, 0], ['sceneOut', 0.2, out, 'ease-in'])
     : A([index === 0 ? 'trZoom' : TR[index % TR.length], 0.45, 0], ...(last ? [] : [['trOut', 0.17, d - 0.17, 'ease-in']]));
   // Hikâye çubuğu: kaçıncı özellikte olunduğunu gösterir.
@@ -473,7 +492,7 @@ function buildScene(g, s, index, total) {
     return `<div class="seg" style="left:${x}px;width:${w}px"><i style="${fill}"></i></div>`;
   }).join('') : '';
   // Vuruşa göre parlayan halkalar, ışık çizgileri ve ölçü başı nabzı.
-  const beatFx = !wide && energy >= 2 ? `<div class="fx">
+  const beatFx = fancy && energy >= 2 ? `<div class="fx">
     ${[0, 0.5].map((o) => `<div class="ring" style="left:${W / 2 - 420}px;top:${H * 0.62 - 420}px;width:840px;height:840px;border-width:3px;${A(['ringOut', beat * 2, beat * o * 2, 'cubic-bezier(.1,.7,.3,1)', 'infinite'])}"></div>`).join('')}
     ${Array.from({ length: 6 }, (_, i) => `<div class="streak" style="left:${(i * 197) % W}px;top:${H * 0.3 + ((i * 271) % 700)}px;${A(['streak', beat * 2, -i * beat * 0.37, 'linear', 'infinite'])}"></div>`).join('')}
     ${energy >= 3 ? `<div class="dpulse" style="${A(['dpulse', bar, 0, 'linear', 'infinite'])}"></div>` : ''}</div>` : '';
@@ -483,7 +502,7 @@ function buildScene(g, s, index, total) {
     <div class="cam" style="${camAnim}">
       <div class="beat" style="${energy >= 2 ? A(['punch', beat, 0, 'cubic-bezier(.2,.8,.3,1)', 'infinite']) : ''}">${part.html}</div>
     </div>${bug}${progress}${segs}
-    <div class="vig"></div><div class="flash" style="--flash:${wide ? (energy >= 3 ? 0.4 : 0.12) : (energy >= 3 ? 0.55 : 0.3)};background:${wide ? '#dff9ff' : a1};${A(['flash', wide ? 0.4 : 0.3, 0, 'ease-out'])}"></div></div>
+    <div class="vig"></div><div class="flash" style="--flash:${!fancy ? (energy >= 3 ? 0.4 : 0.12) : (energy >= 3 ? 0.55 : 0.3)};background:${!fancy ? '#dff9ff' : a1};${A(['flash', wide ? 0.4 : 0.3, 0, 'ease-out'])}"></div></div>
   <script>
   const typers=[...document.querySelectorAll('[data-type]')].map(e=>({e,full:e.textContent,o:JSON.parse(e.dataset.type)}));
   const counters=[...document.querySelectorAll('[data-count]')].map(e=>({e,o:JSON.parse(e.dataset.count)}));
@@ -510,9 +529,9 @@ export async function renderVideo(browser, video) {
     const endF = Math.round(((barAt + s.bars) * bar + (last ? video.tail : 0)) * FPS);
     barAt += s.bars;
     const frames = endF - startF; const d = frames / FPS;
-    const feats = video.scenes.filter((x) => !["roleIntro", "logo", "hook", "strike"].includes(x.type));
+    const feats = video.scenes.filter((x) => !["roleIntro", "logo", "hook", "strike", "finale"].includes(x.type));
     const seg = feats.includes(s) ? { i: feats.indexOf(s), n: feats.length } : null;
-    const html = buildScene({ W, H, wide, d, beat, energy: s.energy, theme: video.theme, seg, last }, s, i, video.scenes.length);
+    const html = buildScene({ W, H, wide, d, beat, energy: s.energy, theme: video.theme, seg, last, punchy: video.punchy }, s, i, video.scenes.length);
     const id = hash([html, frames, W]);
     const mp4 = join(WORK, 'sahne', `${file}-${String(i).padStart(2, '0')}-${id}.mp4`);
     clips.push(mp4);
@@ -550,11 +569,18 @@ export async function renderVideo(browser, video) {
   return clips;
 }
 
+/** Sosyal medya videoları kendi klasörüne yazılır. */
+export function outFile(video) {
+  const dir = join(ROOT, video.dir ?? '');
+  mkdirSync(dir, { recursive: true });
+  return join(dir, `${video.file}.mp4`);
+}
+
 export function finish(video, clips, musicFile) {
   const list = join(WORK, `${video.file}.txt`);
   writeFileSync(list, clips.map((c) => `file '${c.replace(/\\/g, '/')}'`).join('\n'));
   const joined = join(WORK, `${video.file}-goruntu.mp4`);
   execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', joined]);
-  execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', joined, '-i', musicFile, '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-af', 'loudnorm=I=-14:TP=-1.2:LRA=11', '-c:a', 'aac', '-b:a', '256k', '-ar', '48000', '-shortest', '-movflags', '+faststart', join(ROOT, `${video.file}.mp4`)]);
+  execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-i', joined, '-i', musicFile, '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-af', 'loudnorm=I=-14:TP=-1.2:LRA=11', '-c:a', 'aac', '-b:a', '256k', '-ar', '48000', '-shortest', '-movflags', '+faststart', outFile(video)]);
   return joined;
 }
