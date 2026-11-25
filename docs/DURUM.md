@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kalan 18+ Instagram gonderisini docs/sosyal-medya-profili.md sirasiyla paylas
+Chrome eklentisi baglaninca eski baraj gonderisini arsivle, duzeltileni paylas; kalan tum gorsel ve videolari paylas; 26 kulube mesaj gonder
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Kalan 18+ Instagram gonderisini docs/sosyal-medya-profili.md sirasiyla paylas
 
 ## Son kayıtlar
 
+- 2026-11-25: TYF baraj gonderisi duzeltildi: yildizli not kaldirildi, yarisin tam adi yazildi (Turkiye Sportive Kulupler Arasi Kisa Kulvar Yildiz, Genc ve Acik Yas Yuzme Sampiyonasi)
 - 2026-11-25: Instagram 2. tur: 9 ozellik gorseli uretildi (icerik.mjs), tum videolarin 10 MB alti kopyalari hazir. Deneme programi, veli 1, TYF barajlari, antrenor 2 paylasildi; profilde 7 gonderi
 - 2026-11-25: Instagram isletme hesabina cevrildi. Bu haftanin icerik paketi uretildi: deneme programi, TYF Kulupler Arasi Kisa Kulvar barajlari, veli kontrol listesi, antrenor ipuclari (scripts/tanitim/icerik.mjs). 11 yuzme kulubu hesabi bulundu, mesaj taslagi hazir
 - 2026-11-25: Instagram @kulvar.360 kuruldu: profil fotografi ve biyografi; tanitim gorseli, yonetici ve antrenor Reels videolari kullanici onayiyla paylasildi (3 gonderi). Kayit docs/sosyal-medya-profili.md

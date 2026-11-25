@@ -105,18 +105,18 @@ const table = (gender) => {
     const [st, d] = ev.split('|');
     // TYF reglamanının 25 m tablosunda 100 m karışık, 100 m sırtüstü ile aynı yazılmış; olduğu gibi aktarılır ve işaretlenir.
     const same = rows.some((s) => s.stroke === 'karisik' && s.distance === 100) && st === 'karisik' && d === '100';
-    return `<tr><td>${d} m ${LABEL[st]}${same ? '*' : ''}</td>${ages.map((a) => `<td>${cell(ev, a) ? formatSwimTime(cell(ev, a).timeMs) : '—'}</td>`).join('')}</tr>`;
+    return `<tr><td>${d} m ${LABEL[st]}</td>${ages.map((a) => `<td>${cell(ev, a) ? formatSwimTime(cell(ev, a).timeMs) : '—'}</td>`).join('')}</tr>`;
   }).join('')}</table>`;
 };
 const when = champ[0]?.when ?? '';
 SETS['tyf-baraj'] = [
   page(`${brand}<div style="margin-top:130px"><div class="kicker">${icon('Target', 30, 'currentColor', 2.4)}TYF · ${when}</div>
-    <h1 style="margin-top:28px;font-size:84px">Kulüpler Arası<br><span class="hl">Kısa Kulvar</span><br>katılım barajları</h1>
-    <p class="sub" style="margin-top:36px">Yıldız, genç ve açık yaş. 25 m havuz dereceleri, kızlar ve erkekler ayrı tabloda. Kaydedin, sporcunuzla birlikte bakın.</p></div>${foot(1, 3)}`, T),
+    <h1 style="margin-top:28px;font-size:64px;line-height:1.08">Türkiye Sportive Kulüpler Arası <span class="hl">Kısa Kulvar</span> Yıldız, Genç ve Açık Yaş Yüzme Şampiyonası</h1><div style="font-size:52px;font-weight:900;margin-top:22px">Katılım barajları</div>
+    <p class="sub" style="margin-top:30px">25 m havuz dereceleri, kızlar ve erkekler ayrı tabloda. Kaydedin, sporcunuzla birlikte bakın.</p></div>${foot(1, 3)}`, T),
   page(`${brand}<h2 style="margin-top:30px;font-size:50px">Kızlar · <span class="hl">katılım barajları</span></h2><div class="sub" style="font-size:24px;margin:4px 0 12px">25 m havuz · ${when}</div>${table('K')}
-    <div class="sub" style="font-size:20px;margin-top:10px;line-height:1.3">Kaynak: TYF reglamanı (Revize 28.10.2026). *TYF belgesinde 100 m sırtüstü ile aynı yazılmıştır. Kesin değerler için TYF duyurusunu esas alın.</div>${foot(2, 3)}`, T),
+    <div class="sub" style="font-size:20px;margin-top:10px;line-height:1.3">Kaynak: TYF reglamanı (Revize 28.10.2026).</div>${foot(2, 3)}`, T),
   page(`${brand}<h2 style="margin-top:30px;font-size:50px">Erkekler · <span class="hl">katılım barajları</span></h2><div class="sub" style="font-size:24px;margin:4px 0 12px">25 m havuz · ${when}</div>${table('E')}
-    <div class="sub" style="font-size:20px;margin-top:10px;line-height:1.3">*TYF belgesinde 100 m sırtüstü ile aynı yazılmıştır. Kulvar360 veli ekranında barajlar her gün güncellenir.</div>${foot(3, 3, true)}`, T),
+    <div class="sub" style="font-size:20px;margin-top:10px;line-height:1.3">Kulvar360 veli ekranında barajlar her gün güncellenir.</div>${foot(3, 3, true)}`, T),
 ];
 
 // 4) Antrenörler için zaman kazandıran 5 alışkanlık
