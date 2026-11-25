@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Yeni APK ve exe uret; canli sisteme ogrenci eklenince TYF Sonuclari isini ve Sonuc yukle ekranini gercek veriyle dene
+Kullanici sosyal medya hesaplarini acip uygulama icindeki tarayicida giris yapinca profil gorselleri, aciklamalar ve ilk paylasimlar onayiyla yuklenecek
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Yeni APK ve exe uret; canli sisteme ogrenci eklenince TYF Sonuclari isini ve Son
 
 ## Son kayıtlar
 
+- 2026-11-25: Sosyal medya kiti: profil fotografi, YouTube, Facebook, X ve LinkedIn kapaklari, tanitim gonderisi ve hikaye gorseli (scripts/tanitim/kit.mjs), profil aciklamalari ve 5 haftalik paylasim takvimi docs/sosyal-medya-profili.md
 - 2026-11-25: Yoneticinin elle yaris derecesi girisi kaldirildi, kurallar elle yaris derecesini reddeder (yalniz TYF kaynakli). Super admin icin Sonuc yukle ekrani: TYF toplu sonuc PDF'i yuklenir, adi, dogum yili, cinsiyeti ve kulubu tutan sporculara yaris derecesi yazilir. Nigde ornek PDF'iyle emulatorde denendi: 8 derece 2 kulube dogru yazildi, ikinci yuklemede tekrar yazmadi. 70 test, 249 kural, 37 Worker testi gecti
 - 2026-11-25: Elle TYF sonuc aktarim ekrani (TYF aktarim menusu) kaldirildi; yaris dereceleri artik TYF Sonuclar sayfasindan her sabah otomatik gelir. 69 test, 37 Worker testi gecti, web yayinlandi
 - 2026-11-25: Kulup ayrimi icin 56 yeni kural testi: baska kulubun yoneticisi 17 kulube ozel kaydi okuyamaz, 16 listeyi goremez, 19 tureden kayit ekleyemez, kulup ayarlarini degistiremez. 244/244 kural testi gecti
