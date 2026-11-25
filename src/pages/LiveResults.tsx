@@ -17,6 +17,8 @@ export default function LiveResults() {
   const [typed, setTyped] = useState('');
   const [detail, setDetail] = useState<LiveMeet | null>(null);
   const [eventNo, setEventNo] = useState('');
+  // Yarışın hem sonucu hem start listesi varsa ikisi arasında geçilir.
+  const [view, setView] = useState<'sonuc' | 'start'>('sonuc');
   const [table, setTable] = useState<TyfEvent | null>(null);
   const [official, setOfficial] = useState(false);
   const [onlyClub, setOnlyClub] = useState(false);
@@ -29,7 +31,9 @@ export default function LiveResults() {
 
   const sorted = useMemo(() => [...meets].sort((a, b) => b.startDate.localeCompare(a.startDate)), [meets]);
   const event: LiveEvent | undefined = detail?.sessions.flatMap((s) => s.events).find((e) => e.no === eventNo);
-  const pdfUrl = event ? event.resultUrl || event.startUrl : '';
+  const both = Boolean(event?.resultUrl && event?.startUrl);
+  const pdfUrl = event ? (view === 'start' && event.startUrl ? event.startUrl : event.resultUrl || event.startUrl) : '';
+  const showingResult = Boolean(event?.resultUrl) && pdfUrl === event?.resultUrl;
 
   const tracked = meets.find((m) => m.url === meetUrl);
   const today = toIso(new Date());
@@ -71,7 +75,8 @@ export default function LiveResults() {
         const data = await meetPdf(pdfUrl);
         if (!alive) return;
         pdfData.current = data.slice(0);
-        const parsed = event?.resultUrl ? await readResultPdf(data).catch(() => null) : null;
+        // Start listesi tabloya çevrilmez, resmi hâliyle gösterilir.
+        const parsed = showingResult ? await readResultPdf(data).catch(() => null) : null;
         if (!alive) return;
         setTable(parsed?.rows.length ? parsed : null);
         setOfficial(!parsed?.rows.length);
@@ -102,11 +107,12 @@ export default function LiveResults() {
     setError('');
     setMeetUrl(url);
   };
-  const openEvent = (no: string) => {
+  const openEvent = (no: string, next: 'sonuc' | 'start' = 'sonuc') => {
     pdfData.current = null;
     setTable(null);
     setOfficial(false);
     setQuery('');
+    setView(next);
     setEventNo(no);
   };
   const submit = (e: FormEvent) => {
@@ -151,7 +157,11 @@ export default function LiveResults() {
             <ul className="live-list">{s.events.map((e) => (
               <li key={`${e.no}-${e.name}`}><button disabled={!e.resultUrl && !e.startUrl} onClick={() => openEvent(e.no)}>
                 <span><strong>{e.no}. {e.name}</strong><small>{e.gender} · {e.age} · {e.round}</small></span>
-                <em className={`badge ${e.resultUrl ? 'good' : ''}`}>{e.resultUrl ? 'Sonuç' : e.startUrl ? 'Start listesi' : 'Bekleniyor'}</em>
+                <span className="live-badges">
+                  {e.startUrl && <em className="badge">Start listesi</em>}
+                  {e.resultUrl && <em className="badge good">Sonuç</em>}
+                  {!e.resultUrl && !e.startUrl && <em className="badge">Bekleniyor</em>}
+                </span>
               </button></li>
             ))}</ul>
           </section>
@@ -159,7 +169,12 @@ export default function LiveResults() {
       </>}
 
       {event && <section className="card stack">
-        {busy && <p className="muted" role="status">Sonuçlar yükleniyor…</p>}
+        {both && <div className="segmented" role="tablist" aria-label="Liste türü">
+          <button role="tab" aria-selected={showingResult} className={showingResult ? 'primary' : ''} onClick={() => !showingResult && openEvent(event.no, 'sonuc')}>Sonuçlar</button>
+          <button role="tab" aria-selected={!showingResult} className={!showingResult ? 'primary' : ''} onClick={() => showingResult && openEvent(event.no, 'start')}>Start listesi</button>
+        </div>}
+        {!both && !showingResult && <p className="muted">Bu yarışın sonucu henüz yayınlanmadı, start listesi gösteriliyor.</p>}
+        {busy && <p className="muted" role="status">{showingResult ? 'Sonuçlar yükleniyor…' : 'Start listesi yükleniyor…'}</p>}
         {table && <>
           <div className="live-tools">
             <label className="live-search"><Search size={15} /><input aria-label="Sporcu veya kulüp ara" placeholder="Sporcu veya kulüp ara" value={query} onChange={(e) => setQuery(e.target.value)} /></label>

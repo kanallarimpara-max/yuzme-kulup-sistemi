@@ -178,8 +178,10 @@ service cloud.firestore {
       allow read: if isSuper() || hasRole(resource.data.clubId, ['coach', 'admin']);
       allow create, update: if id == 'timer-' + request.auth.uid && hasRole(request.resource.data.clubId, ['coach', 'admin']);
     }
+    // Duyuru yalnız gönderildiği kulübün üyelerine görünür; alıcı listesine başka kulüpten biri eklense de okuyamaz.
     match /notices/{id} {
-      allow read: if isSuper() || (signedIn() && (request.auth.uid in resource.data.recipientIds || resource.data.senderId == request.auth.uid));
+      allow read: if isSuper() || (signedIn() && resource.data.senderId == request.auth.uid)
+        || (signedIn() && request.auth.uid in resource.data.recipientIds && inClub(resource.data.clubId));
       allow create: if signedIn() && request.resource.data.senderId == request.auth.uid && request.resource.data.recipientIds.size() <= 1000
         && (isSuper() || hasRole(request.resource.data.clubId, ['admin', 'coach']));
     }

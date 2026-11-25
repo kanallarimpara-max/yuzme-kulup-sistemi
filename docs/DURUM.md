@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici yeni APK'yi gercek telefonda denesin (alt menu ve cikis), sonra canli rol, dekont ve telefon bildirimi denemelerini yap
+TYF Sonuclari isini GitHub'da elle bir kez calistirip sonucunu kontrol et, sonra yeni APK ve exe uret
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Kullanici yeni APK'yi gercek telefonda denesin (alt menu ve cikis), sonra canli 
 
 ## Son kayıtlar
 
+- 2026-11-25: Kulup ayrimi: duyurular yalniz kendi kulubune gider ve okunur (kural, ekran ve telefon bildirimi). TYF Yuzme/Sonuclar sayfasindaki toplu sonuc PDF'leri her gun GitHub isinde okunur, kulup sporcularinin yaris dereceleri kendiliginden kaydedilir. Canli sonuclarda sonuc ve start listesi ayri sekmeyle gosterilir. 68 test, 188 kural, 37 Worker testi gecti; kurallar, site ve Worker yayinlandi
 - 2026-11-25: Sosyal medya serisi (13 dikey video, her birinde ayni rolun iki ozelligi, paylasim metinleri docs/sosyal-medya-paylasimlari.md) ve Turkiye Sampiyonasi icin 1 dakikalik yatay reklam filmi (karekodlu kapanis) uretildi. Android alt menu gezinme tuslarinin ustune alindi, cikis dugmesi duzeltildi; web yayinlandi, yeni APK ve exe CI'da uretildi
 - 2026-11-25: Tanitim videolarindan sistem sahibi ve yoneticinin yaris derecesi sahnesi cikarildi. Rol videolari rol adiyla acilir, her rolun kendi rengi, vurusa gore gecisler, isik ve halka efektleri, hikaye cubugu var; muzikte 808 bas, drop oncesi sessizlik ve vokal kesitler eklendi. Turkce buyuk harfler duzeltildi
 - 2026-11-25: Tanitim videolarindaki butun yazilar duzgun Turkceyle yeniden yazildi, her sahneye aciklama satiri eklendi, seslendirme kaldirildi. Ana film (4:39) ve yonetici, sekreter, antrenor, veli videolari uretildi. Ekran yazilari docs/tanitim-metinleri.md

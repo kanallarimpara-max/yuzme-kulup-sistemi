@@ -43,3 +43,8 @@ export function ownScope(user: User | null | undefined, field: string): Scope {
   if (!user) return SKIP;
   return user.role === 'super' ? {} : { eq: [field, user.id] };
 }
+
+/** Gelen duyurular yalnız kullanıcının kendi kulübünden okunur; kurallar başka kulübün duyurusunu zaten reddeder. */
+export function noticeScope(user: User): Scope {
+  return user.clubId ? { clubId: user.clubId, contains: ['recipientIds', user.id] } : { contains: ['recipientIds', user.id] };
+}

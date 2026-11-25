@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useSession } from '../lib/session';
 import { db, useCollection, useMerged } from '../lib/store';
-import { studentScope } from '../lib/access';
+import { noticeScope, studentScope } from '../lib/access';
 import { dateTr } from '../lib/format';
 import { usePeople } from '../lib/people';
 import { ROLE_LABEL, type Lesson, type Notice, type Student } from '../lib/types';
@@ -13,8 +13,9 @@ export default function Notices() {
   const clubId = user?.clubId ?? '';
   const scope = { clubId };
   const uid = user?.id;
-  const notices = useMerged<Notice>('notices', uid ? { contains: ['recipientIds', uid] } : { skip: true }, uid ? { eq: ['senderId', uid] } : { skip: true });
-  const users = usePeople(user);
+  const notices = useMerged<Notice>('notices', uid ? noticeScope(user) : { skip: true }, uid ? { eq: ['senderId', uid] } : { skip: true });
+  // Açık profiller başka kulüplerden de listelenir; duyuru yalnız bu kulübün kişilerine gider.
+  const users = usePeople(user).filter((u) => u.clubId === clubId);
   const lessons = useCollection<Lesson>('lessons', scope);
   const students = useCollection<Student>('students', studentScope(user));
   const [form, setForm] = useState({ kind: 'duyuru' as Notice['kind'], title: '', body: '', date: '' });

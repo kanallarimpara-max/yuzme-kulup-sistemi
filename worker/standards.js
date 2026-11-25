@@ -9,7 +9,8 @@ const MAX_PAYLOAD = 900_000;
 const bytes = (text) => Uint8Array.from(atob(text.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(text.length / 4) * 4, '=')), (c) => c.charCodeAt(0));
 const part = (text) => JSON.parse(new TextDecoder().decode(bytes(text)));
 
-export async function verifyGithub(request, env) {
+/** Yalnız bu depodaki, ana daldaki belirtilen iş dosyasının imzalı kimliği kabul edilir. */
+export async function verifyGithub(request, env, workflowFile = 'barajlar.yml') {
   const token = request.headers.get('Authorization')?.match(/^Bearer (.+)$/)?.[1];
   if (!token || !env.GITHUB_REPOSITORY) return false;
   try {
@@ -17,7 +18,7 @@ export async function verifyGithub(request, env) {
     const header = part(rawHeader);
     const claims = part(rawPayload);
     const now = Math.floor(Date.now() / 1000);
-    const workflow = `${env.GITHUB_REPOSITORY}/.github/workflows/barajlar.yml@refs/heads/main`;
+    const workflow = `${env.GITHUB_REPOSITORY}/.github/workflows/${workflowFile}@refs/heads/main`;
     if (header.alg !== 'RS256' || claims.iss !== ISSUER || claims.aud !== AUDIENCE || claims.repository !== env.GITHUB_REPOSITORY
       || claims.ref !== 'refs/heads/main' || claims.workflow_ref !== workflow || claims.exp <= now || (claims.nbf ?? 0) > now + 60) return false;
     const keys = await (await fetch(`${ISSUER}/.well-known/jwks`, { cf: { cacheTtl: 3600 } })).json();

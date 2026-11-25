@@ -1,4 +1,4 @@
-import { classifyMatch, clubMatchScore, normalizeName, parseSwimTime, toIso, type Stroke } from './rules';
+import { classifyMatch, clubMatchScore, normalizeName, parseSwimTime, toIso, type Stroke } from './rules.ts';
 
 export type PdfItem = { x: number; y: number; text: string };
 export type TyfRow = {

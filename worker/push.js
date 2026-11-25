@@ -58,6 +58,12 @@ export function pushTarget(collection, row) {
   return null;
 }
 
+/** Duyuru bildirimi yalnız duyurunun kulübündeki kişilere gider; süper admin duyurusu bu sınırdan muaftır. */
+export function sameClubRecipients(recipients, profiles, clubId, senderIsSuper) {
+  if (senderIsSuper) return recipients;
+  return recipients.filter((id) => profiles[id]?.clubId && profiles[id].clubId === clubId);
+}
+
 const AI_DAILY_LIMIT = 10;
 
 /** Ücretsiz AI kotasını tek kullanıcının tüketmesini önler. Sayaç sunucuda atomik artar. */
@@ -117,7 +123,19 @@ export async function handlePush(request, env, uid, json) {
   });
   if (!claim.ok) return json({ done: false, retry: true });
 
-  const chunk = target.recipients.slice(next, end);
+  let chunk = target.recipients.slice(next, end);
+  if (collection === 'notices') {
+    // Alıcıların ve göndericinin kulübü veritabanından okunur; başka kulübün kişisine bildirim gitmez.
+    const ids = [...new Set([...chunk, target.sender])];
+    const got = await fetch(`${root}:batchGet`, {
+      method: 'POST', headers: { ...auth, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ documents: ids.map((u) => `projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${u}`), mask: { fieldPaths: ['clubId', 'role'] } }),
+    });
+    if (!got.ok) return json({ error: 'Alıcılar okunamadı.' }, 502);
+    const profiles = Object.fromEntries((await got.json()).filter((r) => r.found).map((r) => [r.found.name.split('/').pop(), fieldsOf(r.found)]));
+    chunk = sameClubRecipients(chunk, profiles, row.clubId, profiles[target.sender]?.role === 'super');
+    if (!chunk.length) return json({ done: end >= target.recipients.length, sent: 0 });
+  }
   const query = await fetch(`${root}:runQuery`, {
     method: 'POST',
     headers: { ...auth, 'Content-Type': 'application/json' },

@@ -1,6 +1,8 @@
 // Worker'ı Cloudflare hesabı olmadan, ağ çağrılarını taklit ederek dener: npm run test:worker
 import assert from 'node:assert/strict';
 import worker from './index.js';
+import { sameClubRecipients } from './push.js';
+import { pickWrites, validResult } from './results.js';
 
 const PROJECT = 'test-projesi';
 const pair = await crypto.subtle.generateKey({ name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' }, true, ['sign', 'verify']);
@@ -22,10 +24,10 @@ const str = (v) => ({ stringValue: v });
 const list = (a) => ({ arrayValue: { values: a.map(str) } });
 const fresh = { integerValue: String(Date.now()) };
 const firestore = {
-  'notices/n1': { senderId: str('u1'), kind: str('duyuru'), createdAt: fresh, recipientIds: list(['u1', 'p1', 'p2']), title: str('GIZLI BASLIK'), body: str('GIZLI ICERIK') },
+  'notices/n1': { clubId: str('c1'), senderId: str('u1'), kind: str('duyuru'), createdAt: fresh, recipientIds: list(['u1', 'p1', 'p2']), title: str('GIZLI BASLIK'), body: str('GIZLI ICERIK') },
   'notices/baskasi': { senderId: str('u9'), createdAt: fresh, recipientIds: list(['p1']) },
   'notices/eski': { senderId: str('u1'), createdAt: { integerValue: String(Date.now() - 3600000) }, recipientIds: list(['p1']) },
-  'notices/buyuk': { senderId: str('u1'), createdAt: fresh, recipientIds: list(Array.from({ length: 45 }, (_, i) => `k${String(i).padStart(2, '0')}`)) },
+  'notices/buyuk': { clubId: str('c1'), senderId: str('u1'), createdAt: fresh, recipientIds: list(Array.from({ length: 45 }, (_, i) => `k${String(i).padStart(2, '0')}`)) },
   'messages/m1': { senderId: str('u1'), createdAt: fresh, memberIds: list(['u1', 'p1']), text: str('GIZLI MESAJ') },
 };
 const logs = new Map();
@@ -44,6 +46,11 @@ async function googleApis(target, init = {}) {
   if (target === `${FS}:commit`) {
     aiCount += 1;
     return Response.json({ writeResults: [{ transformResults: [{ integerValue: String(aiCount) }] }] });
+  }
+  // Duyuru alıcılarının kulübü okunur; testte herkes c1 kulübündedir.
+  if (target === `${FS}:batchGet`) {
+    const docs = JSON.parse(init.body).documents;
+    return Response.json(docs.map((name) => ({ found: { name, fields: { clubId: str('c1'), role: str('admin') } } })));
   }
   if (target === `${FS}:runQuery`) {
     const q = JSON.parse(init.body).structuredQuery;
@@ -109,6 +116,30 @@ const upload = async (type, size = 10, t = valid) => {
 };
 
 const checks = [
+  ['TYF sonuç satırı denetlenir', () => {
+    const r = { id: 'tyf-s1-2026-07-03-serbest-100', clubId: 'c1', studentId: 's1', stroke: 'serbest', distance: 100, timeMs: 76360, date: '2026-07-03', meet: 'Yarış' };
+    assert.equal(validResult(r), true);
+    assert.equal(validResult({ ...r, stroke: 'uçmak' }), false);
+    assert.equal(validResult({ ...r, timeMs: 12.5 }), false);
+    assert.equal(validResult({ ...r, id: '../users/x' }), false);
+    assert.equal(validResult({ ...r, pool: '33m' }), false);
+  }],
+  ['TYF sonucu yalnız doğru kulübe ve daha iyiyse yazılır', () => {
+    const base = { stroke: 'serbest', distance: 100, date: '2026-07-03', meet: 'Yarış' };
+    const rows = [{ ...base, id: 'a', clubId: 'c1', studentId: 's1', timeMs: 70000 }, { ...base, id: 'b', clubId: 'c1', studentId: 's2', timeMs: 70000 }, { ...base, id: 'c', clubId: 'c1', studentId: 's3', timeMs: 70000 }, { ...base, id: 'd', clubId: 'c1', studentId: 's4', timeMs: 70000 }];
+    const students = { s1: { clubId: 'c1', parentId: 'v1' }, s2: { clubId: 'c2', parentId: 'v2' }, s3: { clubId: 'c1', parentId: 'v3' }, s4: { clubId: 'c1', parentId: 'v4' } };
+    const written = pickWrites(rows, students, { c: { timeMs: 65000 }, d: { timeMs: 75000 } });
+    assert.deepEqual(written.map((r) => [r.id, r.parentId]), [['a', 'v1'], ['d', 'v4']]);
+  }],
+  ['TYF sonuç ucu GitHub kimliği olmadan çalışmaz', async () => {
+    const res = await worker.fetch(new Request('https://w.test/results/athletes', { method: 'POST', body: '{}' }), { GITHUB_REPOSITORY: 'a/b', FIREBASE_SERVICE_ACCOUNT: 'x' });
+    assert.equal(res.status, 401);
+  }],
+  ['duyuru bildirimi başka kulübe gitmez', () => {
+    const profiles = { a: { clubId: 'c1' }, b: { clubId: 'c2' }, c: { clubId: 'c1' }, d: {} };
+    assert.deepEqual(sameClubRecipients(['a', 'b', 'c', 'd', 'x'], profiles, 'c1', false), ['a', 'c']);
+    assert.deepEqual(sameClubRecipients(['a', 'b'], profiles, 'c1', true), ['a', 'b']);
+  }],
   ['oturumsuz istek reddedilir', async () => assert.equal((await call(meetPath)).status, 401)],
   ['süresi dolmuş token reddedilir', async () => assert.equal((await call(meetPath, await token({ ...good, exp: now - 1 }))).status, 401)],
   ['başka proje tokenı reddedilir', async () => assert.equal((await call(meetPath, await token({ ...good, aud: 'baska' }))).status, 401)],

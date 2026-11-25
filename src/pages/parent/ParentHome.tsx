@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useSession } from '../../lib/session';
 import { useCollection } from '../../lib/store';
-import { enrollmentScope, studentScope } from '../../lib/access';
+import { enrollmentScope, noticeScope, studentScope } from '../../lib/access';
 import { paymentSummary, toIso } from '../../lib/rules';
 import { dateTr, dayNames, money } from '../../lib/format';
 import { useAttendance } from '../../lib/useAttendance';
@@ -22,7 +22,7 @@ export default function ParentHome() {
   const lessonIds = [...new Set(students.map((s) => s.lessonId))].sort();
   const workouts = useCollection<Workout>('workouts', lessonIds.length ? { clubId, within: ['lessonId', lessonIds] } : { skip: true });
   const attendance = useAttendance(user);
-  const notices = useCollection<Notice>('notices', user ? { contains: ['recipientIds', user.id] } : { skip: true });
+  const notices = useCollection<Notice>('notices', user ? noticeScope(user) : { skip: true });
   if (!user) return null;
   const today = toIso(new Date());
   const mine = students.filter((s) => s.parentId === user.id);

@@ -289,6 +289,9 @@ input[type='color'] { cursor: pointer; min-height: 42px; padding: 4px; }
 .live-list { display: grid; gap: 8px; list-style: none; margin: 0; padding: 0; }
 .live-list button { align-items: center; display: flex; gap: 12px; justify-content: space-between; min-height: 56px; text-align: left; width: 100%; }
 .live-list button > span { min-width: 0; overflow-wrap: anywhere; }
+.live-list .live-badges { display: flex; flex: none; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.segmented { display: grid; gap: 6px; grid-template-columns: 1fr 1fr; }
+.segmented button { justify-content: center; }
 .live-list button:disabled { cursor: default; opacity: .6; }
 .live-updated { align-items: center; display: flex; font-size: .84rem; gap: 6px; }
 .live-tools { align-items: center; display: flex; flex-wrap: wrap; gap: 8px; }

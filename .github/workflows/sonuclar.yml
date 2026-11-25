@@ -1,0 +1,31 @@
+name: TYF Sonuclari
+
+# Her gün Türkiye saatiyle 07:00'de TYF "Yüzme / Sonuçlar" sayfasındaki yeni toplu sonuçları okur,
+# kulüplerin sporcularının yarış derecelerini kendiliğinden kaydeder. Anahtar saklanmaz; kimlik GitHub'ın imzalı belgesidir.
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: tyf-sonuclari
+  cancel-in-progress: false
+
+jobs:
+  aktar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node scripts/tyf-sonuclar.mjs
+        env:
+          WORKER_URL: ${{ vars.VITE_WORKER_URL }}
