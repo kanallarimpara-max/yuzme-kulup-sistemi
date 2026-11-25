@@ -15,7 +15,8 @@ const MAX_BYTES = 40_000_000;
 const MONTHS_BACK = 12;
 const CHUNK = 200;
 // Okuma kuralı değişince artırılır; daha önce okunamayan dosyalar da yeniden denenir.
-const PARSER_VERSION = 2;
+// 3: ara süreler (lap) de okunur; önceki dosyalar bir kez yeniden taranır.
+const PARSER_VERSION = 3;
 
 async function pagesOf(data) {
   const doc = await pdfjs.getDocument({ data: new Uint8Array(data), verbosity: 0, isEvalSupported: false }).promise;

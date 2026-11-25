@@ -52,11 +52,12 @@ export function useLiveImport() {
               const id = resultKey(match.athlete.id, event);
               const old = latest.current.results.find((r) => r.id === id);
               // Seri ve final aynı gün olursa en iyi derece kalır.
-              if (old && old.timeMs <= match.row.timeMs!) continue;
+              if (old && (old.timeMs < match.row.timeMs! || (old.timeMs === match.row.timeMs && (old.lapsMs?.length || !match.row.lapsMs.length)))) continue;
               const student = latest.current.students.find((s) => s.id === match.athlete.id);
               await db.put('results', id, {
                 clubId: club!.id, studentId: match.athlete.id, parentId: student?.parentId ?? '', stroke: event.stroke, distance: event.distance,
-                timeMs: match.row.timeMs, date: event.date, pool: meetPool(detail.info), source: 'tyf', kind: 'yaris', meet: event.meet, lapsMs: match.row.lapsMs,
+                timeMs: match.row.timeMs, date: event.date, pool: meetPool(detail.info), source: 'tyf', kind: 'yaris', meet: event.meet,
+                ...(match.row.lapsMs.length ? { lapsMs: match.row.lapsMs, lapEvery: match.row.lapEvery ?? 50 } : {}),
               });
             }
           }

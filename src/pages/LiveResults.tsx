@@ -9,6 +9,7 @@ import { liveMeet, meetPdf, workerEnabled } from '../lib/worker';
 import { isMeetLive, type TyfMeet } from '../lib/types';
 
 const REFRESH_MS = 60000;
+const ACTIVE_MS = 2 * 3600000;
 
 export default function LiveResults() {
   const { club } = useSession();
@@ -29,7 +30,12 @@ export default function LiveResults() {
   const pdfHost = useRef<HTMLDivElement>(null);
   const pdfData = useRef<ArrayBuffer | null>(null);
 
-  const sorted = useMemo(() => [...meets].sort((a, b) => b.startDate.localeCompare(a.startDate)), [meets]);
+  // Yalnız bugün süren yarışlar listelenir; bitenlerin dereceleri sporcu performansına zaten işlenmiştir.
+  // Son 2 saatte yeni sonuç veya start listesi gelen yarışlar "Canlı" olarak en üstte durur.
+  const today0 = toIso(new Date());
+  const isActive = (m: TyfMeet) => Boolean(m.version) && Date.now() - Date.parse(m.updatedAt ?? '') < ACTIVE_MS;
+  const sorted = useMemo(() => meets.filter((m) => isMeetLive(m, today0))
+    .sort((a, b) => Number(isActive(b)) - Number(isActive(a)) || (b.updatedAt ?? '').localeCompare(a.updatedAt ?? '') || a.title.localeCompare(b.title, 'tr')), [meets, today0]);
   const event: LiveEvent | undefined = detail?.sessions.flatMap((s) => s.events).find((e) => e.no === eventNo);
   const both = Boolean(event?.resultUrl && event?.startUrl);
   const pdfUrl = event ? (view === 'start' && event.startUrl ? event.startUrl : event.resultUrl || event.startUrl) : '';
@@ -135,9 +141,10 @@ export default function LiveResults() {
 
       {!meetUrl && <>
         <section className="card stack">
-          <h2>Yarışlar</h2>
-          {sorted.length === 0 ? <p className="muted">Canlı sonuç sayfası açılan yarışlar burada görünür.</p> : (
-            <ul className="live-list">{sorted.map((m) => <li key={m.id}><button onClick={() => openMeet(m.url)}><span><strong>{m.title}</strong><small>{m.info}</small></span>{isMeetLive(m, today) && <em className="badge good">Canlı</em>}</button></li>)}</ul>
+          <h2>Süren yarışlar</h2>
+          {sorted.length === 0 ? <p className="muted">Şu an süren yarış yok. Federasyon yeni bir canlı sonuç sayfası açınca burada kendiliğinden görünür. Biten yarışların dereceleri sporcuların performans ekranına işlenir.</p> : (
+            <ul className="live-list">{sorted.map((m) => <li key={m.id}><button onClick={() => openMeet(m.url)}><span><strong>{m.title}</strong><small>{m.info}</small></span>
+              <span className="live-badges">{isActive(m) ? <em className="badge good live-dot">Canlı</em> : <em className="badge">Bugün</em>}</span></button></li>)}</ul>
           )}
         </section>
         <section className="card stack">

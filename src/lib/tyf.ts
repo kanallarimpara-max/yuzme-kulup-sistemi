@@ -1,8 +1,11 @@
 import { classifyMatch, clubMatchScore, normalizeName, parseSwimTime, toIso, type Stroke } from './rules.ts';
+import { normalizeSplits, type Split } from './splits.ts';
 
 export type PdfItem = { x: number; y: number; text: string };
 export type TyfRow = {
-  rank: number | null; maskedName: string; birthYear: number; club: string; timeMs: number | null; status: string; lapsMs: number[];
+  rank: number | null; maskedName: string; birthYear: number; club: string; timeMs: number | null; status: string;
+  /** Toplam (kümülatif) ara süreler; okunamazsa boş. */
+  lapsMs: number[]; lapEvery?: number;
 };
 export type TyfEvent = { gender: 'K' | 'E'; distance: number; stroke: Stroke; date: string; meet: string; rows: TyfRow[] };
 
@@ -21,15 +24,11 @@ export function parseEventTitle(title: string) {
   return distance && stroke && gender ? { distance: Number(distance[1]), stroke, gender: gender as 'K' | 'E' } : null;
 }
 
-const lapsFrom = (texts: string[]) => {
-  const laps = new Map<number, number>();
-  for (const text of texts) {
-    for (const m of text.matchAll(/(\d{2,4})m\s+((?:\d+:)?\d{1,2}[.,]\d{2})/g)) {
-      const value = parseSwimTime(m[2]);
-      if (value) laps.set(Number(m[1]), value);
-    }
-  }
-  return [...laps.entries()].sort((a, b) => a[0] - b[0]).map(([, ms]) => ms);
+/** "50m 34.92 | 100m 1:12.69" biçimindeki toplam ara süreler. Mesafe ile süre ayrı satıra düşse de okunur. */
+export const splitsFrom = (texts: string[]): Split[] => {
+  const joined = texts.join(' ').replace(/\|/g, ' ');
+  return [...joined.matchAll(/(\d{2,4})m\s+((?:\d+:)?\d{1,2}[.,]\d{2})/g)]
+    .map((m) => ({ m: Number(m[1]), ms: parseSwimTime(m[2]) ?? 0 })).filter((x) => x.ms > 0);
 };
 
 /** PDF sayfalarındaki konumlu metinden sporcu satırlarını çıkarır. */
@@ -51,14 +50,18 @@ export function parseResultPages(pages: PdfItem[][]): TyfEvent | null {
     }
     const body = items.filter((i) => i.y < tableTop);
     const anchors = body.filter((i) => i.x > 360 && i.x < 420 && /^(19|20)\d{2}$/.test(i.text.trim()));
+    // Doğum yılı sporcu bloğunun ortasına yazılır; uzun yarışlarda ad ve derece bloğun en üstünde, ara süreler altındadır.
+    // Bu yüzden her blok komşu doğum yıllarının orta noktalarına kadar uzanır.
     anchors.forEach((anchor, index) => {
-      const top = anchor.y + 7;
+      const prev = anchors[index - 1];
       const next = anchors[index + 1];
-      const bottom = next ? next.y + 7 : anchor.y - 30;
-      const band = body.filter((i) => i.y <= top && i.y > bottom);
+      const top = prev ? (prev.y + anchor.y) / 2 : Math.min(tableTop, anchor.y + 200);
+      const bottom = next ? (anchor.y + next.y) / 2 : anchor.y - Math.max(30, Math.min(top - anchor.y, 200));
+      const band = body.filter((i) => i.y < top && i.y > bottom);
       const nameCells = band.filter((i) => i.x > 100 && i.x < 340).sort((a, b) => b.y - a.y);
       if (!nameCells.length) return;
-      const timeCell = band.find((i) => i.x >= 430 && TIME.test(i.text.trim()));
+      // Derece ad satırındadır; aşağıdaki satırlara kayan ara süre değerleri derece sanılmasın diye en üstteki alınır.
+      const timeCell = band.filter((i) => i.x >= 430 && TIME.test(i.text.trim())).sort((a, b) => b.y - a.y)[0];
       // TYF diskalifiyeleri sayfa sonunda ayrı listeler; o listedeki DSQ üstteki sporcunun derecesini silmemeli.
       const statusCell = band.find((i) => i.x >= 430 && STATUS.test(i.text.trim()));
       const rankCell = band.find((i) => i.x < 70 && /^\d+$/.test(i.text.trim()));
@@ -69,11 +72,19 @@ export function parseResultPages(pages: PdfItem[][]): TyfEvent | null {
         club: nameCells[1]?.text.trim() ?? '',
         timeMs: timeCell ? parseSwimTime(timeCell.text) : null,
         status: statusCell?.text.trim() ?? '',
-        lapsMs: lapsFrom(band.filter((i) => i.x >= 400).map((i) => i.text)),
-      });
+        lapsMs: [],
+        splits: splitsFrom(band.filter((i) => i.x >= 400).sort((a, b) => b.y - a.y || a.x - b.x).map((i) => i.text)),
+      } as TyfRow & { splits: Split[] });
     });
   }
-  return header ? { ...header, date: date || toIso(new Date()), meet, rows } : null;
+  if (!header) return null;
+  const distance = header.distance;
+  const clean = rows.map((r) => {
+    const { splits, ...row } = r as TyfRow & { splits: Split[] };
+    const laps = normalizeSplits(splits, distance, row.timeMs);
+    return laps ? { ...row, ...laps } : row;
+  });
+  return { ...header, date: date || toIso(new Date()), meet, rows: clean };
 }
 
 /** TYF'nin yıldızlı adını kayıtlı adla harf harf karşılaştırır: "Ay** Y***z" = "Ayşe Yılmaz". */

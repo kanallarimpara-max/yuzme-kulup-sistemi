@@ -124,6 +124,16 @@ const checks = [
     assert.equal(validResult({ ...r, timeMs: 12.5 }), false);
     assert.equal(validResult({ ...r, id: '../users/x' }), false);
     assert.equal(validResult({ ...r, pool: '33m' }), false);
+    assert.equal(validResult({ ...r, lapsMs: [36170, 76360], lapEvery: 50 }), true);
+    assert.equal(validResult({ ...r, lapsMs: [36170, 76000], lapEvery: 50 }), false);
+    assert.equal(validResult({ ...r, lapsMs: [36170, 76360], lapEvery: 100 }), false);
+    assert.equal(validResult({ ...r, lapsMs: Array(61).fill(1) }), false);
+  }],
+  ['Aynı derecede ara süresi eksik kayıt ara süreleriyle tamamlanır', () => {
+    const r = { id: 'x', clubId: 'c1', studentId: 's1', stroke: 'serbest', distance: 100, timeMs: 76360, date: '2026-07-03', meet: 'Yarış', lapsMs: [36170, 76360], lapEvery: 50 };
+    const students = { s1: { clubId: 'c1', parentId: 'v1' } };
+    assert.equal(pickWrites([r], students, { x: { timeMs: 76360 } }).length, 1);
+    assert.equal(pickWrites([r], students, { x: { timeMs: 76360, lapsMs: [36170, 76360] } }).length, 0);
   }],
   ['TYF sonucu yalnız doğru kulübe ve daha iyiyse yazılır', () => {
     const base = { stroke: 'serbest', distance: 100, date: '2026-07-03', meet: 'Yarış' };

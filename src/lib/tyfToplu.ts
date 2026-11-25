@@ -2,12 +2,13 @@
 // Saf fonksiyonlardır: GitHub'daki günlük iş ve testler aynı kodu kullanır.
 import { classifyMatch, clubMatchScore, normalizeName, parseSwimTime, type Stroke } from './rules.ts';
 import { parseEventTitle, resultKey, type PdfItem } from './tyf.ts';
+import { normalizeSplits, type Split } from './splits.ts';
 
 export const RESULT_LIST_URL = 'https://www.tyf.gov.tr/spor/yuzme/dosyalar/sonuclar.html';
 const FILE_HOST = 'https://dosya.tyf.gov.tr/';
 
 export type ResultFile = { id: string; url: string; title: string; month: string };
-export type TopluRow = { name: string; birthYear: number; club: string; timeMs: number | null };
+export type TopluRow = { name: string; birthYear: number; club: string; timeMs: number | null; lapsMs?: number[]; lapEvery?: number };
 export type TopluEvent = { no: number; gender: 'K' | 'E'; distance: number; stroke: Stroke; date: string; rows: TopluRow[] };
 
 const decode = (s: string) => s.replace(/&amp;/g, '&').replace(/&#0?39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
@@ -60,6 +61,10 @@ export function parseTopluPages(pages: PdfItem[][], now = new Date()): TopluEven
   let timeX = 0;
   // Bazı dosyalarda doğum yılı (YB) yerine yaş yazar; TYF yaşı yarış yılı eksi doğum yılıdır.
   let ageColumn = false;
+  // Başlıktaki ara süre sütunları: her sütunda o bölümün kendi süresi yazar.
+  let splitHead: Array<{ m: number; x: number }> = [];
+  // Satırın altındaki "150m: 1:47.90 38.08" ayrıntısı son okunan sporcuya aittir.
+  let last: (TopluRow & { splits?: Split[] }) | null = null;
   for (const page of pages) {
     for (const line of linesOf(page)) {
       const head = line.text.match(/^Yarış\s+(\d+)\b/i);
@@ -68,6 +73,7 @@ export function parseTopluPages(pages: PdfItem[][], now = new Date()): TopluEven
         const title = parseEventTitle(line.text.replace(/^Yarış\s+\d+\s*,?/i, ''));
         current = title ? (events.get(no) ?? { no, ...title, date: '', rows: [] }) : null;
         if (current) events.set(no, current);
+        last = null;
         continue;
       }
       if (!current) continue;
@@ -81,9 +87,21 @@ export function parseTopluPages(pages: PdfItem[][], now = new Date()): TopluEven
         ybX = yb.x;
         ageColumn = /^Yaş$/i.test(yb.text.trim());
         timeX = line.cells.find((c) => /Zaman/i.test(c.text))?.x ?? 0;
+        splitHead = line.cells.filter((c) => /^\d{2,4}m$/.test(c.text.trim())).map((c) => ({ m: parseInt(c.text, 10), x: c.x }));
+        last = null;
         continue;
       }
       if (!ybX || !timeX) continue;
+      const detail = line.cells.filter((c) => /^\d{2,4}m:$/.test(c.text.trim()));
+      if (detail.length && last) {
+        // Etiketin hemen sağındaki süre toplam süredir.
+        for (const label of detail) {
+          const total = line.cells.find((c) => c.x > label.x && TIME.test(c.text.trim()));
+          const ms = total ? parseSwimTime(total.text) : null;
+          if (ms) (last.splits ??= []).push({ m: parseInt(label.text, 10), ms });
+        }
+        continue;
+      }
       const year = line.cells.find((c) => Math.abs(c.x - ybX) <= 8 && (ageColumn ? /^\d{1,2}$/ : /^(\d{2}|\d{4})$/).test(c.text.trim()));
       if (!year) continue;
       const name = line.cells.filter((c) => c.x < ybX - 4 && !/^\d+\.?$/.test(c.text.trim())).map((c) => c.text.trim()).join(' ').replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
@@ -91,8 +109,24 @@ export function parseTopluPages(pages: PdfItem[][], now = new Date()): TopluEven
       const time = line.cells.find((c) => c.x >= timeX - 18 && c.x <= timeX + 25 && TIME.test(c.text.trim()));
       if (!name || !club) continue;
       const birthYear = ageColumn ? Number((current.date || now.toISOString()).slice(0, 4)) - Number(year.text) : fullBirthYear(year.text.trim(), now);
-      current.rows.push({ name, birthYear, club, timeMs: time ? parseSwimTime(time.text) : null });
+      const row: TopluRow & { splits?: Split[] } = { name, birthYear, club, timeMs: time ? parseSwimTime(time.text) : null };
+      if (splitHead.length) {
+        const parts = line.cells.filter((c) => c.x >= splitHead[0].x - 20 && TIME.test(c.text.trim())).map((c) => parseSwimTime(c.text) ?? 0);
+        if (parts.length === splitHead.length && parts.every((ms) => ms > 0)) {
+          let sum = 0;
+          row.splits = parts.map((ms, i) => ({ m: splitHead[i].m, ms: (sum += ms) }));
+        }
+      }
+      current.rows.push(row);
+      last = row;
     }
+  }
+  for (const event of events.values()) {
+    event.rows = event.rows.map((r) => {
+      const { splits, ...row } = r as TopluRow & { splits?: Split[] };
+      const laps = splits ? normalizeSplits(splits, event.distance, row.timeMs) : null;
+      return laps ? { ...row, ...laps } : row;
+    });
   }
   return [...events.values()].filter((e) => e.rows.length && e.date);
 }
@@ -100,6 +134,7 @@ export function parseTopluPages(pages: PdfItem[][], now = new Date()): TopluEven
 export type TopluAthlete = { id: string; clubId: string; parentId?: string; firstName: string; lastName: string; birthYear: number; gender: 'K' | 'E' };
 export type TopluResult = {
   id: string; clubId: string; studentId: string; stroke: Stroke; distance: number; timeMs: number; date: string; meet: string; pool?: '25m' | '50m';
+  lapsMs?: number[]; lapEvery?: number;
 };
 
 const nameKey = (s: string) => normalizeName(s).split(' ').filter(Boolean).sort().join(' ');
@@ -122,7 +157,8 @@ export function matchTopluEvents(events: TopluEvent[], athletes: TopluAthlete[],
       const id = resultKey(a.id, event);
       const prev = best.get(id);
       if (prev && prev.timeMs <= row.timeMs) continue;
-      best.set(id, { id, clubId: a.clubId, studentId: a.id, stroke: event.stroke, distance: event.distance, timeMs: row.timeMs, date: event.date, meet, ...(pool ? { pool } : {}) });
+      best.set(id, { id, clubId: a.clubId, studentId: a.id, stroke: event.stroke, distance: event.distance, timeMs: row.timeMs, date: event.date, meet, ...(pool ? { pool } : {}),
+        ...(row.lapsMs ? { lapsMs: row.lapsMs, lapEvery: row.lapEvery } : {}) });
     }
   }
   return [...best.values()];

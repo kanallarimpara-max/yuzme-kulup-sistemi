@@ -9,6 +9,7 @@ import { analyzeAthlete, formatSwimTime, passedStandards } from '../lib/rules';
 import { dateTr, STROKE_LABEL } from '../lib/format';
 import { groupLabel } from '../lib/standardData';
 import { useStandards } from '../lib/useStandards';
+import { lapSegments } from '../lib/splits';
 import { isRaceResult, type CoachComment, type Student, type SwimResult } from '../lib/types';
 
 export default function Performance() {
@@ -35,6 +36,8 @@ export default function Performance() {
 
   const activeKey = analysis.trends.some((t) => `${t.stroke}-${t.distance}` === eventKey) ? eventKey : analysis.trends[0] ? `${analysis.trends[0].stroke}-${analysis.trends[0].distance}` : '';
   const chart = own.filter((r) => `${r.stroke}-${r.distance}` === activeKey).map((r) => ({ date: dateTr(r.date), ms: r.timeMs }));
+  // Seçili branştaki yarışların ara süreleri, en yeni yarış üstte.
+  const lapRaces = mode === 'yaris' ? own.filter((r) => `${r.stroke}-${r.distance}` === activeKey && (r.lapsMs?.length ?? 0) >= 2).reverse() : [];
   const season = new Date().getFullYear();
   // Antrenman derecesi baraj geçirmez.
   const passed = passedStandards(allOwn.filter(isRaceResult), standards, student, season);
@@ -89,6 +92,28 @@ export default function Performance() {
           </ResponsiveContainer></div>
         )}
       </section>
+      {mode === 'yaris' && activeKey && <section className="card stack">
+        <h2>Yarış ara süreleri</h2>
+        {lapRaces.length === 0 ? <p className="muted">Bu branşta ara süresi olan yarış henüz yok. TYF ara süre yayınladığında yarış sonucuyla birlikte kendiliğinden eklenir (50 m yarışlarda ara süre olmaz).</p> : lapRaces.map((r) => {
+          const every = r.lapEvery ?? 50;
+          const segs = lapSegments(r.lapsMs!);
+          const fast = Math.min(...segs);
+          const slow = Math.max(...segs);
+          return (
+            <div key={r.id} className="lap-race">
+              <div className="lap-head"><strong>{r.meet || 'Yarış'}</strong><small>{dateTr(r.date)}{r.pool ? ` · ${r.pool === '25m' ? '25 m' : '50 m'} havuz` : ''} · Derece {formatSwimTime(r.timeMs)}</small></div>
+              <div className="table-wrap"><table className="lap-table">
+                <thead><tr><th>Bölüm</th>{segs.map((_, i) => <th key={i}>{(i + 1) * every} m</th>)}</tr></thead>
+                <tbody>
+                  <tr><td>Bölüm süresi</td>{segs.map((ms, i) => <td key={i} className={segs.length > 2 && ms === fast ? 'lap-fast' : segs.length > 2 && ms === slow ? 'lap-slow' : ''}>{formatSwimTime(ms)}</td>)}</tr>
+                  <tr><td>Toplam</td>{r.lapsMs!.map((ms, i) => <td key={i} className="muted">{formatSwimTime(ms)}</td>)}</tr>
+                </tbody>
+              </table></div>
+              {segs.length > 2 && <small className="muted"><span className="lap-fast">En hızlı bölüm</span> · <span className="lap-slow">en yavaş bölüm</span></small>}
+            </div>
+          );
+        })}
+      </section>}
       <div className="two-col">
         <section className="card stack"><h2>Otomatik analiz</h2><ul className="plain">{analysis.advice.map((a) => <li key={a}>{a}</li>)}</ul>
           {workerEnabled && own.length > 0 && <div><button className="primary" disabled={aiBusy} onClick={runAi}>{aiBusy ? 'Analiz ediliyor…' : 'Yapay zekâ ile analiz et'}</button></div>}

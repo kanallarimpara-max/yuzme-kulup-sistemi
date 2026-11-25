@@ -53,7 +53,7 @@ export default function ResultUpload() {
       for (let i = 0; i < found.length; i += 20) {
         const part = found.slice(i, i + 20);
         const old = await Promise.all(part.map((r) => db.get<SwimResult>('results', r.id).catch(() => null)));
-        part.forEach((r, k) => checked.push({ ...r, state: !old[k] ? 'yeni' : old[k]!.timeMs > r.timeMs ? 'iyi' : 'var' }));
+        part.forEach((r, k) => checked.push({ ...r, state: !old[k] ? 'yeni' : old[k]!.timeMs > r.timeMs || (old[k]!.timeMs === r.timeMs && r.lapsMs && !old[k]!.lapsMs?.length) ? 'iyi' : 'var' }));
       }
       setRows(checked);
     } catch (err) {
@@ -73,6 +73,7 @@ export default function ResultUpload() {
         await Promise.all(toSave.slice(i, i + 20).map((r) => db.put('results', r.id, {
           clubId: r.clubId, studentId: r.studentId, parentId: byId.get(r.studentId)?.parentId ?? '', stroke: r.stroke, distance: r.distance,
           timeMs: r.timeMs, date: r.date, pool, source: 'tyf', kind: 'yaris', meet: meet.trim().slice(0, 200),
+          ...(r.lapsMs ? { lapsMs: r.lapsMs, lapEvery: r.lapEvery } : {}),
         })));
       }
       setStatus(`${toSave.length} yarış derecesi ${perClub.length} kulübe kaydedildi.`);

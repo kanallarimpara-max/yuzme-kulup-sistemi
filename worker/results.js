@@ -2,6 +2,7 @@
 // Kimlik GitHub'ın imzalı kısa ömürlü belgesidir; başka hiçbir istek bu uçlara erişemez.
 import { firestoreToken } from './push.js';
 import { verifyGithub } from './standards.js';
+import { validLaps } from '../src/lib/splits.ts';
 
 const WORKFLOW = 'sonuclar.yml';
 const STROKES = ['serbest', 'sirt', 'kurbaga', 'kelebek', 'karisik'];
@@ -11,17 +12,18 @@ const MAX_RESULTS = 250;
 
 const base = (env) => `projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents`;
 const api = 'https://firestore.googleapis.com/v1';
-const value = (f) => (f?.stringValue ?? (f?.integerValue !== undefined ? Number(f.integerValue) : f?.doubleValue));
+const value = (f) => (f?.arrayValue ? (f.arrayValue.values ?? []).map(value) : f?.stringValue ?? (f?.integerValue !== undefined ? Number(f.integerValue) : f?.doubleValue));
 const fields = (doc) => Object.fromEntries(Object.entries(doc.fields ?? {}).map(([k, v]) => [k, value(v)]));
 const typed = (row) => Object.fromEntries(Object.entries(row).filter(([, v]) => v !== undefined)
-  .map(([k, v]) => [k, typeof v === 'number' ? { integerValue: String(Math.round(v)) } : { stringValue: String(v) }]));
+  .map(([k, v]) => [k, Array.isArray(v) ? { arrayValue: { values: v.map((x) => ({ integerValue: String(Math.round(x)) })) } }
+    : typeof v === 'number' ? { integerValue: String(Math.round(v)) } : { stringValue: String(v) }]));
 
 /** İşten gelen derece satırını denetler; biçimi bozuk satır yazılmaz. */
 export function validResult(r) {
   return Boolean(r) && ID.test(r.id ?? '') && ID.test(r.clubId ?? '') && ID.test(r.studentId ?? '') && STROKES.includes(r.stroke)
     && DISTANCES.includes(r.distance) && Number.isInteger(r.timeMs) && r.timeMs >= 9000 && r.timeMs <= 3_600_000
     && /^\d{4}-\d{2}-\d{2}$/.test(r.date ?? '') && typeof r.meet === 'string' && r.meet.length <= 200
-    && (r.pool === undefined || r.pool === '25m' || r.pool === '50m');
+    && (r.pool === undefined || r.pool === '25m' || r.pool === '50m') && validLaps(r.lapsMs, r.lapEvery, r.distance, r.timeMs);
 }
 
 /** Yeni derece yalnız kayıt yoksa ya da eskisinden iyiyse yazılır. */
@@ -30,7 +32,8 @@ export function pickWrites(results, students, existing) {
     const s = students[r.studentId];
     if (!s || s.clubId !== r.clubId) return false;
     const old = existing[r.id];
-    return !old || !(old.timeMs <= r.timeMs);
+    // Aynı derecede ara süresi olmayan eski kayıt, ara süreleriyle tamamlanır.
+    return !old || !(old.timeMs <= r.timeMs) || (old.timeMs === r.timeMs && r.lapsMs && !old.lapsMs?.length);
   }).map((r) => ({ ...r, parentId: students[r.studentId].parentId ?? '' }));
 }
 
@@ -89,7 +92,7 @@ export async function handleResults(request, env, json, path) {
   }
   // Öğrencinin kulübü ve velisi veritabanından alınır; işten gelen kulüp bilgisine güvenilmez.
   const students = await batchGet(env, auth, 'students', [...new Set(results.map((r) => r.studentId))], ['clubId', 'parentId']);
-  const existing = await batchGet(env, auth, 'results', [...new Set(results.map((r) => r.id))], ['timeMs']);
+  const existing = await batchGet(env, auth, 'results', [...new Set(results.map((r) => r.id))], ['timeMs', 'lapsMs']);
   const now = Date.now();
   const writes = pickWrites(results, students, existing).map((r) => ({
     update: { name: `${base(env)}/results/${r.id}`, fields: typed({ ...r, id: undefined, source: 'tyf', kind: 'yaris', createdAt: now }) },
