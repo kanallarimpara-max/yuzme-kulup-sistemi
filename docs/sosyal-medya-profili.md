@@ -61,3 +61,16 @@ Haftada üç video (pazartesi, çarşamba, cuma 19:00). Her video Instagram Reel
 | 5 | Veli 3: iletişim ve sosyal | Antrenör 5: müsaitlik ve derece | Rol videoları: sekreter, antrenör, veli |
 
 Uzun tanıtım filmi YouTube'a normal video olarak yüklenir ve kanalın öne çıkan videosu yapılır.
+
+## Paylaşılanlar (Instagram @kulvar.360)
+
+Instagram kullanıcı adı **kulvar.360** olarak açıldı. Paylaşımlar Chrome'daki Claude eklentisiyle yapılır; videoların 10 MB altı yükleme kopyaları `tanitim-videolari/sosyal-medya/yukleme` klasöründedir.
+
+| Tarih | Gönderi | Durum |
+| --- | --- | --- |
+| 25.11.2026 | Profil fotoğrafı ve biyografi | Yapıldı (web sitesi bağlantısı telefondan eklenecek) |
+| 25.11.2026 | Tanıtım görseli (4:5) | Paylaşıldı |
+| 25.11.2026 | Reels: yönetici 1, panel ve ders programı | Paylaşıldı |
+| 25.11.2026 | Reels: antrenör 1, yoklama ve devam | Paylaşıldı |
+
+Sıradaki: veli 1, sekreter 1, antrenör 2 (takvimin 2. haftası).

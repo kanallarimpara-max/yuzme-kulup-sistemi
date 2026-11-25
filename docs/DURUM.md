@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici Instagram, TikTok ve YouTube'a kulvar360app adiyla kaydolup giris yapinca profil fotografi, aciklama, kapak ve ilk paylasimlari onayiyla yukle
+Takvime gore 2. hafta Instagram paylasimlari (veli 1, sekreter 1, antrenor 2) metinleri kullaniciya onaylatilip paylasilacak; TikTok ve YouTube sonra
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Kullanici Instagram, TikTok ve YouTube'a kulvar360app adiyla kaydolup giris yapi
 
 ## Son kayıtlar
 
+- 2026-11-25: Instagram @kulvar.360 kuruldu: profil fotografi ve biyografi; tanitim gorseli, yonetici ve antrenor Reels videolari kullanici onayiyla paylasildi (3 gonderi). Kayit docs/sosyal-medya-profili.md
 - 2026-11-25: Sosyal medya kullanici adi kulvar360app secildi (Instagram'da kulvar360 Kahramanmarasta bir yuzme dersi hesabina ait). Instagram, TikTok ve YouTube kayit sayfalari uygulama ici tarayicida acildi
 - 2026-11-25: Sosyal medya kiti: profil fotografi, YouTube, Facebook, X ve LinkedIn kapaklari, tanitim gonderisi ve hikaye gorseli (scripts/tanitim/kit.mjs), profil aciklamalari ve 5 haftalik paylasim takvimi docs/sosyal-medya-profili.md
 - 2026-11-25: Yoneticinin elle yaris derecesi girisi kaldirildi, kurallar elle yaris derecesini reddeder (yalniz TYF kaynakli). Super admin icin Sonuc yukle ekrani: TYF toplu sonuc PDF'i yuklenir, adi, dogum yili, cinsiyeti ve kulubu tutan sporculara yaris derecesi yazilir. Nigde ornek PDF'iyle emulatorde denendi: 8 derece 2 kulube dogru yazildi, ikinci yuklemede tekrar yazmadi. 70 test, 249 kural, 37 Worker testi gecti
