@@ -28,6 +28,7 @@ import SessionAnalysis from './pages/coach/SessionAnalysis';
 import Chat from './pages/Chat';
 import Standards from './pages/Standards';
 import LiveResults from './pages/LiveResults';
+import RaceCalendar from './pages/RaceCalendar';
 import Social from './pages/Social';
 import Finance from './pages/admin/Finance';
 import Staff from './pages/admin/Staff';
@@ -58,6 +59,7 @@ const NAV: NavItem[] = [
   { to: '/yoklama', label: 'Yoklama', icon: ClipboardCheck, roles: ['coach'] },
   { to: '/ogrencilerim', label: 'Öğrencilerim', icon: Users, roles: ['coach'] },
   { to: '/derece', label: 'Antrenman derecesi', icon: Medal, roles: ['coach'] },
+  { to: '/takvim', label: 'Yarış takvimi', icon: CalendarDays, roles: ['admin', 'coach', 'parent'] },
   { to: '/canli-sonuclar', label: 'Canlı sonuçlar', icon: Radio, roles: ['admin', 'secretary', 'coach', 'parent'] },
   { to: '/performans', label: 'Performans', icon: LineChartIcon, roles: ['coach', 'admin', 'parent'] },
   { to: '/ders-analizi', label: 'Ders analizi', icon: Sparkles, roles: ['coach', 'admin'] },
@@ -169,6 +171,7 @@ export default function App() {
         <Route path="/duyurular" element={<Notices />} />
         <Route path="/barajlar" element={<Standards />} />
         <Route path="/canli-sonuclar" element={<LiveResults />} />
+        <Route path="/takvim" element={<RaceCalendar />} />
         <Route path="/mesajlar" element={<Chat />} />
         <Route path="/sosyal" element={<Social />} />
         <Route path="/finans" element={<Finance />} />

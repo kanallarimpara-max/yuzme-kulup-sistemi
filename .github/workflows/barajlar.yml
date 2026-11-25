@@ -1,6 +1,6 @@
 name: TYF Barajlari
 
-# Her gün Türkiye saatiyle 06:30'da TYF sayfasındaki reglamanları kontrol eder.
+# Günde dört kez TYF sayfasındaki reglamanları ve faaliyet takvimini kontrol eder.
 on:
   schedule:
     - cron: '30 3,9,15,21 * * *'
@@ -23,5 +23,10 @@ jobs:
       - run: npm ci
       - run: node scripts/tyf-barajlar.mjs
       - run: node scripts/baraj-yayinla.mjs
+        env:
+          WORKER_URL: ${{ vars.VITE_WORKER_URL }}
+      # Faaliyet takvimi de aynı sayfadan okunur; antrenör ve yönetici yarış takviminde görür.
+      - run: node scripts/tyf-takvim.mjs
+        if: ${{ !cancelled() }}
         env:
           WORKER_URL: ${{ vars.VITE_WORKER_URL }}

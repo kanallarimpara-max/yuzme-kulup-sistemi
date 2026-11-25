@@ -49,6 +49,8 @@ const seed = {
   workouts: { w1: { clubId: 'c1', coachId: 'coach1', lessonId: 'l1', title: 'x', sets: [] }, w2: { clubId: 'c1', coachId: 'coach2', lessonId: 'l2', title: 'y', sets: [] } },
   parentAccess: { parentA: { clubId: 'c1', lessonIds: ['l1'] } },
   availability: { v1: { clubId: 'c1', coachId: 'coach1' } },
+  clubRaces: { 'c1_yaris1': { clubId: 'c1', eventId: 'yaris1', title: 'Şampiyona', dateText: '22 - 26 ARALIK 2026', startDate: '2026-12-22', endDate: '2026-12-26', pool: '25M', category: '', place: 'ANTALYA', approvedBy: 'admin1', createdAt: 1 } },
+  tyfCalendar: { current: { season: '2026-2027', payload: '[]' } },
   timers: { 'timer-coach2': { clubId: 'c1', lanes: [] } },
   posts: {
     post1: { authorId: 'parentA', isPublic: true, audience: ['parentA'], likes: [], comments: [{ userId: 'coach1', text: 'y', at: 1 }], caption: 'x', kind: 'foto', imageUrl: '' },
@@ -84,9 +86,9 @@ const A = as('parentA'); const C = as('coach1'); const S = as('sec1'); const M =
 // Kulüp ayrımı: başka kulübün yöneticisi (o kulübün en yetkili rolü) bu kulübe ait hiçbir kaydı okuyamaz, listeleyemez, ekleyemez.
 const CLUB_DOCS = {
   students: 's1', enrollments: 'e1', expenses: 'g1', salaries: 'p1', lessonPay: 'l1', prereg: 'o1', availability: 'v1', attendance: 'a1',
-  attendanceMarks: 'm1', results: 'r1', comments: 'y1', workouts: 'w1', timers: 'timer-coach2', aiPrograms: 'p1', notices: 'n1', chats: 'sohbet1', parentAccess: 'parentA',
+  attendanceMarks: 'm1', results: 'r1', clubRaces: 'c1_yaris1', comments: 'y1', workouts: 'w1', timers: 'timer-coach2', aiPrograms: 'p1', notices: 'n1', chats: 'sohbet1', parentAccess: 'parentA',
 };
-const CLUB_LISTS = ['students', 'enrollments', 'discounts', 'expenses', 'salaries', 'lessonPay', 'prereg', 'availability', 'attendance', 'attendanceMarks', 'results', 'comments', 'workouts', 'timers', 'aiPrograms', 'chats'];
+const CLUB_LISTS = ['clubRaces', 'students', 'enrollments', 'discounts', 'expenses', 'salaries', 'lessonPay', 'prereg', 'availability', 'attendance', 'attendanceMarks', 'results', 'comments', 'workouts', 'timers', 'aiPrograms', 'chats'];
 const CLUB_WRITES = ['students', 'enrollments', 'discounts', 'expenses', 'salaries', 'lessonPay', 'prereg', 'availability', 'attendance', 'attendanceMarks', 'results', 'comments', 'workouts', 'aiPrograms', 'chats', 'branches', 'models', 'lessons', 'notices'];
 const crossClub = [
   ...Object.entries(CLUB_DOCS).map(([name, id]) => no(`başka kulüp yöneticisi ${name} kaydını okuyamaz`, () => getDoc(doc(X, name, id)))),
@@ -99,7 +101,23 @@ const crossClub = [
 ];
 
 const program = (coachId, extra = {}) => ({ clubId: 'c1', coachId, lessonId: 'l1', period: 'haftalik', text: 'Plan', date: '2026-11-24', ...extra });
+const race = (by, extra = {}) => ({ clubId: 'c1', eventId: 'yaris2', title: 'Milli Takım Seçmesi', dateText: '17 - 20 ARALIK 2026', startDate: '2026-12-17', endDate: '2026-12-20', pool: '50M', category: 'Yıldız', place: 'ANTALYA', approvedBy: by, createdAt: Date.now(), ...extra });
 const checks = [
+  ok('herkes TYF takvimini okur', () => getDoc(doc(U, 'tyfCalendar', 'current'))),
+  no('kulüp yöneticisi TYF takvimini değiştiremez', () => setDoc(doc(M, 'tyfCalendar', 'current'), { payload: '[]' })),
+  ok('antrenör kulüp takvimine yarış ekler', () => setDoc(doc(C, 'clubRaces', 'c1_yaris2'), race('coach1'))),
+  ok('yönetici kulüp takvimine yarış ekler', () => setDoc(doc(M, 'clubRaces', 'c1_yaris3'), race('admin1', { eventId: 'yaris3' }))),
+  no('veli kulüp takvimine yarış ekleyemez', () => setDoc(doc(A, 'clubRaces', 'c1_yaris4'), race('parentA', { eventId: 'yaris4' }))),
+  no('sekreter kulüp takvimine yarış ekleyemez', () => setDoc(doc(S, 'clubRaces', 'c1_yaris4'), race('sec1', { eventId: 'yaris4' }))),
+  no('başkası adına onay yazılamaz', () => setDoc(doc(C, 'clubRaces', 'c1_yaris4'), race('admin1', { eventId: 'yaris4' }))),
+  no('belge adı kulüp ve yarışla eşleşmeli', () => setDoc(doc(C, 'clubRaces', 'baska'), race('coach1', { eventId: 'yaris4' }))),
+  no('fazladan alan yazılamaz', () => setDoc(doc(C, 'clubRaces', 'c1_yaris4'), race('coach1', { eventId: 'yaris4', gizli: 1 }))),
+  ok('veli kendi kulübünün yarış takvimini görür', () => getDocs(q(A, 'clubRaces', ['clubId', 'c1']))),
+  no('başka kulübün velisi bu kulübün yarış takvimini göremez', () => getDocs(q(as('parentC'), 'clubRaces', ['clubId', 'c1']))),
+  no('veli takvimden yarış silemez', () => deleteDoc(doc(A, 'clubRaces', 'c1_yaris1'))),
+  no('başka kulüp yöneticisi takvimden yarış silemez', () => deleteDoc(doc(X, 'clubRaces', 'c1_yaris1'))),
+  no('yarış tarihi sonradan değiştirilemez', () => updateDoc(doc(M, 'clubRaces', 'c1_yaris1'), { startDate: '2026-01-01' })),
+  ok('antrenör takvimden yarış çıkarır', () => deleteDoc(doc(C, 'clubRaces', 'c1_yaris2'))),
   ok('antrenör kendi AI programını kaydeder', () => addDoc(collection(C, 'aiPrograms'), program('coach1'))),
   no('antrenör başkası adına AI programı kaydedemez', () => addDoc(collection(C, 'aiPrograms'), program('coach2'))),
   no('veli AI programı kaydedemez', () => addDoc(collection(A, 'aiPrograms'), program('parentA'))),

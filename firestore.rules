@@ -156,6 +156,29 @@ service cloud.firestore {
     match /standardSets/{id} {
       allow read: if true;
     }
+    // Herkese açık TYF sezon faaliyet takvimi; yalnız Worker'ın servis hesabı yazar.
+    match /tyfCalendar/{id} {
+      allow read: if true;
+    }
+    // Kulübün katılacağı yarışlar: yönetici ve antrenör TYF takviminden seçer, aynı kulübün velisi görür.
+    match /clubRaces/{id} {
+      function race() { return request.resource.data; }
+      function shortText(v, max) { return v is string && v.size() <= max; }
+      function validRace() {
+        return race().keys().hasOnly(['clubId', 'eventId', 'title', 'dateText', 'startDate', 'endDate', 'pool', 'category', 'place', 'note', 'approvedBy', 'createdAt'])
+          && id == race().clubId + '_' + race().eventId
+          && shortText(race().eventId, 40) && race().title is string && race().title.size() > 0 && race().title.size() <= 200
+          && race().startDate is string && race().startDate.matches('^20[0-9]{2}-[0-9]{2}-[0-9]{2}$')
+          && race().endDate is string && race().endDate.matches('^20[0-9]{2}-[0-9]{2}-[0-9]{2}$')
+          && shortText(race().dateText, 80) && shortText(race().pool, 20) && shortText(race().category, 200) && shortText(race().place, 80)
+          && (!('note' in race()) || shortText(race().note, 300))
+          && race().approvedBy == request.auth.uid && race().createdAt is number;
+      }
+      allow read: if inClub(resource.data.clubId);
+      allow create: if hasRole(request.resource.data.clubId, ['admin', 'coach']) && validRace();
+      allow update: if hasRole(resource.data.clubId, ['admin', 'coach']) && onlyChanges(['note']) && shortText(race().note, 300);
+      allow delete: if hasRole(resource.data.clubId, ['admin', 'coach']);
+    }
     // Yapay zekâ program önerisi yalnız onu kaydeden antrenöre ve kulüp yöneticisine görünür.
     match /aiPrograms/{id} {
       allow read: if signedIn() && (resource.data.coachId == request.auth.uid || hasRole(resource.data.clubId, ['admin']));

@@ -177,6 +177,8 @@ const checks = [
     assert.equal(aiInput.max_tokens, 1300);
   }],
   ['aşırı büyük ders verisi reddedilir', async () => assert.equal((await call('/ai/session', valid, { method: 'POST', body: JSON.stringify({ group: 'x'.repeat(15000) }) })).status, 400)],
+  ['takvim yayını kullanıcı oturumuyla yapılamaz', async () => assert.equal((await call('/calendar/publish', valid, { method: 'POST', body: '{}' })).status, 401)],
+  ['takvim yayını kimliksiz yapılamaz', async () => assert.equal((await call('/calendar/publish', null, { method: 'POST', body: '{}' })).status, 401)],
   ['baraj yayını kullanıcı oturumuyla yapılamaz', async () => assert.equal((await call('/standards/publish', valid, { method: 'POST', body: '{}' })).status, 401)],
   ['aşırı büyük AI verisi reddedilir', async () => assert.equal((await call('/ai/analyze', valid, { method: 'POST', body: JSON.stringify({ summary: 'x'.repeat(5000) }) })).status, 400)],
   ['günlük AI hakkı aşılamaz', async () => {
