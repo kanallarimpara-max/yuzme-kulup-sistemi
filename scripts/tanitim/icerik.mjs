@@ -136,6 +136,35 @@ SETS['antrenor-ipucu'] = [
   ])}<div style="margin-top:56px"><span class="pill">${icon('Sparkles', 32, '#03101e', 2.4)}Hepsi Kulvar360'ta</span></div>${foot(3, 3, true)}`, C),
 ];
 
+// 5) Tek özellik tanıtımı: gerçek uygulama ekranı telefon çerçevesinde (yönetici, antrenör, veli).
+const SHOT = (name) => `data:image/png;base64,${readFileSync(resolve('tanitim-videolari/kaynak/ekran', `reel-${name}.png`)).toString('base64')}`;
+const ROLE = {
+  yonetici: { label: 'Kulüp yöneticisi', icon: 'Building2', accent: ['#3ff0ff', '#4b6bff'] },
+  antrenor: { label: 'Antrenör', icon: 'Timer', accent: ['#b8ff5c', '#14c9a2'] },
+  veli: { label: 'Veli', icon: 'Heart', accent: ['#c79bff', '#ff6fae'] },
+};
+const feature = (role, shot, title, points) => {
+  const r = ROLE[role];
+  return page(`${brand}<div class="kicker" style="margin-top:40px">${icon(r.icon, 30, 'currentColor', 2.4)}${r.label}</div>
+    <h2 style="margin-top:16px;font-size:60px">${title}</h2>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:24px">${points.map(([ic2, t]) => `<span style="display:inline-flex;align-items:center;gap:10px;font-size:26px;font-weight:750;padding:10px 18px;border-radius:99px;background:rgba(255,255,255,.08);border:1px solid rgba(160,230,255,.22)">${icon(ic2, 26, r.accent[0], 2.4)}${t}</span>`).join('')}</div>
+    <div style="position:absolute;left:50%;transform:translateX(-50%);top:${points.length > 2 ? 470 : 430}px;width:600px;height:1000px;border-radius:64px 64px 0 0;background:#0b1220;padding:16px 16px 0;box-shadow:0 0 0 3px rgba(160,230,255,.25),0 40px 90px rgba(0,0,0,.55),0 0 120px ${r.accent[0]}33;overflow:hidden">
+      <div style="width:100%;height:100%;border-radius:50px 50px 0 0;overflow:hidden;background:url('${SHOT(shot)}') top center/100% auto no-repeat"></div></div>
+    <div style="position:absolute;left:-84px;right:-84px;bottom:-96px;height:230px;background:linear-gradient(180deg,transparent,#0a1838 55%)"></div>
+    <div class="foot" style="position:absolute;left:0;right:0;bottom:0;z-index:2"><span>@kulvar.360</span><span>${URL_TEXT}</span></div>`, r.accent);
+};
+SETS.ozellik = [
+  feature('antrenor', 'krono-kontrol', 'Kronometrenin kumandası <span class="hl">cebinizde</span>', [['Radio', 'Cihazlar anlık eşitlenir'], ['Volume2', 'Kulvar başına çıkış sesi'], ['Lock', 'Dokunma kilidi']]),
+  feature('veli', 'veli-barajlar', 'Yaşına uygun <span class="hl">TYF barajları</span>', [['RefreshCw', 'Her gün güncel'], ['BadgeCheck', 'Geçilenler işaretli'], ['Users', 'Yaşa ve cinsiyete göre']]),
+  feature('yonetici', 'admin-finans', 'Kulübün parası <span class="hl">tek ekranda</span>', [['Wallet', 'Tahsilat'], ['Receipt', 'Gider ve maaş'], ['ChartLine', 'Aylık kâr grafiği']]),
+  feature('veli', 'veli-performans', 'Gelişimini <span class="hl">grafikle</span> izleyin', [['TrendingUp', 'Derece grafiği'], ['MessageCircle', 'Antrenör yorumları'], ['Sparkles', 'Yapay zekâ önerisi']]),
+  feature('antrenor', 'ders-analizi', 'Dersinizi <span class="hl">stil stil</span> analiz eder', [['Target', 'Eksik stil'], ['Medal', 'Yarış ve antrenman derecesi'], ['CalendarDays', 'Program önerisi']]),
+  feature('yonetici', 'admin-personel', 'Antrenör ve sekreteri <span class="hl">hemen ekleyin</span>', [['UserPlus', 'Hesap hemen açılır'], ['MapPin', 'Şubeye atanır'], ['ShieldCheck', 'Herkes kendi ekranını görür']]),
+  feature('veli', 'canli-sonuc', 'Yarış sonuçları <span class="hl">uygulamada</span>', [['Radio', 'Canlı yenilenir'], ['ListOrdered', 'Start listesi'], ['Search', 'Sporcunu ara']]),
+  feature('antrenor', 'antrenor-pazar', 'Antrenmanlarınızı <span class="hl">paylaşın</span>', [['Coins', 'Kredi karşılığında'], ['ShoppingCart', 'Hazır antrenman al'], ['Dumbbell', 'Set set hazırla']]),
+  feature('yonetici', 'admin-duyuru', 'Duyurunuz <span class="hl">herkese anında</span>', [['Bell', 'Telefona bildirim'], ['Users', 'Ders veya kişi seçerek'], ['ShieldCheck', 'Yalnız kendi kulübünüze']]),
+];
+
 const browser = await chromium.launch({ channel: 'msedge', headless: true });
 for (const [name, slides] of Object.entries(SETS)) {
   for (const [i, html] of slides.entries()) {

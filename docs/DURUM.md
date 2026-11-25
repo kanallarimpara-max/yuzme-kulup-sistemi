@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Kullanici haftalik paketi ve kulup mesajini onaylayinca gonderileri zamanla, mesajlari gonder
+Kalan 18+ Instagram gonderisini docs/sosyal-medya-profili.md sirasiyla paylas
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Kullanici haftalik paketi ve kulup mesajini onaylayinca gonderileri zamanla, mes
 
 ## Son kayıtlar
 
+- 2026-11-25: Instagram 2. tur: 9 ozellik gorseli uretildi (icerik.mjs), tum videolarin 10 MB alti kopyalari hazir. Deneme programi, veli 1, TYF barajlari, antrenor 2 paylasildi; profilde 7 gonderi
 - 2026-11-25: Instagram isletme hesabina cevrildi. Bu haftanin icerik paketi uretildi: deneme programi, TYF Kulupler Arasi Kisa Kulvar barajlari, veli kontrol listesi, antrenor ipuclari (scripts/tanitim/icerik.mjs). 11 yuzme kulubu hesabi bulundu, mesaj taslagi hazir
 - 2026-11-25: Instagram @kulvar.360 kuruldu: profil fotografi ve biyografi; tanitim gorseli, yonetici ve antrenor Reels videolari kullanici onayiyla paylasildi (3 gonderi). Kayit docs/sosyal-medya-profili.md
 - 2026-11-25: Sosyal medya kullanici adi kulvar360app secildi (Instagram'da kulvar360 Kahramanmarasta bir yuzme dersi hesabina ait). Instagram, TikTok ve YouTube kayit sayfalari uygulama ici tarayicida acildi

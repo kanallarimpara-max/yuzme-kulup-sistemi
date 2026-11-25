@@ -82,3 +82,12 @@ Sıradaki: veli 1, sekreter 1, antrenör 2 (takvimin 2. haftası).
 - İçerik ağırlığı: veli ve antrenör (baraj tabloları, yarış günü listeleri, antrenör ipuçları) + rol videoları. Görseller `scripts/tanitim/icerik.mjs` ile üretilir.
 - Kulüplere ulaşma: yalnız kulüplerin resmi hesaplarına, günde en fazla 10 kişiye özel mesaj, her liste ve metin kullanıcı onayıyla. Bireysel sporcu ve veli hesaplarına toplu takip veya mesaj atılmaz (çoğu çocuk; Instagram da hesabı kısıtlar).
 - TYF notu: 22-26 Aralık 2026 Kulüpler Arası Kısa Kulvar reglamanının 25 m tablosunda 100 m karışık barajı 100 m sırtüstü ile aynı yazılmış; uygulamadaki veri belgeyle aynıdır.
+
+## 25.11.2026 ikinci tur (kullanıcı: gün içinde en az 25 gönderi)
+
+Paylaşılan: deneme programı (3 sayfa), Reels veli 1, TYF Kısa Kulvar barajları (3 sayfa), Reels antrenör 2. Profilde toplam 7 gönderi.
+Kalan sıra (yükleme kopyaları `tanitim-videolari/sosyal-medya/yukleme`, görseller `.../gonderiler`):
+yönetici 2, veli kontrol listesi, antrenör 3, veli 2, özellik 1 (kronometre), yönetici 3, antrenör ipuçları, veli 3, antrenör 4, özellik 2 (barajlar),
+rol videosu yönetici, antrenör 5, özellik 3 (gelir-gider), rol videosu antrenör, özellik 4 (performans), rol videosu veli, özellik 5 (yapay zekâ),
+sekreter 1, özellik 6 (personel), özellik 7 (canlı sonuç), sekreter 2, özellik 8 (antrenman pazarı), özellik 9 (duyuru), rol videosu sekreter.
+Paylaşım yöntemi: Chrome'da Yeni Gönderi → Gönderi, dosya yükleme, oran (Reels: Orijinal, görsel: 4:5), metin klavyeyle yazılır.
