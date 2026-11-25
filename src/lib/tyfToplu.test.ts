@@ -40,6 +40,17 @@ describe('TYF toplu sonuç PDF okuma', () => {
     expect(events[0].rows[2].timeMs).toBeNull();
   });
 
+  it('doğum yılı yerine yaş yazan dosyada doğum yılını yarış yılından bulur', () => {
+    const agePage: PdfItem[] = [
+      ...line(749, [43, 'Yarış 3'], [252, 'Erkekler, 50m Kelebek'], [468, '10 - 12 yaşları arası']),
+      ...line(737, [43, '4.07.2026 - 9:36'], [515, 'Sonuçlar']),
+      ...line(696, [249, 'Yaş'], [459, 'Zaman Derece']),
+      ...line(661, [76, 'Arda KURGU'], [249, '11'], [275, 'Mavi Dalga Spor Kulübü'], [452, '36.10'], [498, '234']),
+    ];
+    const [e] = parseTopluPages([agePage], new Date('2026-11-25'));
+    expect(e.rows[0]).toEqual({ name: 'Arda KURGU', birthYear: 2015, club: 'Mavi Dalga Spor Kulübü', timeMs: 36100 });
+  });
+
   it('iki haneli doğum yılını çevirir', () => {
     const now = new Date('2026-11-25');
     expect(fullBirthYear('16', now)).toBe(2016);

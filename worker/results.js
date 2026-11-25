@@ -68,13 +68,14 @@ export async function handleResults(request, env, json, path) {
     const [clubs, athletes, files, meets] = await Promise.all([
       list(env, auth, 'clubs', ['name']),
       list(env, auth, 'students', ['clubId', 'parentId', 'firstName', 'lastName', 'birthYear', 'gender']),
-      list(env, auth, 'tyfResultFiles', ['url']),
+      list(env, auth, 'tyfResultFiles', ['sig', 'unreadable']),
       list(env, auth, 'tyfMeets', ['title', 'info', 'startDate', 'endDate']),
     ]);
     return json({
       clubs: clubs.filter((c) => c.name).map((c) => ({ id: c.id, name: c.name })),
       athletes: athletes.filter((a) => a.clubId && a.firstName && a.lastName && a.birthYear && a.gender),
-      done: files.map((f) => f.id),
+      // Sporcu listesi değişince (imza farklıysa) dosya yeniden okunur; okunamayan dosya bir daha denenmez.
+      done: files.map((f) => ({ id: f.id, sig: f.sig ?? '', unreadable: f.unreadable === 'evet' })),
       meets: meets.map((m) => ({ title: m.title ?? '', info: m.info ?? '', startDate: m.startDate ?? '', endDate: m.endDate ?? '' })),
     });
   }
@@ -83,7 +84,7 @@ export async function handleResults(request, env, json, path) {
   const file = body?.file;
   const results = Array.isArray(body?.results) ? body.results : null;
   if (!file || !ID.test(file.id ?? '') || typeof file.url !== 'string' || !file.url.startsWith('https://dosya.tyf.gov.tr/')
-    || typeof file.title !== 'string' || file.title.length > 300 || !results || results.length > MAX_RESULTS || !results.every(validResult)) {
+    || typeof file.title !== 'string' || file.title.length > 300 || !/^[a-f0-9]{0,64}$/.test(file.sig ?? '') || !results || results.length > MAX_RESULTS || !results.every(validResult)) {
     return json({ error: 'Sonuç verisi geçersiz.' }, 400);
   }
   // Öğrencinin kulübü ve velisi veritabanından alınır; işten gelen kulüp bilgisine güvenilmez.
@@ -94,7 +95,7 @@ export async function handleResults(request, env, json, path) {
     update: { name: `${base(env)}/results/${r.id}`, fields: typed({ ...r, id: undefined, source: 'tyf', kind: 'yaris', createdAt: now }) },
   }));
   if (body.last === true) {
-    writes.push({ update: { name: `${base(env)}/tyfResultFiles/${file.id}`, fields: typed({ url: file.url, title: file.title, at: new Date(now).toISOString() }) } });
+    writes.push({ update: { name: `${base(env)}/tyfResultFiles/${file.id}`, fields: typed({ url: file.url, title: file.title, sig: file.sig ?? '', unreadable: file.unreadable === true ? 'evet' : 'hayir', at: new Date(now).toISOString() }) } });
   }
   if (writes.length) {
     const saved = await fetch(`${api}/${base(env)}:commit`, { method: 'POST', headers: { ...auth, 'Content-Type': 'application/json' }, body: JSON.stringify({ writes }) });

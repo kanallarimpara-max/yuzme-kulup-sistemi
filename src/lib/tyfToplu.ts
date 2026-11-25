@@ -58,6 +58,8 @@ export function parseTopluPages(pages: PdfItem[][], now = new Date()): TopluEven
   let current: TopluEvent | null = null;
   let ybX = 0;
   let timeX = 0;
+  // Bazı dosyalarda doğum yılı (YB) yerine yaş yazar; TYF yaşı yarış yılı eksi doğum yılıdır.
+  let ageColumn = false;
   for (const page of pages) {
     for (const line of linesOf(page)) {
       const head = line.text.match(/^Yarış\s+(\d+)\b/i);
@@ -74,20 +76,22 @@ export function parseTopluPages(pages: PdfItem[][], now = new Date()): TopluEven
         current.date = `${date[3]}-${date[2].padStart(2, '0')}-${date[1].padStart(2, '0')}`;
         continue;
       }
-      const yb = line.cells.find((c) => c.text.trim() === 'YB');
+      const yb = line.cells.find((c) => /^(YB|Yaş)$/i.test(c.text.trim()));
       if (yb) {
         ybX = yb.x;
+        ageColumn = /^Yaş$/i.test(yb.text.trim());
         timeX = line.cells.find((c) => /Zaman/i.test(c.text))?.x ?? 0;
         continue;
       }
       if (!ybX || !timeX) continue;
-      const year = line.cells.find((c) => Math.abs(c.x - ybX) <= 8 && /^(\d{2}|\d{4})$/.test(c.text.trim()));
+      const year = line.cells.find((c) => Math.abs(c.x - ybX) <= 8 && (ageColumn ? /^\d{1,2}$/ : /^(\d{2}|\d{4})$/).test(c.text.trim()));
       if (!year) continue;
       const name = line.cells.filter((c) => c.x < ybX - 4 && !/^\d+\.?$/.test(c.text.trim())).map((c) => c.text.trim()).join(' ').replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
       const club = line.cells.filter((c) => c.x > ybX + 6 && c.x < timeX - 15).map((c) => c.text.trim()).join(' ').trim();
       const time = line.cells.find((c) => c.x >= timeX - 18 && c.x <= timeX + 25 && TIME.test(c.text.trim()));
       if (!name || !club) continue;
-      current.rows.push({ name, birthYear: fullBirthYear(year.text.trim(), now), club, timeMs: time ? parseSwimTime(time.text) : null });
+      const birthYear = ageColumn ? Number((current.date || now.toISOString()).slice(0, 4)) - Number(year.text) : fullBirthYear(year.text.trim(), now);
+      current.rows.push({ name, birthYear, club, timeMs: time ? parseSwimTime(time.text) : null });
     }
   }
   return [...events.values()].filter((e) => e.rows.length && e.date);
