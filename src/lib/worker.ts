@@ -14,10 +14,6 @@ async function call(path: string, init: RequestInit = {}) {
   return res;
 }
 
-export async function meetPdfLinks(url: string): Promise<string[]> {
-  return (await (await call(`/tyf/meet?url=${encodeURIComponent(url)}`)).json()).links;
-}
-
 export async function liveMeet(url: string): Promise<LiveMeet & { url: string }> {
   return (await call(`/tyf/meet-detail?url=${encodeURIComponent(url)}`)).json();
 }

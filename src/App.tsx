@@ -1,4 +1,4 @@
-import { Camera, FileUp, MessagesSquare, Target, Baby, BadgePlus, Banknote, Bell, BellOff, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
+import { Camera, MessagesSquare, Target, Baby, BadgePlus, Banknote, Bell, BellOff, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
 import { Menu, Phone, Radio, Sparkles, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
@@ -28,7 +28,6 @@ import SessionAnalysis from './pages/coach/SessionAnalysis';
 import Chat from './pages/Chat';
 import Standards from './pages/Standards';
 import LiveResults from './pages/LiveResults';
-import TyfImport from './pages/coach/TyfImport';
 import Social from './pages/Social';
 import Finance from './pages/admin/Finance';
 import Staff from './pages/admin/Staff';
@@ -63,7 +62,6 @@ const NAV: NavItem[] = [
   { to: '/performans', label: 'Performans', icon: LineChartIcon, roles: ['coach', 'admin', 'parent'] },
   { to: '/ders-analizi', label: 'Ders analizi', icon: Sparkles, roles: ['coach', 'admin'] },
   { to: '/barajlar', label: 'Barajlar', icon: Target, roles: ['admin', 'coach', 'parent'] },
-  { to: '/tyf', label: 'TYF aktarım', icon: FileUp, roles: ['admin'] },
   { to: '/antrenman', label: 'Antrenman', icon: Dumbbell, roles: ['coach'] },
   { to: '/musaitlik', label: 'Dersler ve müsaitlik', icon: CalendarCheck, roles: ['coach'] },
   { to: '/kronometre/kontrol', label: 'Kronometre', icon: Timer, roles: ['coach', 'admin'] },
@@ -169,7 +167,6 @@ export default function App() {
         <Route path="/musaitlik" element={<AvailabilityPage />} />
         <Route path="/duyurular" element={<Notices />} />
         <Route path="/barajlar" element={<Standards />} />
-        <Route path="/tyf" element={<TyfImport />} />
         <Route path="/canli-sonuclar" element={<LiveResults />} />
         <Route path="/mesajlar" element={<Chat />} />
         <Route path="/sosyal" element={<Social />} />

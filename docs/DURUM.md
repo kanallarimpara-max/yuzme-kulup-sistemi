@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Canli sisteme ogrenci eklenince TYF Sonuclari isinin eslesen dereceleri yazdigini kontrol et; kullanici yeni APK'yi telefonda denesin
+Yeni APK ve exe uret; canli sisteme ogrenci eklenince TYF Sonuclari isinin eslesen dereceleri yazdigini kontrol et
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Canli sisteme ogrenci eklenince TYF Sonuclari isinin eslesen dereceleri yazdigin
 
 ## Son kayıtlar
 
+- 2026-11-25: Elle TYF sonuc aktarim ekrani (TYF aktarim menusu) kaldirildi; yaris dereceleri artik TYF Sonuclar sayfasindan her sabah otomatik gelir. 69 test, 37 Worker testi gecti, web yayinlandi
 - 2026-11-25: Kulup ayrimi icin 56 yeni kural testi: baska kulubun yoneticisi 17 kulube ozel kaydi okuyamaz, 16 listeyi goremez, 19 tureden kayit ekleyemez, kulup ayarlarini degistiremez. 244/244 kural testi gecti
 - 2026-11-25: Yeni APK ve Windows programi uretildi: kulube ozel duyurular, canli sonuclarda sonuc ve start listesi gecisi. TYF Sonuclari isi canlida calisti: 15 dosyanin 13'u okundu, 2'si taranmis goruntu
 - 2026-11-25: Kulup ayrimi: duyurular yalniz kendi kulubune gider ve okunur (kural, ekran ve telefon bildirimi). TYF Yuzme/Sonuclar sayfasindaki toplu sonuc PDF'leri her gun GitHub isinde okunur, kulup sporcularinin yaris dereceleri kendiliginden kaydedilir. Canli sonuclarda sonuc ve start listesi ayri sekmeyle gosterilir. 68 test, 188 kural, 37 Worker testi gecti; kurallar, site ve Worker yayinlandi
