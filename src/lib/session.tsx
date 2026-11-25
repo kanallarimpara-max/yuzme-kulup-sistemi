@@ -173,7 +173,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     signOut: async () => {
       if (firebaseEnabled) {
         const f = await authSdk();
-        await import('./push').then((p) => p.disablePush()).catch(() => undefined);
+        // Bildirim kaydı silinirken bağlantı yavaşsa çıkış beklemede kalmasın: en fazla 2 saniye beklenir.
+        const cleanup = import('./push').then((p) => p.disablePush()).catch(() => undefined);
+        await Promise.race([cleanup, new Promise((r) => setTimeout(r, 2000))]);
         await f.signOut(f.auth);
       } else {
         sessionStorage.removeItem(DEMO_KEY);
