@@ -1,14 +1,12 @@
-import { Camera, FileUp, MessagesSquare, Target, Baby, BadgePlus, Banknote, Bell, BellOff, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, LogOut, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
-import { Menu, Phone, Radio, Sparkles, X } from 'lucide-react';
+import { Camera, FileUp, MessagesSquare, Target, Baby, BadgePlus, Banknote, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
+import { Bell, Menu, Phone, Radio, Settings2, Sparkles, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { isRinging } from './lib/call';
 import { useSession } from './lib/session';
 import { useLiveImport } from './lib/useLiveImport';
-import { ThemeToggle } from './lib/theme';
 import { useCollection } from './lib/store';
 import { AdSlot, useAppDesign } from './lib/design';
-import { pushAvailable, usePushToggle } from './lib/push';
 import { ROLE_LABEL, type CallDoc, type Role } from './lib/types';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -29,6 +27,8 @@ import Chat from './pages/Chat';
 import Standards from './pages/Standards';
 import LiveResults from './pages/LiveResults';
 import RaceCalendar from './pages/RaceCalendar';
+import SettingsPage from './pages/Settings';
+import TempPasswordNotice from './pages/TempPasswordNotice';
 import Social from './pages/Social';
 import Finance from './pages/admin/Finance';
 import Staff from './pages/admin/Staff';
@@ -76,15 +76,10 @@ const NAV: NavItem[] = [
   { to: '/kredilerim', label: 'Kredilerim', icon: Wallet2, roles: ['coach'] },
   { to: '/antrenman-pazari', label: 'Antrenman pazarı', icon: Store, roles: ['coach'] },
   { to: '/market', label: 'Market', icon: ShoppingBag, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
+  { to: '/ayarlar', label: 'Ayarlar', icon: Settings2, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
 ];
 
 const AD_SLOT: Record<string, string> = { '/panel': 'panel', '/market': 'market', '/sosyal': 'sosyal' };
-
-function PushButton({ uid }: { uid: string }) {
-  const { on, busy, error, toggle } = usePushToggle(uid);
-  const label = error || (on ? 'Bildirimleri kapat' : 'Bildirimleri aç');
-  return <button className="ghost icon" disabled={busy} onClick={toggle} aria-label={label} title={label}>{on ? <Bell size={18} /> : <BellOff size={18} />}</button>;
-}
 
 /** Kullanıcı başka ekrandayken de gelen aramayı görür. */
 function IncomingCall({ uid }: { uid: string }) {
@@ -113,7 +108,7 @@ function ErrorToast() {
 }
 
 function Shell() {
-  const { user, club, signOut } = useSession();
+  const { user, club } = useSession();
   useLiveImport();
   const { pathname } = useLocation();
   const design = useAppDesign();
@@ -136,14 +131,11 @@ function Shell() {
           ))}
         </nav>
         <div className="sidebar-foot">
-          <span className="who"><CalendarDays size={15} />{user.tag}</span>
           <button className="ghost icon menu-toggle" aria-expanded={menuOpen} aria-label={menuOpen ? 'Menüyü kapat' : 'Tüm menü'} onClick={() => setMenuOpen((o) => !o)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
-          <ThemeToggle />
-          {pushAvailable && <PushButton uid={user.id} />}
-          <button className="ghost icon" onClick={signOut} aria-label="Çıkış yap" title="Çıkış yap"><LogOut size={18} /></button>
         </div>
       </aside>
       <ErrorToast />
+      {user.tempPassword && pathname !== '/ayarlar' && <TempPasswordNotice uid={user.id} />}
       {pathname !== '/mesajlar' && <IncomingCall uid={user.id} />}
       <main className="content">{user.role !== 'super' && AD_SLOT[pathname] && <AdSlot slot={AD_SLOT[pathname]} />}<Outlet /></main>
     </div>
@@ -172,6 +164,7 @@ export default function App() {
         <Route path="/barajlar" element={<Standards />} />
         <Route path="/canli-sonuclar" element={<LiveResults />} />
         <Route path="/takvim" element={<RaceCalendar />} />
+        <Route path="/ayarlar" element={<SettingsPage />} />
         <Route path="/mesajlar" element={<Chat />} />
         <Route path="/sosyal" element={<Social />} />
         <Route path="/finans" element={<Finance />} />

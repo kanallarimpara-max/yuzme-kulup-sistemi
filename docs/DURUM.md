@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-APK ve exe derlemesini dogrula, takvim isini GitHub'da calistirip tyfCalendar/current'i kontrol et; sonra kulup mesajlari
+Kalan duzenlemeler: kredi=TL, sosyal (engelleme, yorum silme, onay), mesajlar (geri alma, sabitleme, toplu, grup), kisi listesi siralama ve etiket onerisi, kulup tablosu siralama, personel/sube/model duzenleme, ders saatleri yonlendirme
 
 ## Modüller
 
@@ -39,6 +39,7 @@ APK ve exe derlemesini dogrula, takvim isini GitHub'da calistirip tyfCalendar/cu
 
 ## Son kayıtlar
 
+- 2026-11-26: Duzenleme 1. kisim: giris sayfasina Guvenlik, Hakkimizda, SSS ve destek e-postasi (super admin tasarimdan girer); kartlara hafif cam gorunumu. Sol alttaki etiket/tema/bildirim/cikis kaldirildi, Ayarlar sayfasi (hesap bilgileri, tema, bildirim, sifre degistirme, destek, onayli cikis). Tum sifre alanlarina goster/gizle dugmesi. Gecici sifreyle acilan personele kapatilabilir sifre degistirme onerisi. Kurallar: tempPassword alani, yonetici personel adi/rolunu duzenleyebilir
 - 2026-11-26: Yaris takvimi: TYF 2026-2027 faaliyet takvimi PDF'i okunuyor (28 yaris, 10 yurt ici), gunde 4 kez barajlar.yml ile Worker /calendar/publish uzerinden tyfCalendar/current belgesine yaziliyor. Yonetici ve antrenor /takvim ekraninda yarislari kulup takvimine ekler (clubRaces), ayni kulubun velisi ay gorunumu ve listede gorur. Kurallar: yalniz admin/antrenor ekler-cikarir, baska kulup goremez (266 kural, 74 birim, 42 Worker testi). Web, kurallar ve Worker yayinda
 - 2026-11-26: Canli sonuclar anlik: Worker artik dakikada bir TYF'yi tarar (Canli Sonuclar baglantisi, tarihi yaklasan yarislar, en yeni numaralar, geriye dogru tarama). 2026'da acik 63 canli sonuc sayfasi bulundu ve hepsi uygulamaya alindi, bugun suren 7 yaris canli. Surum artik start listelerini de izler, ozet tek belgede (tyfIndex/meets) tutulur, Firestore okuma hakki korunur. Sonuc PDF isi 2 saatte bir, baraj isi gunde 4 kez. 40 Worker, 70 birim testi gecti
 - 2026-11-26: Canli sonuc hatasi duzeltildi: Worker yeni yarislari ararken acilmamis yarislar 12 deneme hakkini dolduruyor, suren UGL Turkiye Finali (1005890) hic denenmiyordu. TYF sayfasindaki dogrudan canli sonuc baglantisi artik once denenir, kalanlar her turda kaydirilir; aktif yaris sorgusu bitis tarihine gore siralanir. Worker yayinlandi, 39 Worker testi gecti

@@ -28,7 +28,7 @@ service cloud.firestore {
     match /users/{uid} {
       function next() { return request.resource.data; }
       function validProfile() {
-        return next().keys().hasOnly(['clubId', 'name', 'role', 'tag', 'isPublic', 'createdAt', 'bio', 'avatarUrl'])
+        return next().keys().hasOnly(['clubId', 'name', 'role', 'tag', 'isPublic', 'createdAt', 'bio', 'avatarUrl', 'tempPassword'])
           && next().name is string && next().name.size() > 0 && next().name.size() <= 100
           && next().tag is string && next().tag.matches('^@[a-z0-9]{3,40}$')
           && getAfter(path('tags', next().tag.replace('@', ''))).data.uid == uid;
@@ -38,8 +38,12 @@ service cloud.firestore {
       allow create: if validProfile() && (isSuper()
         || (signedIn() && request.auth.uid == uid && next().role == 'parent')
         || (hasRole(next().clubId, ['admin']) && next().role in ['coach', 'secretary']));
-      allow update: if isSuper() || (signedIn() && request.auth.uid == uid && onlyChanges(['isPublic', 'bio', 'avatarUrl']))
-        || (hasRole(resource.data.clubId, ['admin']) && resource.data.role == 'coach' && onlyChanges(['branchIds']) && next().branchIds is list);
+      // Kullanıcı kendi görünürlüğünü, tanıtımını ve geçici şifre uyarısını değiştirir.
+      // Yönetici kendi kulübündeki antrenör ve sekreterin adını, rolünü (bu ikisi arasında) ve şubelerini düzenler.
+      allow update: if isSuper() || (signedIn() && request.auth.uid == uid && onlyChanges(['isPublic', 'bio', 'avatarUrl', 'tempPassword']))
+        || (hasRole(resource.data.clubId, ['admin']) && resource.data.role in ['coach', 'secretary'] && onlyChanges(['branchIds', 'name', 'role'])
+          && next().role in ['coach', 'secretary'] && next().name is string && next().name.size() > 0 && next().name.size() <= 100
+          && (!('branchIds' in next()) || next().branchIds is list));
       allow delete: if isSuper() || (hasRole(resource.data.clubId, ['admin']) && resource.data.role in ['coach', 'secretary']);
     }
     // Etiket benzersizdir: var olan belge güncellenemez, adla arama yalnız tam etiketle olur.

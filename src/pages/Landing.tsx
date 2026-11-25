@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Banknote, ClipboardCheck, Coins, LineChart, MessagesSquare, Smartphone, Timer, Trophy, UserPlus } from 'lucide-react';
+import { ArrowRight, Banknote, ClipboardCheck, Coins, KeyRound, LineChart, Lock, Mail, MessagesSquare, ServerCog, ShieldCheck, Smartphone, Timer, Trophy, UserPlus, Users } from 'lucide-react';
 import { useAppDesign } from '../lib/design';
 import { ThemeToggle } from '../lib/theme';
 
@@ -21,8 +21,29 @@ const ROLES = [
   { title: 'Veli', text: 'Yalnız kendi çocuğunun gelişimini ve ödemesini izler.' },
 ];
 
+const SECURITY = [
+  { icon: Users, title: 'Kulüpler birbirinden ayrı', text: 'Her kulübün öğrencisi, ödemesi, duyurusu ve mesajı yalnız o kulübe aittir. Başka bir kulüp bu kayıtları göremez, değiştiremez.' },
+  { icon: ShieldCheck, title: 'Rolüne göre yetki', text: 'Veli yalnız kendi çocuğunu, antrenör kendi derslerini görür. Kurallar sunucuda denetlenir; uygulama değiştirilse bile aşılamaz.' },
+  { icon: Lock, title: 'Şifreli bağlantı', text: 'Tüm veri şifreli bağlantıyla (HTTPS) taşınır. Sistem Google Firebase altyapısında çalışır.' },
+  { icon: KeyRound, title: 'Şifreni kimse görmez', text: 'Giriş şifreleri Google Firebase kimlik sisteminde güvenli biçimde saklanır; Kulvar360 ekibi dahil kimse şifreni göremez.' },
+  { icon: ServerCog, title: 'Kart bilgisi tutulmaz', text: 'Uygulama banka kartı bilgisi almaz ve saklamaz. Aidat tahsilatları kulübün kendi kaydı olarak tutulur.' },
+];
+
+const FAQ = [
+  { q: 'Kulübümüz sistemi ücretsiz deneyebilir mi?', a: 'Evet. Kulüplere 2 haftalık ücretsiz deneme açıyoruz; tüm özellikler açıktır. Denemeyi tamamlayıp görüşlerini paylaşan kulübe ana modelde 2 hafta da hediye ediyoruz.' },
+  { q: 'Hangi cihazlarda çalışır?', a: 'Web tarayıcısında, Android telefon ve tablette, Windows bilgisayarda çalışır. Hepsinde aynı hesapla girilir ve veriler aynıdır.' },
+  { q: 'Kurulum gerekiyor mu?', a: 'Hayır. Kulübünüzü biz açarız, yönetici hesabınızı veririz. Şube, ders ve personeli birkaç dakikada eklersiniz.' },
+  { q: 'Veliler neyi görür?', a: 'Veli yalnız kendi çocuğunun dersini, ödemesini, devamını, derecelerini ve kulübün ona gönderdiği duyuruları görür. Diğer öğrencileri göremez.' },
+  { q: 'TYF yarış sonuçları nasıl gelir?', a: 'Canlı sonuçlar federasyon sitesinden dakikada bir alınır. Yarış sonu sonuç dosyaları düzenli taranır; sporcunun adı ve kulübü eşleşen dereceler kendiliğinden işlenir.' },
+  { q: 'Verilerimiz güvende mi?', a: 'Her kulübün verisi ayrı tutulur, her kullanıcı yalnız yetkisi olanı görür ve bağlantılar şifrelidir. Ayrıntılar bu sayfadaki Güvenlik bölümündedir.' },
+  { q: 'Bir sorun yaşarsam kime ulaşırım?', a: 'Sayfanın altındaki destek e-posta adresine yazabilirsiniz; kulübünüzün adını ve sorunu kısaca yazmanız yeterli.' },
+];
+
+/** Uygulama karma (#) yönlendirme kullandığı için bölüme kaydırma elle yapılır. */
+const jump = (id: string) => (e: React.MouseEvent) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); };
+
 export default function Landing() {
-  const { appName, logoUrl } = useAppDesign();
+  const { appName, logoUrl, supportEmail } = useAppDesign();
   return (
     <div className="landing">
       <header className="landing-bar">
@@ -71,6 +92,33 @@ export default function Landing() {
         </div>
       </section>
 
+      <section className="landing-section" id="guvenlik">
+        <p className="eyebrow">Güvenlik</p>
+        <h2>Kulübünün verisi yalnız kulübüne ait</h2>
+        <div className="landing-features">
+          {SECURITY.map(({ icon: Icon, title, text }) => (
+            <article key={title}><Icon size={22} /><h3>{title}</h3><p>{text}</p></article>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-section" id="hakkimizda">
+        <p className="eyebrow">Hakkımızda</p>
+        <h2>Havuz başında doğan bir fikir</h2>
+        <div className="landing-about">
+          <p>{appName}, yüzme kulüplerinin kâğıt, Excel tablosu ve mesaj grupları arasında dağılan işlerini tek yerde toplamak için geliştirildi. Kayıt, aidat, yoklama, antrenman, yarış sonucu ve veli iletişimi aynı sistemde buluşur.</p>
+          <p>Amacımız antrenörün zamanını havuza, yöneticinin zamanını kulübüne, velinin ilgisini de çocuğunun gelişimine bırakmak. Sistemi kulüplerden gelen görüşlerle sürekli geliştiriyoruz.</p>
+        </div>
+      </section>
+
+      <section className="landing-section" id="sss">
+        <p className="eyebrow">Sık sorulan sorular</p>
+        <h2>Merak edilenler</h2>
+        <div className="landing-faq">
+          {FAQ.map(({ q, a }) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}
+        </div>
+      </section>
+
       <section className="landing-final">
         <Smartphone size={28} />
         <h2>Web, Android ve Windows'ta aynı sistem</h2>
@@ -78,7 +126,11 @@ export default function Landing() {
         <Link className="button primary" to="/giris">Giriş ekranına geç <ArrowRight size={18} /></Link>
       </section>
 
-      <footer className="landing-foot">© {new Date().getFullYear()} {appName}</footer>
+      <footer className="landing-foot">
+        {supportEmail && <a className="landing-support" href={`mailto:${supportEmail}`}><Mail size={16} />Destek: {supportEmail}</a>}
+        <nav aria-label="Sayfa bölümleri"><a href="#guvenlik" onClick={jump('guvenlik')}>Güvenlik</a><a href="#hakkimizda" onClick={jump('hakkimizda')}>Hakkımızda</a><a href="#sss" onClick={jump('sss')}>Sık sorulan sorular</a></nav>
+        <span>© {new Date().getFullYear()} {appName}</span>
+      </footer>
     </div>
   );
 }

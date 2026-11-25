@@ -11,6 +11,10 @@ type Session = {
   signInDemo: (userId: string) => void;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  /** Giriş e-postası yalnız Auth'tadır, profile yazılmaz. */
+  accountEmail: () => Promise<string>;
+  /** Mevcut şifre doğrulanır, sonra yeni şifre kaydedilir ve geçici şifre uyarısı kalkar. */
+  changePassword: (current: string, next: string) => Promise<void>;
 };
 
 const Ctx = createContext<Session | null>(null);
@@ -45,7 +49,7 @@ const makeTag = (name: string) =>
   `@${name.toLocaleLowerCase('tr-TR').replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u').replace(/[^a-z0-9]/g, '').slice(0, 30)}${Math.floor(1000 + Math.random() * 9000)}`;
 
 /** Profil ve benzersiz etiket birlikte yazılır; etiket doluysa yenisi denenir. */
-async function saveProfile(uid: string, profile: { clubId: string; name: string; role: string; isPublic: boolean }) {
+async function saveProfile(uid: string, profile: { clubId: string; name: string; role: string; isPublic: boolean; tempPassword?: boolean }) {
   for (let attempt = 0; ; attempt += 1) {
     const tag = makeTag(profile.name);
     try {
@@ -84,7 +88,8 @@ export async function createParentAccount(clubId: string, name: string, email: s
 
 /** Yönetici personel açarken kendi oturumu kapanmasın diye Firebase'de ikinci uygulama örneği kullanılır. */
 export async function createStaffAccount(clubId: string, name: string, email: string, password: string, role: 'coach' | 'secretary' | 'admin') {
-  const profile = { clubId, name, role, isPublic: true };
+  // Yöneticinin verdiği geçici şifre ilk girişte değiştirmeye davet edilir.
+  const profile = { clubId, name, role, isPublic: true, tempPassword: true };
   if (!firebaseEnabled) {
     const id = newId();
     await saveProfile(id, profile);
@@ -165,6 +170,20 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     resetPassword: async (email) => {
       const f = await authSdk();
       await f.sendPasswordResetEmail(f.auth, email);
+    },
+    accountEmail: async () => {
+      if (!firebaseEnabled) return '';
+      const f = await authSdk();
+      return f.auth.currentUser?.email ?? '';
+    },
+    changePassword: async (current, next) => {
+      if (!firebaseEnabled) throw new Error('Demo modunda şifre yoktur.');
+      const f = await authSdk();
+      const me = f.auth.currentUser;
+      if (!me?.email) throw new Error('Oturum bulunamadı.');
+      await f.reauthenticateWithCredential(me, f.EmailAuthProvider.credential(me.email, current));
+      await f.updatePassword(me, next);
+      await db.update('users', me.uid, { tempPassword: false }).catch(() => undefined);
     },
     signInDemo: (id) => {
       sessionStorage.setItem(DEMO_KEY, id);

@@ -31,12 +31,16 @@ export function startTheme() {
   });
 }
 
-export function toggleTheme() {
-  const next: Theme = current === 'dark' ? 'light' : 'dark';
+/** Kullanıcının seçtiği tema hatırlanır. */
+export function setTheme(next: Theme) {
   try {
     localStorage.setItem(KEY, next);
   } catch { /* Kayıt tutulamazsa seçim bu oturumda geçerli kalır. */ }
   applyTheme(next);
+}
+
+export function toggleTheme() {
+  setTheme(current === 'dark' ? 'light' : 'dark');
 }
 
 export const useTheme = () => useSyncExternalStore((l) => {

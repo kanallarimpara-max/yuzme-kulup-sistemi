@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { PasswordInput } from '../../lib/PasswordInput';
 import { Trash2 } from 'lucide-react';
 import { useSession, createStaffAccount } from '../../lib/session';
 import { db, useCollection } from '../../lib/store';
@@ -66,7 +67,7 @@ export default function Staff() {
         <form className="card stack" onSubmit={addPerson}><h2>Antrenör veya sekreter ata</h2>
           <label>Ad soyad<input required value={person.name} onChange={(e) => setPerson({ ...person, name: e.target.value })} /></label>
           <label>E-posta<input required type="email" autoComplete="off" value={person.email} onChange={(e) => setPerson({ ...person, email: e.target.value })} /></label>
-          <label>Geçici şifre<input required type="password" autoComplete="new-password" minLength={8} value={person.password} onChange={(e) => setPerson({ ...person, password: e.target.value })} /></label>
+          <label>Geçici şifre<PasswordInput required autoComplete="new-password" minLength={8} value={person.password} onChange={(e) => setPerson({ ...person, password: e.target.value })} /></label>
           <label>Rol<select value={person.role} onChange={(e) => setPerson({ ...person, role: e.target.value as 'coach' | 'secretary' })}><option value="coach">Antrenör</option><option value="secretary">Sekreter</option></select></label>
           <button className="primary">Personel ekle</button>
           <ul className="simple-list">{staff.map((u) => <li key={u.id} className="wrap-row"><span>{u.name}<small>{ROLE_LABEL[u.role]} · {u.tag}</small>

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { PasswordInput } from '../lib/PasswordInput';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useAppDesign } from '../lib/design';
@@ -50,7 +51,7 @@ export default function Login() {
         {firebaseEnabled ? (
           <form onSubmit={submit} className="stack">
             <label>E-posta<input type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-            <label>Şifre<input type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} /></label>
+            <label>Şifre<PasswordInput autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} /></label>
             {error && <p className="error" role="alert">{error}</p>}
             {info && <p className="ok" role="status">{info}</p>}
             <button className="primary" disabled={busy}>{busy ? 'Giriş yapılıyor…' : 'Giriş yap'}</button>

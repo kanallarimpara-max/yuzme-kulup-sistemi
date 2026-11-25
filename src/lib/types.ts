@@ -13,7 +13,7 @@ export const ROLE_LABEL: Record<Role, string> = {
   parent: 'Veli',
 };
 
-export type User = Row & { name: string; role: Role; tag: string; isPublic: boolean; branchIds?: string[]; bio?: string; avatarUrl?: string };
+export type User = Row & { name: string; role: Role; tag: string; isPublic: boolean; branchIds?: string[]; bio?: string; avatarUrl?: string; tempPassword?: boolean };
 export type Contact = Row & { fromId: string; toId: string; memberIds: string[]; status: 'bekliyor' | 'kabul' };
 export type Message = Row & { chatId: string; memberIds: string[]; senderId: string; kind: 'text' | 'image' | 'audio'; text?: string; url?: string };
 export type CallDoc = Row & {

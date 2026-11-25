@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { PasswordInput } from '../../lib/PasswordInput';
 import { Trash2 } from 'lucide-react';
 import { db, useCollection, type Row } from '../../lib/store';
 import { dateTr, money, toKurus } from '../../lib/format';
@@ -89,7 +90,7 @@ export default function Platform() {
           <label>Kulüp adı<input required value={newClub.name} onChange={(e) => setNewClub({ ...newClub, name: e.target.value })} /></label>
           <label>Admin adı soyadı<input required value={newClub.adminName} onChange={(e) => setNewClub({ ...newClub, adminName: e.target.value })} /></label>
           <label>Admin e-postası<input type="email" required autoComplete="off" value={newClub.email} onChange={(e) => setNewClub({ ...newClub, email: e.target.value })} /></label>
-          <label>Geçici şifre<input type="password" required minLength={8} autoComplete="new-password" value={newClub.password} onChange={(e) => setNewClub({ ...newClub, password: e.target.value })} /></label>
+          <label>Geçici şifre<PasswordInput required minLength={8} autoComplete="new-password" value={newClub.password} onChange={(e) => setNewClub({ ...newClub, password: e.target.value })} /></label>
           <div className="form-actions"><button className="primary" disabled={busy}>{busy ? 'Açılıyor…' : 'Kulübü aç'}</button></div>
         </form>
         {clubStatus && <p className="ok" role="status">{clubStatus}</p>}
@@ -104,6 +105,7 @@ export default function Platform() {
           <label>Vurgu rengi<input type="color" value={shownLook.accent} onChange={(e) => setLook({ ...shownLook, accent: e.target.value })} /></label>
           <label>Arka plan<input type="color" value={shownLook.background} onChange={(e) => setLook({ ...shownLook, background: e.target.value })} /></label>
           <label>Kart rengi<input type="color" value={shownLook.panel} onChange={(e) => setLook({ ...shownLook, panel: e.target.value })} /></label>
+          <label>Destek e-postası<input type="email" placeholder="destek@ornek.com" value={shownLook.supportEmail ?? ''} onChange={(e) => setLook({ ...shownLook, supportEmail: e.target.value.trim() })} /><small className="muted">Giriş sayfasının altında ve Ayarlar'da görünür.</small></label>
           <div className="form-actions"><button className="primary">Tasarımı kaydet</button><button type="button" onClick={() => setLook({ ...DEFAULT_DESIGN })}>Varsayılana dön</button></div>
         </form>
       </section>

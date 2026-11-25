@@ -1,4 +1,5 @@
 import { useMemo, useState, type CSSProperties, type FormEvent } from 'react';
+import { PasswordInput } from '../lib/PasswordInput';
 import { useParams } from 'react-router-dom';
 import { createParentAccount } from '../lib/session';
 import { db, useCollection } from '../lib/store';
@@ -94,8 +95,8 @@ export default function PreRegister() {
               <label>Veli adı soyadı *<input required value={form.parentName} onChange={(e) => set('parentName', e.target.value)} /></label>
               <label>Veli e-posta *<input required type="email" autoComplete="email" value={form.parentEmail} onChange={(e) => set('parentEmail', e.target.value)} /></label>
               <label>Veli telefonu *<input required type="tel" value={form.parentPhone} onChange={(e) => set('parentPhone', e.target.value)} /></label>
-              <label>Veli şifresi *<input required type="password" autoComplete="new-password" minLength={8} value={form.password} onChange={(e) => set('password', e.target.value)} /></label>
-              <label>Veli şifresi tekrar *<input required type="password" autoComplete="new-password" minLength={8} value={form.password2} onChange={(e) => set('password2', e.target.value)} /></label>
+              <label>Veli şifresi *<PasswordInput required autoComplete="new-password" minLength={8} value={form.password} onChange={(e) => set('password', e.target.value)} /></label>
+              <label>Veli şifresi tekrar *<PasswordInput required autoComplete="new-password" minLength={8} value={form.password2} onChange={(e) => set('password2', e.target.value)} /></label>
               <label>Ödeme tercihi *<select required value={form.paymentMethod} onChange={(e) => set('paymentMethod', e.target.value)}><option value="">Seçin</option>{methods.map((m) => <option key={m}>{m}</option>)}</select></label>
             </div>
             <label>Adres *<textarea required rows={2} value={form.address} onChange={(e) => set('address', e.target.value)} /></label>
