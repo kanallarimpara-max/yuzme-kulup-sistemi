@@ -39,7 +39,7 @@ const SHOTS = [
   ['onkayit-formu', null, async (p) => { await p.goto(`${BASE}/on-kayit/mavi-dalga`); await p.waitForSelector('.prereg-card form'); await p.waitForTimeout(700); }],
   ['super-panel', 'super', (p) => go(p, '/panel')], ['super-platform', 'super', (p) => go(p, '/platform')], ['super-kredi', 'super', (p) => go(p, '/kredi-yonetimi')], ['super-market', 'super', (p) => go(p, '/market')],
   ['admin-panel', 'admin', (p) => go(p, '/panel')], ['admin-dersler', 'admin', (p) => go(p, '/dersler')], ['admin-finans', 'admin', (p) => go(p, '/finans')], ['admin-personel', 'admin', (p) => go(p, '/personel')],
-  ['admin-kulup', 'admin', (p) => go(p, '/kulup')], ['admin-derece', 'admin', (p) => go(p, '/derece')], ['admin-performans', 'admin', (p) => go(p, '/performans')], ['admin-duyuru', 'admin', (p) => go(p, '/duyurular')],
+  ['admin-kulup', 'admin', (p) => go(p, '/kulup')], ['admin-performans', 'admin', (p) => go(p, '/performans')], ['admin-duyuru', 'admin', (p) => go(p, '/duyurular')],
   ['sekreter-kayit', 'sekreter', (p) => go(p, '/kayit')], ['sekreter-ogrenci', 'sekreter', (p) => go(p, '/ogrenciler')], ['sekreter-onkayit', 'sekreter', (p) => go(p, '/on-kayit-ayar')],
   ['sekreter-taksit', 'sekreter', async (p) => { await go(p, '/ogrenciler'); await p.locator('button:has-text("Taksitler")').first().click(); await p.waitForTimeout(400); await toEl(p, '.simple-list'); }],
   ['antrenor-panel', 'antrenor', (p) => go(p, '/panel')],

@@ -106,3 +106,15 @@ describe('TYF sonuçlar sayfası', () => {
     expect(poolFor('KURGU MÜSABAKASI SİVAS', ['2026-07-04'], meets)).toBeUndefined();
   });
 });
+
+describe('Yüklenen PDF yarış adı', () => {
+  it('ilk sayfanın üst satırlarından yarış adını alır', async () => {
+    const { topluTitle } = await import('./tyfToplu');
+    const page: PdfItem[] = [
+      ...line(790, [103, 'TÜRKİYE YÜZME FEDERASYONU KURGU MÜSABAKASI']),
+      ...line(778, [253, 'NİĞDE, 3. - 5.7.2026']),
+      ...line(749, [43, 'Yarış 1'], [252, 'Kızlar, 100m Serbest']),
+    ];
+    expect(topluTitle([page])).toBe('TÜRKİYE YÜZME FEDERASYONU KURGU MÜSABAKASI NİĞDE, 3. - 5.7.2026');
+  });
+});

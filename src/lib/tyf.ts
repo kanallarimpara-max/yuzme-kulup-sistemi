@@ -127,8 +127,8 @@ export async function drawPdf(data: ArrayBuffer, host: HTMLElement) {
   }
 }
 
-/** Tarayıcıda seçilen sonuç PDF'ini okur. */
-export async function readResultPdf(data: ArrayBuffer): Promise<TyfEvent | null> {
+/** Tarayıcıda PDF'in bütün sayfalarındaki metni konumuyla okur. */
+export async function readPdfPages(data: ArrayBuffer): Promise<PdfItem[][]> {
   const pdfjs = await import('pdfjs-dist');
   const worker = await import('pdfjs-dist/build/pdf.worker.min.mjs?url');
   pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
@@ -138,5 +138,10 @@ export async function readResultPdf(data: ArrayBuffer): Promise<TyfEvent | null>
     const { items } = await (await doc.getPage(n)).getTextContent();
     pages.push(items.flatMap((i) => ('str' in i ? [{ x: i.transform[4], y: i.transform[5], text: i.str }] : [])));
   }
-  return parseResultPages(pages);
+  return pages;
+}
+
+/** Tarayıcıda seçilen canlı sonuç PDF'ini okur. */
+export async function readResultPdf(data: ArrayBuffer): Promise<TyfEvent | null> {
+  return parseResultPages(await readPdfPages(data));
 }

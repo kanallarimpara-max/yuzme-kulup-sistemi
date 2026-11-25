@@ -353,3 +353,5 @@ input[type='color'] { cursor: pointer; min-height: 42px; padding: 4px; }
 .bubble.mine small { color: inherit; }
 
 .recharts-legend-item-text, .recharts-tooltip-item, .recharts-tooltip-label { color: var(--text) !important; }
+
+.upload-button { width: fit-content; }

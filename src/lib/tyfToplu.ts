@@ -144,3 +144,10 @@ export function poolFor(title: string, dates: string[], meets: MeetHint[]): '25m
   }
   return undefined;
 }
+
+/** Yarış adını ilk sayfanın en üstündeki satırlardan ("... MÜSABAKASI" + "NİĞDE, 3. - 5.7.2026") alır. */
+export function topluTitle(pages: PdfItem[][]): string {
+  const lines = linesOf(pages[0] ?? []);
+  const stop = lines.findIndex((l) => /^(Yarış\s+\d+|\d+\s*-\s*\d+\.\s*GÜN)/i.test(l.text));
+  return lines.slice(0, stop > 0 ? Math.min(stop, 3) : 2).map((l) => l.text).join(' ').replace(/\s+/g, ' ').trim().slice(0, 200);
+}
