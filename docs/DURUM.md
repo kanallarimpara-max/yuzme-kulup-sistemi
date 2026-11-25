@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Eski notlu baraj gonderisini silmek icin kullanici onayi bekleniyor; kalan Instagram paylasimlari ve 26 kulube mesaj
+Worker'in 1005890 yarisini tyfMeets'e yazdigini dogrula, sonra Instagram paylasimlarina devam (profilde 21 gonderi; sirada ozellik-5)
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Eski notlu baraj gonderisini silmek icin kullanici onayi bekleniyor; kalan Insta
 
 ## Son kayıtlar
 
+- 2026-11-26: Canli sonuc hatasi duzeltildi: Worker yeni yarislari ararken acilmamis yarislar 12 deneme hakkini dolduruyor, suren UGL Turkiye Finali (1005890) hic denenmiyordu. TYF sayfasindaki dogrudan canli sonuc baglantisi artik once denenir, kalanlar her turda kaydirilir; aktif yaris sorgusu bitis tarihine gore siralanir. Worker yayinlandi, 39 Worker testi gecti
 - 2026-11-25: Instagram: duzeltilmis Kulupler Arasi Kisa Kulvar baraj gonderisi (tam yaris adi, notsuz) ve 26-29 Kasim Arena 11-12 Yas UGL Turkiye Finali katilim barajlari (25 m ve 50 m, TYF reglamani Revize 03.11.2026) paylasildi; profilde 11 gonderi
 - 2026-11-25: Demo kulup kurulum araci (scripts/demo-kulup.mjs): 4 personel, 8 veli, 16 ogrenci, 4 ders, taksitler, yoklama, antrenman ve yaris dereceleri, yorum, antrenman, duyuru, gider, maas, ders grubu mesajlari; her kayit ilgili rolun hesabiyla yazilir, emulatorde dogrulandi. Performans analizinde stil adlari Turkce yazildi, web yayinlandi
 - 2026-11-25: TYF baraj gonderisi duzeltildi: yildizli not kaldirildi, yarisin tam adi yazildi (Turkiye Sportive Kulupler Arasi Kisa Kulvar Yildiz, Genc ve Acik Yas Yuzme Sampiyonasi)
