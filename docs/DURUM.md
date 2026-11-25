@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-APK ve exe derlemelerini dogrula; super admin destek e-postasini Platform > Uygulama tasarimi'ndan girmeli; sonra kulup mesajlari
+Android APK derlemesini dogrula
 
 ## Modüller
 
@@ -39,6 +39,7 @@ APK ve exe derlemelerini dogrula; super admin destek e-postasini Platform > Uygu
 
 ## Son kayıtlar
 
+- 2026-11-26: Giris sayfasi kartlarindaki bulaniklik (backdrop-filter) kaldirildi; Android test emulatoru bu efektle cokuyordu. Yari saydam gorunum kaldi
 - 2026-11-26: Duzenleme 2. kisim: 1 kredi = 1 TL (oran alani kalkti, paket ve urun fiyati otomatik, bozdurma kuralda kontrol), sosyal: yorum silme, onayli gonderi silme, engelleme (kuralda yorum engeli), ilgilenmiyorum ve icerik turu tercihi, super admin moderasyonu; mesajlar: geri alma, basa sabitleme, toplu mesaj, antrenor/yonetici/sekreter grup olusturma, alfabetik kisi listesi, en fazla 3 kisi onerisi; super admin kulup tablosu siralama; personel duzenleme ve e-posta dogrulama; sube/model duzenleme, 7 model turu ve aciklamalari; ders saatlerinde on kosul yonlendirmesi; onemli islemlerde onay penceresi. 296 kural, 74 birim, 42 Worker testi gecti; web ve kurallar yayinda
 - 2026-11-26: Duzenleme 1. kisim: giris sayfasina Guvenlik, Hakkimizda, SSS ve destek e-postasi (super admin tasarimdan girer); kartlara hafif cam gorunumu. Sol alttaki etiket/tema/bildirim/cikis kaldirildi, Ayarlar sayfasi (hesap bilgileri, tema, bildirim, sifre degistirme, destek, onayli cikis). Tum sifre alanlarina goster/gizle dugmesi. Gecici sifreyle acilan personele kapatilabilir sifre degistirme onerisi. Kurallar: tempPassword alani, yonetici personel adi/rolunu duzenleyebilir
 - 2026-11-26: Yaris takvimi: TYF 2026-2027 faaliyet takvimi PDF'i okunuyor (28 yaris, 10 yurt ici), gunde 4 kez barajlar.yml ile Worker /calendar/publish uzerinden tyfCalendar/current belgesine yaziliyor. Yonetici ve antrenor /takvim ekraninda yarislari kulup takvimine ekler (clubRaces), ayni kulubun velisi ay gorunumu ve listede gorur. Kurallar: yalniz admin/antrenor ekler-cikarir, baska kulup goremez (266 kural, 74 birim, 42 Worker testi). Web, kurallar ve Worker yayinda

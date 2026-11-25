@@ -311,7 +311,7 @@ input[type='color'] { cursor: pointer; min-height: 42px; padding: 4px; }
 @keyframes swim { to { left: calc(100% - 100px); } }
 .landing-section { display: grid; gap: 12px; margin: 0 auto; max-width: 1280px; padding: clamp(40px, 6vw, 72px) clamp(16px, 5vw, 64px); }
 .landing-features { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); margin-top: 18px; }
-.landing-features article { backdrop-filter: blur(14px); background: linear-gradient(160deg, color-mix(in srgb, var(--panel) 84%, transparent), color-mix(in srgb, var(--panel) 60%, transparent)); border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line)); border-radius: 16px; box-shadow: inset 0 1px 0 rgba(255,255,255,.06); display: grid; gap: 9px; padding: 20px; }
+.landing-features article { background: linear-gradient(160deg, color-mix(in srgb, var(--panel) 84%, transparent), color-mix(in srgb, var(--panel) 60%, transparent)); border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line)); border-radius: 16px; box-shadow: inset 0 1px 0 rgba(255,255,255,.06); display: grid; gap: 9px; padding: 20px; }
 .landing-features svg { color: var(--accent-text); }
 .landing-features p, .landing-roles p, .landing-final p { color: var(--muted); line-height: 1.5; }
 .landing-roles { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); margin-top: 18px; }
@@ -328,7 +328,7 @@ input[type='color'] { cursor: pointer; min-height: 42px; padding: 4px; }
 .landing-about { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); margin-top: 12px; }
 .landing-about p { color: var(--muted); font-size: 1.05rem; line-height: 1.65; }
 .landing-faq { display: grid; gap: 10px; margin-top: 14px; max-width: 860px; }
-.landing-faq details { backdrop-filter: blur(14px); background: color-mix(in srgb, var(--panel) 72%, transparent); border: 1px solid var(--line); border-radius: 14px; padding: 4px 18px; }
+.landing-faq details { background: color-mix(in srgb, var(--panel) 72%, transparent); border: 1px solid var(--line); border-radius: 14px; padding: 4px 18px; }
 .landing-faq summary { align-items: center; cursor: pointer; display: flex; font-weight: 700; gap: 12px; justify-content: space-between; list-style: none; min-height: 48px; }
 .landing-faq summary::-webkit-details-marker { display: none; }
 .landing-faq summary::after { color: var(--accent-text); content: '+'; font-size: 1.4rem; font-weight: 400; }
