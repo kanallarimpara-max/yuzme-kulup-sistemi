@@ -24,6 +24,7 @@ const seed = {
   },
   enrollments: {
     e1: { clubId: 'c1', parentId: 'parentA', studentId: 's1' },
+    e3: { clubId: 'c1', parentId: 'parentA', studentId: 's1', installments: [{ no: 1, amountKurus: 100, dueDate: '2026-11-01' }], history: [] },
     e2: { clubId: 'c1', parentId: 'parentB', studentId: 's2' },
   },
   results: { r1: { clubId: 'c1', parentId: 'parentA', studentId: 's1' }, r2: { clubId: 'c1', parentId: 'parentB', studentId: 's2' }, rt: { clubId: 'c1', parentId: 'parentA', studentId: 's1', kind: 'antrenman', source: 'manuel' } },
@@ -50,6 +51,8 @@ const seed = {
   workouts: { w1: { clubId: 'c1', coachId: 'coach1', lessonId: 'l1', title: 'x', sets: [] }, w2: { clubId: 'c1', coachId: 'coach2', lessonId: 'l2', title: 'y', sets: [] } },
   parentAccess: { parentA: { clubId: 'c1', lessonIds: ['l1'] } },
   availability: { v1: { clubId: 'c1', coachId: 'coach1' } },
+  raceDays: { 'c1_2026-9_coach1': { clubId: 'c1', coachId: 'coach1', meetId: '2026-9', meetUrl: 'u', title: 'Yarış', info: '', startDate: '2026-11-26', endDate: '2026-11-29', meetTime: '', meetPlace: '', scannedAt: 1, createdAt: 1 } },
+  raceEntries: { 'c1_2026-9_coach1_s1': { clubId: 'c1', raceDayId: 'c1_2026-9_coach1', coachId: 'coach1', studentId: 's1', parentId: 'parentA', studentName: 'x', meetTitle: 'Yarış', startDate: '2026-11-26', endDate: '2026-11-29', meetTime: '', meetPlace: '', events: [], rsvp: 'bekliyor' } },
   clubRaces: { 'c1_yaris1': { clubId: 'c1', eventId: 'yaris1', title: 'Şampiyona', dateText: '22 - 26 ARALIK 2026', startDate: '2026-12-22', endDate: '2026-12-26', pool: '25M', category: '', place: 'ANTALYA', approvedBy: 'admin1', createdAt: 1 } },
   tyfCalendar: { current: { season: '2026-2027', payload: '[]' } },
   timers: { 'timer-coach2': { clubId: 'c1', lanes: [] } },
@@ -90,7 +93,7 @@ const CLUB_DOCS = {
   students: 's1', enrollments: 'e1', expenses: 'g1', salaries: 'p1', lessonPay: 'l1', prereg: 'o1', availability: 'v1', attendance: 'a1',
   attendanceMarks: 'm1', results: 'r1', clubRaces: 'c1_yaris1', comments: 'y1', workouts: 'w1', timers: 'timer-coach2', aiPrograms: 'p1', notices: 'n1', chats: 'sohbet1', parentAccess: 'parentA',
 };
-const CLUB_LISTS = ['clubRaces', 'students', 'enrollments', 'discounts', 'expenses', 'salaries', 'lessonPay', 'prereg', 'availability', 'attendance', 'attendanceMarks', 'results', 'comments', 'workouts', 'timers', 'aiPrograms', 'chats'];
+const CLUB_LISTS = ['renewals', 'skillCards', 'raceDays', 'raceEntries', 'clubRaces', 'students', 'enrollments', 'discounts', 'expenses', 'salaries', 'lessonPay', 'prereg', 'availability', 'attendance', 'attendanceMarks', 'results', 'comments', 'workouts', 'timers', 'aiPrograms', 'chats'];
 const CLUB_WRITES = ['students', 'enrollments', 'discounts', 'expenses', 'salaries', 'lessonPay', 'prereg', 'availability', 'attendance', 'attendanceMarks', 'results', 'comments', 'workouts', 'aiPrograms', 'chats', 'branches', 'models', 'lessons', 'notices'];
 const crossClub = [
   ...Object.entries(CLUB_DOCS).map(([name, id]) => no(`başka kulüp yöneticisi ${name} kaydını okuyamaz`, () => getDoc(doc(X, name, id)))),
@@ -104,7 +107,48 @@ const crossClub = [
 
 const program = (coachId, extra = {}) => ({ clubId: 'c1', coachId, lessonId: 'l1', period: 'haftalik', text: 'Plan', date: '2026-11-24', ...extra });
 const race = (by, extra = {}) => ({ clubId: 'c1', eventId: 'yaris2', title: 'Milli Takım Seçmesi', dateText: '17 - 20 ARALIK 2026', startDate: '2026-12-17', endDate: '2026-12-20', pool: '50M', category: 'Yıldız', place: 'ANTALYA', approvedBy: by, createdAt: Date.now(), ...extra });
+const payLog = (by, extra = {}) => ({ at: 1, byId: by, byName: 'x', no: 1, action: 'tahsilat', ...extra });
+const paid = [{ no: 1, amountKurus: 100, dueDate: '2026-11-01', paidAt: '2026-11-20', method: 'Nakit' }];
+const entry = (extra = {}) => ({ clubId: 'c1', raceDayId: 'c1_2026-9_coach1', coachId: 'coach1', studentId: 's1', parentId: 'parentA', studentName: 'x', meetTitle: 'Yarış', startDate: '2026-11-26', endDate: '2026-11-29', meetTime: '', meetPlace: '', events: [{ no: '1', name: '50 m', heat: 1, heats: 2, lane: 3, entryTime: '', date: '2026-11-26' }], rsvp: 'bekliyor', ...extra });
 const checks = [
+  // Taksit makbuzu ve düzeltme geçmişi
+  ok('sekreter tahsilatı geçmişe yazarak işler', () => updateDoc(doc(S, 'enrollments', 'e3'), { installments: paid, history: [payLog('sec1')] })),
+  no('geçmişe yazmadan taksit değiştirilemez', () => updateDoc(doc(S, 'enrollments', 'e3'), { installments: [] })),
+  no('geçmiş başkası adına yazılamaz', () => updateDoc(doc(S, 'enrollments', 'e3'), { installments: [], history: [payLog('sec1'), payLog('admin1', { action: 'iptal', reason: 'yanlış' })] })),
+  no('gerekçesiz düzeltme yapılamaz', () => updateDoc(doc(S, 'enrollments', 'e3'), { installments: [], history: [payLog('sec1'), payLog('sec1', { action: 'iptal' })] })),
+  no('eski geçmiş kaydı silinemez', () => updateDoc(doc(S, 'enrollments', 'e3'), { installments: [], history: [payLog('sec1', { action: 'iptal', reason: 'yanlış işlem' })] })),
+  ok('gerekçeli düzeltme geçmişin sonuna eklenir', () => updateDoc(doc(S, 'enrollments', 'e3'), { installments: [], history: [payLog('sec1'), payLog('sec1', { action: 'iptal', reason: 'kardeşe işlendi' })] })),
+  ok('sekreter veliye ödeme bildirimi gönderir', () => addDoc(collection(S, 'notices'), { clubId: 'c1', senderId: 'sec1', kind: 'odeme', title: 'Ödeme', body: 'x', recipientIds: ['parentA'], readBy: [] })),
+  no('sekreter genel duyuru gönderemez', () => addDoc(collection(S, 'notices'), { clubId: 'c1', senderId: 'sec1', kind: 'duyuru', title: 'x', body: 'x', recipientIds: ['parentA'], readBy: [] })),
+  no('sekreter ödeme bildirimini topluca gönderemez', () => addDoc(collection(S, 'notices'), { clubId: 'c1', senderId: 'sec1', kind: 'odeme', title: 'x', body: 'x', recipientIds: ['parentA', 'parentB'], readBy: [] })),
+  // Devam yanıtı
+  ok('veli kendi çocuğu için devam yanıtı verir', () => setDoc(doc(A, 'renewals', 's1'), { clubId: 'c1', studentId: 's1', parentId: 'parentA', lessonId: 'l1', status: 'devam', updatedAt: 1, updatedBy: 'parentA' })),
+  no('veli başkasının çocuğu için yanıt veremez', () => setDoc(doc(A, 'renewals', 's2'), { clubId: 'c1', studentId: 's2', parentId: 'parentB', lessonId: 'l1', status: 'devam', updatedAt: 1, updatedBy: 'parentA' })),
+  ok('sekreter devam yanıtı girer', () => setDoc(doc(S, 'renewals', 's2'), { clubId: 'c1', studentId: 's2', parentId: 'parentB', lessonId: 'l1', status: 'ayrilacak', updatedAt: 1, updatedBy: 'sec1' })),
+  ok('yönetici devam yanıtlarını görür', () => getDocs(q(M, 'renewals', ['clubId', 'c1']))),
+  no('antrenör devam yanıtlarını listeleyemez', () => getDocs(q(C, 'renewals', ['clubId', 'c1']))),
+  no('başka kulüp yöneticisi devam yanıtlarını göremez', () => getDocs(q(X, 'renewals', ['clubId', 'c1']))),
+  // Beceri karnesi
+  ok('antrenör kendi öğrencisinin becerisini işaretler', () => setDoc(doc(C, 'skillCards', 's1'), { clubId: 'c1', studentId: 's1', parentId: 'parentA', coachId: 'coach1', marks: { 'yuz-sokma': 'bagimsiz' }, updatedAt: 1, updatedBy: 'coach1' })),
+  no('antrenör başkasının öğrencisini işaretleyemez', () => setDoc(doc(C, 'skillCards', 's2'), { clubId: 'c1', studentId: 's2', parentId: 'parentB', coachId: 'coach2', marks: {}, updatedAt: 1, updatedBy: 'coach1' })),
+  ok('yönetici beceri karnesini düzenler', () => setDoc(doc(M, 'skillCards', 's2'), { clubId: 'c1', studentId: 's2', parentId: 'parentB', coachId: 'coach2', marks: { 'takla-donus': 'destekle' }, updatedAt: 1, updatedBy: 'admin1' })),
+  no('veli beceri işaretleyemez', () => setDoc(doc(A, 'skillCards', 's1'), { clubId: 'c1', studentId: 's1', parentId: 'parentA', coachId: 'coach1', marks: {}, updatedAt: 1, updatedBy: 'parentA' })),
+  ok('veli çocuğunun beceri karnesini görür', () => getDocs(q(A, 'skillCards', ['clubId', 'c1'], ['parentId', 'parentA']))),
+  no('veli başka çocuğun beceri karnesini göremez', () => getDoc(doc(A, 'skillCards', 's2'))),
+  // Yarış günü programı ve yarışa özel duyuru
+  ok('antrenör yarış programı ve sporcu kaydını birlikte açar', () => batch(C, [['raceDays', 'c1_2026-8_coach1', { clubId: 'c1', coachId: 'coach1', meetId: '2026-8', meetUrl: 'u', title: 'Yarış', info: '', startDate: '2026-11-26', endDate: '2026-11-29', meetTime: '08.15', meetPlace: 'Giriş', scannedAt: 1, createdAt: 1 }], ['raceEntries', 'c1_2026-8_coach1_s1', entry({ raceDayId: 'c1_2026-8_coach1' })]])),
+  no('antrenör başkasının öğrencisini programa ekleyemez', () => setDoc(doc(C, 'raceEntries', 'c1_2026-9_coach1_s2'), entry({ studentId: 's2', parentId: 'parentB' }))),
+  no('başkası adına yarış programı açılamaz', () => setDoc(doc(C, 'raceDays', 'c1_2026-7_coach2'), { clubId: 'c1', coachId: 'coach2', meetId: '2026-7', meetUrl: 'u', title: 'x', info: '', startDate: '2026-11-26', endDate: '2026-11-26', meetTime: '', meetPlace: '', scannedAt: 1, createdAt: 1 })),
+  no('veli onaylı olarak kayıt açılamaz', () => setDoc(doc(C, 'raceEntries', 'c1_2026-9_coach1_s9'), entry({ rsvp: 'katiliyor' }))),
+  ok('veli çocuğunun yarış programını görür', () => getDocs(q(A, 'raceEntries', ['clubId', 'c1'], ['parentId', 'parentA']))),
+  no('veli başka çocuğun yarış programını göremez', () => getDocs(q(as('parentB'), 'raceEntries', ['clubId', 'c1'], ['parentId', 'parentA']))),
+  ok('veli katılımı onaylar', () => updateDoc(doc(A, 'raceEntries', 'c1_2026-9_coach1_s1'), { rsvp: 'katiliyor', rsvpAt: 2 })),
+  no('veli yarış listesini değiştiremez', () => updateDoc(doc(A, 'raceEntries', 'c1_2026-9_coach1_s1'), { events: entry().events })),
+  no('antrenör veli yanıtını değiştiremez', () => updateDoc(doc(C, 'raceEntries', 'c1_2026-9_coach1_s1'), { rsvp: 'katilmiyor' })),
+  ok('antrenör start listesi değişince programı günceller', () => updateDoc(doc(C, 'raceEntries', 'c1_2026-9_coach1_s1'), { events: [], meetTime: '09.00' })),
+  no('veli yarış günü programlarını listeleyemez', () => getDocs(q(A, 'raceDays', ['clubId', 'c1']))),
+  ok('antrenör kendi yarışına özel duyuru gönderir', () => addDoc(collection(C, 'notices'), { clubId: 'c1', senderId: 'coach1', kind: 'yaris', raceDayId: 'c1_2026-9_coach1', title: 'Buluşma', body: '08.15', recipientIds: ['parentA'], readBy: [] })),
+  no('başkasının yarış programına duyuru bağlanamaz', () => addDoc(collection(as('coach2'), 'notices'), { clubId: 'c1', senderId: 'coach2', kind: 'yaris', raceDayId: 'c1_2026-9_coach1', title: 'x', body: 'x', recipientIds: ['parentA'], readBy: [] })),
   ok('herkes TYF takvimini okur', () => getDoc(doc(U, 'tyfCalendar', 'current'))),
   no('kulüp yöneticisi TYF takvimini değiştiremez', () => setDoc(doc(M, 'tyfCalendar', 'current'), { payload: '[]' })),
   ok('antrenör kulüp takvimine yarış ekler', () => setDoc(doc(C, 'clubRaces', 'c1_yaris2'), race('coach1'))),

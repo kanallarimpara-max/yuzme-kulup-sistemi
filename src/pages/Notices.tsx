@@ -83,7 +83,7 @@ export default function Notices() {
         <h2>Gelen bildirimler</h2>
         {visible.length === 0 ? <p className="muted">Henüz bildirim yok.</p> : (
           <ul className="simple-list">{visible.map((n) => (
-            <li key={n.id}><span><strong>{n.title}</strong><small>{n.body}{n.date ? ` · ${dateTr(n.date)}` : ''}</small></span><em className="badge">{n.kind === 'yaris' ? 'Yarış' : n.kind === 'ders' ? 'Ders' : 'Duyuru'}</em></li>
+            <li key={n.id}><span><strong>{n.title}</strong><small>{n.body}{n.date ? ` · ${dateTr(n.date)}` : ''}</small></span><em className="badge">{n.kind === 'yaris' ? 'Yarış' : n.kind === 'ders' ? 'Ders' : n.kind === 'odeme' ? 'Ödeme' : 'Duyuru'}</em></li>
           ))}</ul>
         )}
       </section>

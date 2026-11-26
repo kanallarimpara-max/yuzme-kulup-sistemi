@@ -1,5 +1,5 @@
 import { Camera, FileUp, MessagesSquare, Target, Baby, BadgePlus, Banknote, BookOpen, Building2, CalendarCheck, CalendarDays, ClipboardCheck, Coins, Dumbbell, ShoppingBag, Store, Wallet as Wallet2, LayoutDashboard, LineChart as LineChartIcon, Medal, Palette, Settings, Timer, UserPlus, Users, Waves } from 'lucide-react';
-import { Bell, Menu, Phone, Radio, Settings2, Sparkles, X } from 'lucide-react';
+import { Award, Bell, Flag, Gauge, Menu, Phone, Radio, Settings2, Sparkles, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import { isRinging } from './lib/call';
@@ -27,6 +27,9 @@ import Chat from './pages/Chat';
 import Standards from './pages/Standards';
 import LiveResults from './pages/LiveResults';
 import RaceCalendar from './pages/RaceCalendar';
+import Capacity from './pages/admin/Capacity';
+import SkillCards from './pages/coach/SkillCards';
+import RaceDayPage from './pages/coach/RaceDay';
 import SettingsPage from './pages/Settings';
 import TempPasswordNotice from './pages/TempPasswordNotice';
 import Social from './pages/Social';
@@ -50,6 +53,7 @@ const NAV: NavItem[] = [
   { to: '/panel', label: 'Panel', icon: LayoutDashboard, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
   { to: '/dersler', label: 'Ders saatleri', icon: BookOpen, roles: ['admin'] },
   { to: '/finans', label: 'Gelir gider', icon: Banknote, roles: ['admin'] },
+  { to: '/doluluk', label: 'Dönem doluluğu', icon: Gauge, roles: ['admin', 'secretary'] },
   { to: '/personel', label: 'Personel', icon: BadgePlus, roles: ['admin'] },
   { to: '/sporcularim', label: 'Sporcularım', icon: Baby, roles: ['parent'] },
   { to: '/kulup', label: 'Kulüp ayarları', icon: Settings, roles: ['admin'] },
@@ -59,6 +63,8 @@ const NAV: NavItem[] = [
   { to: '/yoklama', label: 'Yoklama', icon: ClipboardCheck, roles: ['coach'] },
   { to: '/ogrencilerim', label: 'Öğrencilerim', icon: Users, roles: ['coach'] },
   { to: '/derece', label: 'Antrenman derecesi', icon: Medal, roles: ['coach'] },
+  { to: '/yaris-gunu', label: 'Yarış günü', icon: Flag, roles: ['coach', 'admin'] },
+  { to: '/beceri', label: 'Beceri karnesi', icon: Award, roles: ['coach', 'admin'] },
   { to: '/takvim', label: 'Yarış takvimi', icon: CalendarDays, roles: ['admin', 'coach', 'parent'] },
   { to: '/canli-sonuclar', label: 'Canlı sonuçlar', icon: Radio, roles: ['admin', 'secretary', 'coach', 'parent'] },
   { to: '/performans', label: 'Performans', icon: LineChartIcon, roles: ['coach', 'admin', 'parent'] },
@@ -164,6 +170,9 @@ export default function App() {
         <Route path="/barajlar" element={<Standards />} />
         <Route path="/canli-sonuclar" element={<LiveResults />} />
         <Route path="/takvim" element={<RaceCalendar />} />
+        <Route path="/doluluk" element={<Capacity />} />
+        <Route path="/beceri" element={<SkillCards />} />
+        <Route path="/yaris-gunu" element={<RaceDayPage />} />
         <Route path="/ayarlar" element={<SettingsPage />} />
         <Route path="/mesajlar" element={<Chat />} />
         <Route path="/sosyal" element={<Social />} />

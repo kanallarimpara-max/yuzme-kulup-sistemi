@@ -5,6 +5,7 @@ import { toIso } from '../lib/rules';
 import { money } from '../lib/format';
 import { ROLE_LABEL, type Branch, type Lesson, type LessonPay, type SalaryPayment, type Student } from '../lib/types';
 import OwnerDashboard from './super/OwnerDashboard';
+import SetupGuide from './admin/SetupGuide';
 
 export default function Dashboard() {
   const { user } = useSession();
@@ -46,6 +47,7 @@ function ClubDashboard() {
         <div>{club?.logoUrl && <img src={club.logoUrl} alt={`${club.name} logosu`} style={{ borderRadius: 10, height: 48, marginBottom: 8, width: 48, objectFit: 'cover' }} />}<p className="eyebrow">{ROLE_LABEL[user.role]}</p><h1>Merhaba, {user.name.split(' ')[0]}</h1></div>
         <p className="muted">{club?.name} ·{now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' })}</p>
       </header>
+      {user.role === 'admin' && club && <SetupGuide club={club} />}
       <section className="stats">
         <article><span>Bugünkü ders</span><strong>{todays.length}{!isParent && <small> · {todays.reduce((s, l) => s + countFor(l.id), 0)} kişi</small>}</strong></article>
         <article><span>{isParent ? 'Sporcum' : 'Öğrenci'}</span><strong>{visibleStudents.length}</strong></article>

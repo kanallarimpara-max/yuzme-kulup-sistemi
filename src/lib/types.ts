@@ -39,7 +39,15 @@ export type PreReg = Row & {
 export type Enrollment = Row & {
   clubId: string; studentId: string; parentId: string; lessonId: string; coachId: string; listKurus: number; netKurus: number; totalKurus: number;
   discountCode?: string; installments: PaidInstallment[];
+  /** Tahsilat ve düzeltme geçmişi; yalnız sona eklenir, silinmez. */
+  history?: PaymentLog[];
 };
+export type PaymentLog = {
+  at: number; byId: string; byName: string; no: number; action: 'tahsilat' | 'duzeltme' | 'iptal'; reason?: string;
+  before?: { paidAt?: string; method?: string }; after?: { paidAt?: string; method?: string };
+};
+/** Velinin (veya sekreterin) gelecek dönem için verdiği devam yanıtı. Belge kimliği öğrenci kimliğidir. */
+export type Renewal = Row & { clubId: string; studentId: string; parentId: string; lessonId: string; status: 'devam' | 'ayrilacak'; updatedAt: number; updatedBy: string };
 export type Chat = Row & { clubId?: string; name: string; lessonId?: string; memberIds: string[]; direct?: boolean; pinnedId?: string | null; createdBy?: string };
 export type Branch = Row & { clubId: string; name: string };
 export type Lesson = Row & {
@@ -54,8 +62,19 @@ export type Student = Row & {
 export type TrainingModel = Row & { clubId: string; name: string; kind: 'grup' | 'altgrup' | 'performans' | 'sporcu' | 'ozel' | 'yetiskin' | 'minik'; perCoach: number };
 export type Availability = Row & { clubId: string; coachId: string; branchId: string; weekday: number; hour: number };
 export type Notice = Row & {
-  clubId: string; senderId: string; kind: 'duyuru' | 'yaris' | 'ders'; title: string; body: string; date?: string;
-  recipientIds: string[]; readBy: string[];
+  clubId: string; senderId: string; kind: 'duyuru' | 'yaris' | 'ders' | 'odeme'; title: string; body: string; date?: string;
+  recipientIds: string[]; readBy: string[]; raceDayId?: string;
+};
+/** TYF start listesinden oluşturulan yarış günü programı (antrenör veya yönetici başına bir tane). */
+export type RaceDay = Row & {
+  clubId: string; coachId: string; meetId: string; meetUrl: string; title: string; info: string; startDate: string; endDate: string;
+  meetTime: string; meetPlace: string; scannedAt: number; createdAt: number;
+};
+export type RaceEvent = { no: string; name: string; heat: number; heats: number; lane: number | null; entryTime: string; date: string };
+/** Sporcunun yarış programı: yalnız kendi velisi ve kulüp personeli görür. TYF listesi ve veli onayı ayrı alanlardır. */
+export type RaceEntry = Row & {
+  clubId: string; raceDayId: string; coachId: string; studentId: string; parentId: string; studentName: string; meetTitle: string;
+  startDate: string; endDate: string; meetTime: string; meetPlace: string; events: RaceEvent[]; rsvp: 'bekliyor' | 'katiliyor' | 'katilmiyor'; rsvpAt?: number;
 };
 export type Workout = Row & {
   clubId: string; coachId: string; title: string; sets: WorkoutSet[]; lessonId?: string; date?: string; description?: string;

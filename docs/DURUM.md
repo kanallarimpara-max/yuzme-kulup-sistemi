@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-APK ve exe derlemelerini dogrula, TYF Sonuclari isinin ara sureleri yazdigini kontrol et
+APK ve exe derlemelerini dogrula
 
 ## Modüller
 
@@ -39,6 +39,7 @@ APK ve exe derlemelerini dogrula, TYF Sonuclari isinin ara sureleri yazdigini ko
 
 ## Son kayıtlar
 
+- 2026-11-26: 6 yeni ozellik: (1) kulup acilis rehberi: yonetici panelinde kurulum adimlari ve siradaki isin dugmesi (or. Ilk dersi olustur), sistem sahibinde Kurulum sutunu ve siralamasi; (2) Donem dolulugu ekrani (/doluluk): mevcut, donemi biten, devam/ayrilacak/yanitsiz, bekleyen basvuru, degerlendirme; veliye 45 gun kala devam sorusu (renewals); (3) taksit makbuzu PDF ve duzeltme gecmisi: tahsilat/duzeltme/iptal gerekceyle, kim yaptiysa sona eklenir, kural silmeyi engeller, veliye odeme bildirimi; (4) yuzme beceri karnesi (/beceri, skillCards) 15 beceri 3 duzey, veli ekraninda ozet; (5) TYF start listesinden yaris gunu programi (/yaris-gunu): seri/kulvar, bulusma, veli katilim onayi ayri; (6) yarisa ozel duyuru (raceDayId). 334 kural, 82 birim, 43 Worker testi; web ve kurallar yayinda
 - 2026-11-26: Canli sonuclar: yalniz bugun suren yarislar listelenir, son 2 saatte sonuc/start listesi gelenler Canli etiketiyle en ustte. Ara sureler (lap): canli sonuc PDF'i (satira yayilan blok ve kirilan ara sure duzeltildi, 200m+ derece okunmuyordu), toplu sonuc PDF'inin iki bicimi okunur; toplam sure olarak lapsMs + lapEvery kaydedilir, dereceyle tutarsizsa yazilmaz. Worker diziyi denetler ve yazar, ayni derecede ara suresi eksik kayit tamamlanir; PARSER_VERSION 3 ile eski dosyalar yeniden taranir. Performans ekraninda brans bazli Yaris ara sureleri tablosu (en hizli/yavas bolum). 78 birim, 43 Worker testi gecti; web ve Worker yayinda
 - 2026-11-26: Giris sayfasi kartlarindaki bulaniklik (backdrop-filter) kaldirildi; Android test emulatoru bu efektle cokuyordu. Yari saydam gorunum kaldi
 - 2026-11-26: Duzenleme 2. kisim: 1 kredi = 1 TL (oran alani kalkti, paket ve urun fiyati otomatik, bozdurma kuralda kontrol), sosyal: yorum silme, onayli gonderi silme, engelleme (kuralda yorum engeli), ilgilenmiyorum ve icerik turu tercihi, super admin moderasyonu; mesajlar: geri alma, basa sabitleme, toplu mesaj, antrenor/yonetici/sekreter grup olusturma, alfabetik kisi listesi, en fazla 3 kisi onerisi; super admin kulup tablosu siralama; personel duzenleme ve e-posta dogrulama; sube/model duzenleme, 7 model turu ve aciklamalari; ders saatlerinde on kosul yonlendirmesi; onemli islemlerde onay penceresi. 296 kural, 74 birim, 42 Worker testi gecti; web ve kurallar yayinda

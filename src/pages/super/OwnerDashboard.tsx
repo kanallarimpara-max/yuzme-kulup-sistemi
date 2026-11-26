@@ -6,12 +6,13 @@ import { useCollection, type Row } from '../../lib/store';
 import { dateTr, money } from '../../lib/format';
 import type { CreditRequest } from '../../lib/credits';
 import type { Ad } from '../../lib/design';
-import type { Club, Student, User } from '../../lib/types';
+import type { Branch, Club, Lesson, Student, TrainingModel, User } from '../../lib/types';
+import { clubSetupSteps, nextSetupStep } from '../../lib/setup';
 
 type Sale = Row & { clubName: string; date: string; plan: string; amountKurus: number };
 
-type SortKey = 'ad' | 'satis-yeni' | 'satis-eski' | 'personel' | 'veli' | 'ogrenci';
-const SORTS: Array<[SortKey, string]> = [['ad', 'Alfabetik (A-Z)'], ['satis-yeni', 'Satış tarihi (yeniden eskiye)'], ['satis-eski', 'Satış tarihi (eskiden yeniye)'], ['personel', 'Personel sayısı'], ['veli', 'Veli sayısı'], ['ogrenci', 'Öğrenci sayısı']];
+type SortKey = 'kurulum' | 'ad' | 'satis-yeni' | 'satis-eski' | 'personel' | 'veli' | 'ogrenci';
+const SORTS: Array<[SortKey, string]> = [['ad', 'Alfabetik (A-Z)'], ['kurulum', 'Kurulumu eksik olan önce'], ['satis-yeni', 'Satış tarihi (yeniden eskiye)'], ['satis-eski', 'Satış tarihi (eskiden yeniye)'], ['personel', 'Personel sayısı'], ['veli', 'Veli sayısı'], ['ogrenci', 'Öğrenci sayısı']];
 
 const sameName = (a: string, b: string) => a.trim().toLocaleLowerCase('tr-TR') === b.trim().toLocaleLowerCase('tr-TR');
 
@@ -24,6 +25,9 @@ export default function OwnerDashboard() {
   const sales = useCollection<Sale>('sales');
   const requests = useCollection<CreditRequest>('creditRequests');
   const ads = useCollection<Ad>('ads');
+  const branches = useCollection<Branch>('branches');
+  const models = useCollection<TrainingModel>('models');
+  const lessons = useCollection<Lesson>('lessons');
   const [sort, setSort] = useState<SortKey>('ad');
   if (!user) return null;
 
@@ -40,10 +44,15 @@ export default function OwnerDashboard() {
       staff: members.filter((u) => u.role !== 'parent').length,
       parents: members.filter((u) => u.role === 'parent').length,
       kids: students.filter((x) => x.clubId === c.id).length,
+      setup: clubSetupSteps({
+        logo: Boolean(c.logoUrl), branches: branches.filter((b) => b.clubId === c.id).length, models: models.filter((m) => m.clubId === c.id).length,
+        coaches: members.filter((u) => u.role === 'coach').length, lessons: lessons.filter((l) => l.clubId === c.id).length, students: students.filter((x) => x.clubId === c.id).length,
+      }),
     };
   });
   const byName = (a: (typeof rows)[number], b: (typeof rows)[number]) => a.club.name.localeCompare(b.club.name, 'tr');
   const sorted = [...rows].sort((a, b) => {
+    if (sort === 'kurulum') return a.setup.filter((x) => x.done).length - b.setup.filter((x) => x.done).length || byName(a, b);
     if (sort === 'personel') return b.staff - a.staff || byName(a, b);
     if (sort === 'veli') return b.parents - a.parents || byName(a, b);
     if (sort === 'ogrenci') return b.kids - a.kids || byName(a, b);
@@ -88,17 +97,21 @@ export default function OwnerDashboard() {
         <div className="race-tools"><h2>Kulüpler</h2><label className="inline-label">Sırala<select value={sort} onChange={(e) => setSort(e.target.value as SortKey)}>{SORTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label></div>
         {clubs.length === 0 ? <p className="muted">Henüz kulüp yok. İlk kulübü Platform ekranından açabilirsin.</p> : (
           <div className="table-wrap"><table>
-            <thead><tr><th>Kulüp</th><th>Satış tarihi</th><th>Plan</th><th>Personel</th><th>Veli</th><th>Öğrenci</th></tr></thead>
-            <tbody>{sorted.map(({ club: c, sale, staff, parents, kids }) => (
+            <thead><tr><th>Kulüp</th><th>Kurulum</th><th>Satış tarihi</th><th>Plan</th><th>Personel</th><th>Veli</th><th>Öğrenci</th></tr></thead>
+            <tbody>{sorted.map(({ club: c, sale, staff, parents, kids, setup }) => {
+              const next = nextSetupStep(setup);
+              return (
               <tr key={c.id}>
                 <td>{c.name}</td>
+                <td>{next ? <span className="setup-cell"><em className="badge warn">{setup.filter((x) => x.done).length}/{setup.length}</em><small>Sıradaki: {next.label}</small></span> : <em className="badge good">Tamam</em>}</td>
                 <td>{sale ? dateTr(sale.date) : '—'}</td>
                 <td>{sale?.plan ?? '—'}</td>
                 <td>{staff}</td>
                 <td>{parents}</td>
                 <td>{kids}</td>
               </tr>
-            ))}</tbody>
+              );
+            })}</tbody>
           </table></div>
         )}
       </section>

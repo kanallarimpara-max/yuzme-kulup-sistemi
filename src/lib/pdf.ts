@@ -10,6 +10,50 @@ const toBase64 = async (url: string) => {
 
 let fonts: Promise<[string, string]> | null = null;
 
+async function newDoc(landscape = false) {
+  const [{ jsPDF }, { default: autoTable }] = await Promise.all([import('jspdf'), import('jspdf-autotable')]);
+  fonts ??= Promise.all([toBase64(regularUrl), toBase64(boldUrl)]);
+  const [regular, bold] = await fonts;
+  const doc = new jsPDF({ orientation: landscape ? 'landscape' : 'portrait' });
+  doc.addFileToVFS('DejaVu.ttf', regular);
+  doc.addFileToVFS('DejaVu-Bold.ttf', bold);
+  doc.addFont('DejaVu.ttf', 'DejaVu', 'normal');
+  doc.addFont('DejaVu-Bold.ttf', 'DejaVu', 'bold');
+  return { doc, autoTable };
+}
+
+export type ReceiptInfo = {
+  clubName: string; receiptNo: string; studentName: string; parentName: string; lessonName: string; period: string;
+  installmentText: string; dueDate: string; paidDate: string; method: string; amount: string; remaining: string; corrected?: string;
+};
+
+/** Taksit makbuzu: öğrenci, dönem, taksit ve ödenen tutar. */
+export async function downloadReceiptPdf(fileName: string, r: ReceiptInfo) {
+  const { doc, autoTable } = await newDoc();
+  doc.setFont('DejaVu', 'bold');
+  doc.setFontSize(16);
+  doc.text(r.clubName, 14, 18);
+  doc.setFontSize(12);
+  doc.text('Taksit Ödeme Makbuzu', 14, 27);
+  doc.setFont('DejaVu', 'normal');
+  doc.setFontSize(9);
+  doc.text(`Makbuz no: ${r.receiptNo}`, 14, 34);
+  autoTable(doc, {
+    startY: 40, theme: 'grid',
+    body: [
+      ['Öğrenci', r.studentName], ['Veli', r.parentName], ['Ders', r.lessonName], ['Dönem', r.period], ['Taksit', r.installmentText],
+      ['Vade tarihi', r.dueDate], ['Ödeme tarihi', r.paidDate], ['Ödeme yöntemi', r.method], ['Ödenen tutar', r.amount], ['Kalan borç', r.remaining],
+      ...(r.corrected ? [['Düzeltme', r.corrected]] : []),
+    ],
+    styles: { font: 'DejaVu', fontSize: 10, cellPadding: 3 },
+    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 45 } },
+  });
+  const y = ((doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? 120) + 10;
+  doc.setFontSize(8);
+  doc.text('Bu belge kulübün tahsilat kaydından oluşturulmuştur, fatura yerine geçmez.', 14, y);
+  doc.save(fileName);
+}
+
 /** Türkçe karakterleri doğru basan tablo PDF'i üretir ve indirir. */
 export async function downloadTablePdf(fileName: string, title: string, subtitle: string, head: string[], body: string[][]) {
   const [{ jsPDF }, { default: autoTable }] = await Promise.all([import('jspdf'), import('jspdf-autotable')]);

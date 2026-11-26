@@ -104,9 +104,19 @@ service cloud.firestore {
       allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary']);
     }
     match /enrollments/{id} {
+      // Taksit değişirse geçmişe işlemi yapan kişinin adıyla tek kayıt eklenmeli; eski kayıtlar silinemez, değiştirilemez.
+      function historyOk() {
+        let before = resource.data.get('history', []);
+        let after = request.resource.data.get('history', []);
+        return (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['installments', 'history']))
+          || (after.size() == before.size() + 1 && (before.size() == 0 || after[0:before.size()] == before)
+            && after[before.size()].byId == request.auth.uid && after[before.size()].action in ['tahsilat', 'duzeltme', 'iptal']
+            && (after[before.size()].action == 'tahsilat' || (after[before.size()].reason is string && after[before.size()].reason.size() >= 3)));
+      }
       allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary'])
         || (signedIn() && resource.data.parentId == request.auth.uid);
-      allow create, update: if canWrite(['admin', 'secretary']);
+      allow create: if canWrite(['admin', 'secretary']);
+      allow update: if canWrite(['admin', 'secretary']) && (isSuper() || historyOk());
       allow delete: if isSuper() || hasRole(resource.data.clubId, ['admin']);
     }
     match /discounts/{id} {
@@ -160,6 +170,52 @@ service cloud.firestore {
     match /standardSets/{id} {
       allow read: if true;
     }
+    // Gelecek dönem devam yanıtı: veli kendi çocuğu için, sekreter ve yönetici kulüp adına verir.
+    match /renewals/{id} {
+      function r() { return request.resource.data; }
+      function validRenewal() {
+        let s = get(path('students', id)).data;
+        return r().keys().hasOnly(['clubId', 'studentId', 'parentId', 'lessonId', 'status', 'updatedAt', 'updatedBy']) && r().studentId == id
+          && r().clubId == s.clubId && r().parentId == s.parentId && r().lessonId == s.lessonId
+          && r().status in ['devam', 'ayrilacak'] && r().updatedBy == request.auth.uid && r().updatedAt is number;
+      }
+      allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary']) || (signedIn() && resource.data.parentId == request.auth.uid);
+      allow create, update: if validRenewal() && ((signedIn() && r().parentId == request.auth.uid) || hasRole(r().clubId, ['admin', 'secretary']));
+      allow delete: if hasRole(resource.data.clubId, ['admin', 'secretary']);
+    }
+    // Beceri karnesi: öğrencinin antrenörü veya kulüp yöneticisi işaretler, velisi görür.
+    match /skillCards/{id} {
+      function k() { return request.resource.data; }
+      function validCard() {
+        return k().keys().hasOnly(['clubId', 'studentId', 'parentId', 'coachId', 'marks', 'updatedAt', 'updatedBy']) && k().studentId == id
+          && k().marks is map && k().marks.size() <= 40 && k().updatedBy == request.auth.uid
+          && k().coachId == get(path('students', id)).data.coachId && validAthleteRecord();
+      }
+      allow read: if isSuper() || isStaff(resource.data.clubId) || (signedIn() && resource.data.parentId == request.auth.uid);
+      allow create, update: if (hasRole(k().clubId, ['coach', 'admin']) || isSuper()) && validCard();
+    }
+    // Yarış günü programı: antrenör veya yönetici kendi adına açar.
+    match /raceDays/{id} {
+      function d() { return request.resource.data; }
+      allow read: if isSuper() || isStaff(resource.data.clubId);
+      allow create: if hasRole(d().clubId, ['coach', 'admin']) && d().coachId == request.auth.uid && id == d().clubId + '_' + d().meetId + '_' + request.auth.uid;
+      allow update: if hasRole(resource.data.clubId, ['coach', 'admin']) && resource.data.coachId == request.auth.uid
+        && onlyChanges(['title', 'info', 'startDate', 'endDate', 'meetTime', 'meetPlace', 'scannedAt']);
+      allow delete: if signedIn() && resource.data.coachId == request.auth.uid;
+    }
+    // Sporcunun yarış programı: velisi yalnız kendi çocuğununkini görür ve yalnız katılım yanıtını değiştirir.
+    match /raceEntries/{id} {
+      function e() { return request.resource.data; }
+      // Program aynı toplu yazımda açıldığı için yazım sonrası hâline bakılır.
+      function ownDay() { return getAfter(path('raceDays', e().raceDayId)).data.coachId == request.auth.uid; }
+      allow read: if isSuper() || isStaff(resource.data.clubId) || (signedIn() && resource.data.parentId == request.auth.uid);
+      allow create: if hasRole(e().clubId, ['coach', 'admin']) && e().coachId == request.auth.uid && e().rsvp == 'bekliyor'
+        && id == e().raceDayId + '_' + e().studentId && e().events is list && e().events.size() <= 30 && ownDay() && validAthleteRecord();
+      allow update: if (hasRole(resource.data.clubId, ['coach', 'admin']) && resource.data.coachId == request.auth.uid
+          && onlyChanges(['events', 'meetTime', 'meetPlace', 'studentName', 'meetTitle', 'startDate', 'endDate']) && e().events.size() <= 30)
+        || (signedIn() && resource.data.parentId == request.auth.uid && onlyChanges(['rsvp', 'rsvpAt']) && e().rsvp in ['katiliyor', 'katilmiyor']);
+      allow delete: if signedIn() && resource.data.coachId == request.auth.uid;
+    }
     // Herkese açık TYF sezon faaliyet takvimi; yalnız Worker'ın servis hesabı yazar.
     match /tyfCalendar/{id} {
       allow read: if true;
@@ -212,7 +268,10 @@ service cloud.firestore {
       allow read: if isSuper() || (signedIn() && resource.data.senderId == request.auth.uid)
         || (signedIn() && request.auth.uid in resource.data.recipientIds && inClub(resource.data.clubId));
       allow create: if signedIn() && request.resource.data.senderId == request.auth.uid && request.resource.data.recipientIds.size() <= 1000
-        && (isSuper() || hasRole(request.resource.data.clubId, ['admin', 'coach']));
+        && (isSuper() || hasRole(request.resource.data.clubId, ['admin', 'coach'])
+          // Sekreter yalnız ödeme bildirimini, yalnız tek veliye gönderir.
+          || (hasRole(request.resource.data.clubId, ['secretary']) && request.resource.data.kind == 'odeme' && request.resource.data.recipientIds.size() == 1))
+        && (!('raceDayId' in request.resource.data) || get(path('raceDays', request.resource.data.raceDayId)).data.coachId == request.auth.uid);
     }
 
     // Kişi isteği iki kişi arasındadır, kabulü yalnız alıcı yapar.
