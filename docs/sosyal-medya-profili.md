@@ -111,7 +111,7 @@ Instagram kısıtlama göstermedi. Gordion otomatik yanıt verdi (iletişim bilg
 | 9 | Sakarya Aqua Spor Kulübü | @aquasporkulubu | Gönderildi |
 | 10 | Uzunköprü Atak Spor Kulübü | @uzunkopruataksporkulubu | Gönderildi |
 | 11 | Niğde Yeni Turkuaz Yüzme Kulübü | @yeni.turkuaz.spor.kulubu | Gönderildi |
-| 12 | Heybeliada Su Sporları SK | @heybeliadasusporlarikulubu | Gönderildi |
+| 12 | Heybeliada Su Sporları SK | @heybeliadasusporlarikulubu | Gönderildi; 26.11 yanıt: sunum dosyası istedi (yanıt taslağı kullanıcı onayında) |
 | 13 | Gordion Yüzme Takımı | @gordionyuzme | Gönderildi (otomatik yanıt geldi) |
 | 14 | Lotus Yüzme Spor Kulübü | @lotusyuzmeeskisehir | Gönderildi |
 | 15 | Eskalen Yüzme Spor Kulübü | @eskalensporkulubu | Gönderildi |
@@ -126,5 +126,20 @@ Instagram kısıtlama göstermedi. Gordion otomatik yanıt verdi (iletişim bilg
 | 24 | Faroz Yüzme Kulübü | @farozyuzme_antalya | Gönderildi |
 | 25 | Kocaeli Yüzme Kulübü | @kocaeliyuzmekulubu | Gönderildi |
 | 26 | Buzadam (Iceman) Yüzme İhtisas SK | @icemanyuzme | Gönderildi |
+| 27 | Rize Gelişim Yüzme Spor Kulübü | @rizegelisimyuzme | Gönderildi (26.11, haftalık paket) |
+| 28 | Giresun Şahinspor Yüzme Kulübü | @giresunsahinspor | Gönderildi (26.11) |
+| 29 | Giresun Alfa Yüzme Kulübü | @giresunalfa.yk | Gönderildi (26.11) |
+| 30 | Aren Athletics Yüzme (Ankara) | @arenathleticsyuzme | Gönderildi (26.11) |
+| 31 | Giresun Orman Spor Yüzme Kulübü | @giresun_ormanspor_kulubu | Gönderildi (26.11) |
+| 32 | Beylikdüzü Yüzme Kulübü | @beylikduzuyuzmekulubu | Gönderildi (26.11) |
+| 33 | Erciyes Yıldız Spor Kulübü | @erciyes_yildizsporkulubu | Gönderildi (26.11) |
+| 34 | Kırklareli Gençlik SK Yüzme Şubesi | @kirklareligenclikskyuzme | Gönderildi (26.11) |
+| 35 | Balık Adamlar Spor Kulübü (Malatya) | @malatyabalikadamlar_44 | Gönderildi (26.11) |
+| 36 | Ankara Yüzme Dersi Spor Kulübü | @ankarayuzmedersi | Gönderildi (26.11) |
+
+Yalnız takip edilenler (26.11): Türkiye Yüzme Federasyonu @yuzmefederasyonu, Beylikdüzü Stil Yüzme @stil_yuzme_kulubu, Kayseri Olimpik SK @olimpikgenclik. Gün toplamı 13 takip, 10 mesaj; Instagram kısıtlama göstermedi.
+Biyografi 26.11'de emojisiz yeni metinle, profil fotoğrafı düz yeni logoyla değiştirildi.
+Sıradaki aday kulüpler (hesabı bulunamadı ya da belirsiz): Istanbul Çevre SK, Denizli Kumsal SK, Gölcük Akademi Yüzme SK, Fatih Karakurt Alpha Academy SK, Trabzon Yeşilova SK, Muş Olimpik SK, Ankara GSM SK, Best Time SK, Poyraz SK, Ordu Kuzey SK, Saraybahçe Yüzme SK, Düzce Mavi Kulvar SK, Megalodon SK, Performans Akademi SK, Gebze Su Sporları SK, Marmaris Akademi SK.
+Günlük paylaşımlar: masaüstü uygulamasında zamanlanmış görev `kulvar360-instagram-gunluk` her gün 19:00'da paketteki gönderiyi paylaşır, gelen mesajları yalnız raporlar.
 
 Aynı kulübe ikinci kez yazılmaz. Yanıt veren kulüp için kulüp ve yönetici hesabı süper admin ekranından açılır.

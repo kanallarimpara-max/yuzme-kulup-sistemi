@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Haftalik sosyal medya paketi onayi bekleniyor
+Heybeliada yanit taslagi kullanici onayinda; 27 Kas 19:00 tanitim gonderisi
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Haftalik sosyal medya paketi onayi bekleniyor
 
 ## Son kayıtlar
 
+- 2026-11-26: Instagram haftalik paket basladi: biyografi guncellendi, 10 yeni kulube onayli deneme mesaji, 13 resmi hesap takip edildi (TYF dahil), gunluk 19:00 paylasim gorevi kuruldu; Heybeliada sunum istedi
 - 2026-11-26: Tasarim gecisleri (typeset, layout, colorize, polish): baslik ustu etiketler kaldirildi, bilgi tasiyanlar basligin altina (page-meta); govde 16px, yazi olcegi 12/13/14/15/16/18/28, h3 tanimli, agirlik en cok 600; bosluklar 4px duzeninde, kose yaricaplari tek olcekte; yan serit vurgular tam kenarlikla; beyaz yazili dolu zeminler 4.5:1 (danger/ok-fill), acik temada odak rengi koyu camgobegi, yoklama secimleri anlam renginde ton. 82 test gecti, web yayinda
 - 2026-11-26: Sosyal medya kiti yeni duz logo ve uygulamayla ayni sade tasarimla yeniden uretildi (kit.mjs, motor.mjs logoSvg duz); Instagram profil fotografi yeni logoyla degisti; haftalik paket taslagi docs/sosyal-medya-haftalik-paket.md
 - 2026-11-26: Tasarim yenilendi (unslop): duz yeni logo ve tum ikonlar, IBM Plex Sans/Mono yazi tipleri (pakete gomulu), notr koyu/acik palet tek camgobegi vurgu, parlama/gradyan/bulaniklik kaldirildi, menude sakin secili durum, rakamlar mono, rozetler etiket, panel basligi gunun tarihi, tanitimda kulvar ve canli sonuc karti. Duzen ve islevler ayni; 82 test gecti, web yayinda
