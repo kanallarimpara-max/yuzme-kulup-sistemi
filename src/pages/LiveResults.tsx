@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
-import { ArrowLeft, FileText, RefreshCw, Search } from 'lucide-react';
-import { useSession } from '../lib/session';
+import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { useCollection } from '../lib/store';
-import { classifyMatch, clubMatchScore, formatSwimTime, toIso } from '../lib/rules';
-import { drawPdf, readResultPdf, type TyfEvent } from '../lib/tyf';
+import { toIso } from '../lib/rules';
+import { drawPdf } from '../lib/tyf';
 import { normalizeMeetUrl, type LiveEvent, type LiveMeet } from '../lib/tyfLinks';
 import { liveMeet, meetPdf, workerEnabled } from '../lib/worker';
 import { isMeetLive, type TyfMeet } from '../lib/types';
@@ -12,7 +11,6 @@ const REFRESH_MS = 60000;
 const ACTIVE_MS = 2 * 3600000;
 
 export default function LiveResults() {
-  const { club } = useSession();
   const meets = useCollection<TyfMeet>('tyfMeets');
   const [meetUrl, setMeetUrl] = useState('');
   const [typed, setTyped] = useState('');
@@ -20,15 +18,10 @@ export default function LiveResults() {
   const [eventNo, setEventNo] = useState('');
   // Yarışın hem sonucu hem start listesi varsa ikisi arasında geçilir.
   const [view, setView] = useState<'sonuc' | 'start'>('sonuc');
-  const [table, setTable] = useState<TyfEvent | null>(null);
-  const [official, setOfficial] = useState(false);
-  const [onlyClub, setOnlyClub] = useState(false);
-  const [query, setQuery] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [updated, setUpdated] = useState('');
   const pdfHost = useRef<HTMLDivElement>(null);
-  const pdfData = useRef<ArrayBuffer | null>(null);
 
   // Yalnız bugün süren yarışlar listelenir; bitenlerin dereceleri sporcu performansına zaten işlenmiştir.
   // Son 2 saatte yeni sonuç veya start listesi gelen yarışlar "Canlı" olarak en üstte durur.
@@ -71,24 +64,22 @@ export default function LiveResults() {
     };
   }, [meetUrl, Boolean(tracked), tracked?.version]);
 
-  // PDF adresindeki sürüm değişince seçili yarış kendiliğinden güncellenir.
+  // Sonuç ve start listesi federasyonun resmi PDF'i olarak gösterilir; uygulama kendi tablosunu üretmez.
+  // PDF adresindeki sürüm değişince seçili yarış kendiliğinden yeniden çizilir.
   useEffect(() => {
     if (!pdfUrl) return;
     let alive = true;
     setBusy(true);
+    if (pdfHost.current) pdfHost.current.replaceChildren();
     (async () => {
       try {
         const data = await meetPdf(pdfUrl);
-        if (!alive) return;
-        pdfData.current = data.slice(0);
-        // Start listesi tabloya çevrilmez, resmi hâliyle gösterilir.
-        const parsed = showingResult ? await readResultPdf(data).catch(() => null) : null;
-        if (!alive) return;
-        setTable(parsed?.rows.length ? parsed : null);
-        setOfficial(!parsed?.rows.length);
-        setError('');
-      } catch (err) {
-        if (alive) setError((err as Error).message);
+        if (!alive || !pdfHost.current) return;
+        pdfHost.current.replaceChildren();
+        await drawPdf(data, pdfHost.current);
+        if (alive) setError('');
+      } catch {
+        if (alive) setError('Resmi liste gösterilemedi.');
       } finally {
         if (alive) setBusy(false);
       }
@@ -96,28 +87,13 @@ export default function LiveResults() {
     return () => { alive = false; };
   }, [pdfUrl]);
 
-  useEffect(() => {
-    if (!official || busy || !pdfData.current || !pdfHost.current) return;
-    drawPdf(pdfData.current.slice(0), pdfHost.current).catch(() => setError('Resmi liste gösterilemedi.'));
-  }, [official, busy, pdfUrl]);
-
-  const isOurs = (name: string) => Boolean(club) && classifyMatch(clubMatchScore(name, club!.name)) !== 'none';
-  const text = query.trim().toLocaleLowerCase('tr-TR');
-  const rows = (table?.rows ?? []).filter((r) => (!onlyClub || isOurs(r.club))
-    && (!text || `${r.maskedName} ${r.club}`.toLocaleLowerCase('tr-TR').includes(text)));
-
   const openMeet = (url: string) => {
     setDetail(null);
     setEventNo('');
-    setTable(null);
     setError('');
     setMeetUrl(url);
   };
   const openEvent = (no: string, next: 'sonuc' | 'start' = 'sonuc') => {
-    pdfData.current = null;
-    setTable(null);
-    setOfficial(false);
-    setQuery('');
     setView(next);
     setEventNo(no);
   };
@@ -182,19 +158,7 @@ export default function LiveResults() {
         </div>}
         {!both && !showingResult && <p className="muted">Bu yarışın sonucu henüz yayınlanmadı, start listesi gösteriliyor.</p>}
         {busy && <p className="muted" role="status">{showingResult ? 'Sonuçlar yükleniyor…' : 'Start listesi yükleniyor…'}</p>}
-        {table && <>
-          <div className="live-tools">
-            <label className="live-search"><Search size={15} /><input aria-label="Sporcu veya kulüp ara" placeholder="Sporcu veya kulüp ara" value={query} onChange={(e) => setQuery(e.target.value)} /></label>
-            <button className={onlyClub ? 'primary' : ''} aria-pressed={onlyClub} onClick={() => setOnlyClub((v) => !v)}>Yalnız kulübüm</button>
-            <button aria-pressed={official} onClick={() => setOfficial((v) => !v)}><FileText size={15} />{official ? 'Tabloya dön' : 'Resmi liste'}</button>
-          </div>
-          {!official && (rows.length === 0 ? <p className="muted">Bu filtreye uyan sonuç yok.</p> : <div className="table-wrap"><table className="live-table">
-            <thead><tr><th>Sıra</th><th>Sporcu</th><th>Derece</th></tr></thead>
-            <tbody>{rows.map((r, i) => <tr key={`${r.maskedName}-${i}`} className={isOurs(r.club) ? 'ours' : ''}><td>{r.rank ?? '—'}</td><td>{r.maskedName}<small>{r.birthYear} · {r.club}</small></td><td><strong>{r.timeMs ? formatSwimTime(r.timeMs) : r.status || '—'}</strong>{r.lapsMs.length > 1 && <small>{r.lapsMs.map(formatSwimTime).join(' / ')}</small>}</td></tr>)}</tbody>
-          </table></div>)}
-          {!official && <p className="muted">Diskalifiye olan sporcular resmi listede yer alır.</p>}
-        </>}
-        {official && <div className="live-pdf" ref={pdfHost} />}
+        <div className="live-pdf" ref={pdfHost} aria-label={showingResult ? 'Resmi sonuç listesi' : 'Resmi start listesi'} />
       </section>}
     </div>
   );

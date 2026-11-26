@@ -128,7 +128,8 @@ export async function drawPdf(data: ArrayBuffer, host: HTMLElement) {
   host.replaceChildren();
   for (let n = 1; n <= doc.numPages; n += 1) {
     const page = await doc.getPage(n);
-    const viewport = page.getViewport({ scale: 1.6 });
+    // Telefonun yüksek çözünürlüklü ekranında da yazılar net okunsun
+    const viewport = page.getViewport({ scale: Math.max(1.6, Math.min(3, (window.devicePixelRatio || 1) * 1.2)) });
     const canvas = document.createElement('canvas');
     canvas.width = Math.floor(viewport.width);
     canvas.height = Math.floor(viewport.height);
