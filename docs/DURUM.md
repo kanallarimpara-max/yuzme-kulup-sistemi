@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Veliye aylik rapor (devam, derece, beceri karnesi, antrenor yorumu)
+Gelen Instagram mesajlarini oku (Claude in Chrome baglanmali)
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Veliye aylik rapor (devam, derece, beceri karnesi, antrenor yorumu)
 
 ## Son kayıtlar
 
+- 2026-11-26: Veliye aylik rapor: Sporcularim ekraninda her cocuk icin Aylik rapor (son 6 ay secilir, varsayilan gecen ay): devam orani (izinli haric), ayin en iyi dereceleri ve onceki en iyiye gore fark (yaris/antrenman ayri), beceri karnesi ve siradaki hedef, antrenor yorumlari, odenen/kalan/geciken; Turkce PDF indirme. Worker her ayin 1'inde 09:00'da veliye 'Ekim 2026 aylik raporu hazir' bildirimi yazar (tek kimlik, tekrar gitmez). 90 birim, 45 Worker testi; web ve Worker yayinda
 - 2026-11-26: Taksit hatirlatma: Worker her sabah 09:00 (TR) vadeye 1-3 gun kala, vade gunu, 1-6 ve 7-30 gun gecikmede veliye birer kez bildirim yazar (sabit kimlik, tekrar gitmez) ve kapali uygulamaya iceriksiz uyari gonderir; kulup Personel ve kayit ayarlarindan kapatabilir (reminderOff). Ogrenciler ekraninda Odeme durumu suzgeci (Gecikenler / 7 gun icinde), geciken ozet satiri ve elle Hatirlat dugmesi. 86 birim, 44 Worker, 337 kural testi; web, kurallar ve Worker yayinda
 - 2026-11-26: Tum platformlar kaydedildi: web yayinda, GitHub surumu surum-2026-11-26 (Android APK + Windows exe, commit 5f98af3), yerel kopya tanitim-videolari/uygulamalar/2026-11-26
 - 2026-11-26: Kulup ayarlari egitim modelleri: bilgi kutucuklari kaldirildi; model adinda ture gore koyu gri ornek metin, ogrenci sayisi bos baslar ve ornek sayi gosterir; denetim: bos/uzun/ayni ad, yalniz rakam, 1-100 tam sayi, cift tiklama ve kayit hatasi mesaji; duzenlemede ayni kurallar. Web yayinda

@@ -5,14 +5,15 @@ import { db } from '../../lib/store';
 import { downloadReceiptPdf } from '../../lib/pdf';
 import { type SkillCard } from '../../lib/skills';
 import SkillSummary from './SkillSummary';
+import MonthlyReport from './MonthlyReport';
 import { useSession } from '../../lib/session';
 import { useCollection } from '../../lib/store';
-import { enrollmentScope, noticeScope, studentScope } from '../../lib/access';
+import { athleteRecordScope, enrollmentScope, noticeScope, studentScope } from '../../lib/access';
 import { paymentSummary, toIso } from '../../lib/rules';
 import { dateTr, dayNames, money } from '../../lib/format';
 import { useAttendance } from '../../lib/useAttendance';
 import { usePeople } from '../../lib/people';
-import type { Branch, Enrollment, Lesson, Notice, RaceEntry, Renewal, Student, Workout } from '../../lib/types';
+import type { Branch, CoachComment, Enrollment, Lesson, Notice, RaceEntry, Renewal, Student, SwimResult, Workout } from '../../lib/types';
 
 const MARK = { geldi: ['Geldi', 'good'], gelmedi: ['Gelmedi', 'bad'], izinli: ['İzinli', 'warn'] } as const;
 
@@ -33,6 +34,8 @@ export default function ParentHome() {
   const renewals = useCollection<Renewal>('renewals', own);
   const skills = useCollection<SkillCard>('skillCards', own);
   const raceEntries = useCollection<RaceEntry>('raceEntries', own);
+  const results = useCollection<SwimResult>('results', athleteRecordScope(user));
+  const comments = useCollection<CoachComment>('comments', athleteRecordScope(user));
   const { club } = useSession();
   const [error, setError] = useState('');
   if (!user) return null;
@@ -101,6 +104,8 @@ export default function ParentHome() {
             {plan && plan.installments.some((i) => i.paidAt) && <details className="pay-history"><summary>Ödenen taksitler ve makbuzlar</summary>
               <ul className="simple-list">{plan.installments.filter((i) => i.paidAt).map((i) => <li key={i.no}><span>{i.no}/{plan.installments.length}. taksit · {money(i.amountKurus)}<small>{dateTr(i.paidAt!)} · {i.method}</small></span><button onClick={() => receipt(s, plan, i.no)}><FileDown size={15} />Makbuz</button></li>)}</ul>
             </details>}
+            <MonthlyReport student={s} clubName={club?.name ?? ''} lessonName={lesson?.name ?? ''} coachName={users.find((u) => u.id === s.coachId)?.name ?? ''}
+              attendance={attendance} results={results} comments={comments} skills={skills.find((k) => k.studentId === s.id)} enrollment={plan} />
             <div><h2>Beceri karnesi</h2><SkillSummary marks={skills.find((k) => k.studentId === s.id)?.marks} /></div>
             <div className="two-col">
               <div><h2>Antrenmanlar</h2>{assigned.length === 0 ? <p className="muted">Atanmış antrenman yok.</p> : <ul className="simple-list">{assigned.map((w) => <li key={w.id}><span>{w.title}<small>{w.date ? dateTr(w.date) : ''} · {w.sets.map((x) => `${x.reps}×${x.distance} ${x.stroke}`).join(', ')}</small></span></li>)}</ul>}</div>

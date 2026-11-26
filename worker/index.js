@@ -6,7 +6,7 @@ import { saveMeet, syncMeets } from './tyfMeets.js';
 import { handleStandards } from './standards.js';
 import { handleResults } from './results.js';
 import { handleCalendar } from './calendar.js';
-import { sendPaymentReminders } from './reminders.js';
+import { sendMonthlyReportNotices, sendPaymentReminders } from './reminders.js';
 
 const JWK_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 const AI_MODEL = '@cf/mistralai/mistral-small-3.1-24b-instruct';
@@ -142,6 +142,8 @@ export function completeText(text, finishReason) {
 
 /** Her gün 06:00 UTC = 09:00 Türkiye. wrangler.toml ile aynı olmalı. */
 export const REMINDER_CRON = '0 6 * * *';
+/** Her ayın 1'i 06:00 UTC: velilere geçen ayın raporu hazır bildirimi. */
+export const REPORT_CRON = '0 6 1 * *';
 
 export default {
   async fetch(request, env) {
@@ -173,6 +175,7 @@ export default {
   },
   scheduled(event, env, ctx) {
     // Taksit hatırlatması ayrı tetikleyiciyle çalışır; böylece canlı sonuç taramasının istek hakkını paylaşmaz.
+    if (event.cron === REPORT_CRON) return ctx.waitUntil(sendMonthlyReportNotices(env, event.scheduledTime).catch(() => undefined));
     if (event.cron === REMINDER_CRON) return ctx.waitUntil(sendPaymentReminders(env, event.scheduledTime).catch(() => undefined));
     ctx.waitUntil(syncMeets(env, event.scheduledTime));
   },

@@ -57,3 +57,7 @@ export function reminderText(r: Pick<Reminder, 'no' | 'count' | 'dueDate' | 'amo
   if (r.stage === 'bugun') return { title: 'Taksit vadesi bugün', body: `${what}. Ödemeyi yaptıysanız bu mesajı dikkate almayın.` };
   return { title: 'Taksit ödemesi gecikti', body: `${what}. Vade ${-r.days} gün geçti. Ödeme için kulübünüzle görüşebilirsiniz.` };
 }
+
+export const MONTHS_TR = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+/** "2026-10" → "Ekim 2026" (Worker da kullanır) */
+export const monthName = (month: string) => `${MONTHS_TR[Number(month.slice(5, 7)) - 1]} ${month.slice(0, 4)}`;

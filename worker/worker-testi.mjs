@@ -1,7 +1,7 @@
 // Worker'ı Cloudflare hesabı olmadan, ağ çağrılarını taklit ederek dener: npm run test:worker
 import assert from 'node:assert/strict';
-import worker, { REMINDER_CRON } from './index.js';
-import { sendPaymentReminders, trToday } from './reminders.js';
+import worker, { REMINDER_CRON, REPORT_CRON } from './index.js';
+import { previousMonth, sendMonthlyReportNotices, sendPaymentReminders, trToday } from './reminders.js';
 import { sameClubRecipients } from './push.js';
 import { pickWrites, validResult } from './results.js';
 import { activeMeets, listedMeets, meetCandidates } from './tyfMeets.js';
@@ -334,6 +334,32 @@ const checks = [
       assert.equal(pushed.length, 1);
       assert.ok(!JSON.stringify(pushed[0]).includes('Ayşe'), 'kapalı uygulama bildiriminde ad olmamalı');
       assert.equal(REMINDER_CRON, '0 6 * * *');
+    } finally { globalThis.fetch = real; }
+  }],
+  ['Aylık rapor bildirimi: her veliye geçen ay için bir kez, iki çocuklu veliye tek bildirim', async () => {
+    const real = globalThis.fetch;
+    assert.equal(previousMonth('2027-01-01'), '2026-12');
+    assert.equal(REPORT_CRON, '0 6 1 * *');
+    const written = []; const existing = new Set(['rapor-p2-2026-11']);
+    globalThis.fetch = async (url, init = {}) => {
+      const u = String(url);
+      if (u === 'https://oauth2.googleapis.com/token') return Response.json({ access_token: 't', expires_in: 3600 });
+      if (u.endsWith(':runQuery')) {
+        const q = JSON.parse(init.body).structuredQuery;
+        if (q.from[0].collectionId === 'students') return Response.json([['p1', 'c1'], ['p1', 'c1'], ['p2', 'c1'], ['', 'c1']].map(([p, c], i) => ({ document: { name: `x/students/s${i}`, fields: { parentId: str(p), clubId: str(c) } } })));
+        return Response.json([]);
+      }
+      if (u.endsWith(':batchWrite')) {
+        const { writes } = JSON.parse(init.body);
+        return Response.json({ status: writes.map((w) => { const id = w.update.name.split('/').pop(); if (existing.has(id)) return { code: 6 }; written.push(w.update); return {}; }) });
+      }
+      throw new Error('beklenmeyen istek ' + u);
+    };
+    try {
+      const out = await sendMonthlyReportNotices(env, Date.parse('2026-12-01T06:00:00Z'));
+      assert.deepEqual(written.map((w) => w.name.split('/').pop()), ['rapor-p1-2026-11']);
+      assert.equal(written[0].fields.title.stringValue, 'Kasım 2026 aylık raporu hazır');
+      assert.equal(out.written, 1);
     } finally { globalThis.fetch = real; }
   }],
 ];

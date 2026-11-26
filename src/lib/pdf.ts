@@ -77,3 +77,51 @@ export async function downloadTablePdf(fileName: string, title: string, subtitle
   });
   doc.save(fileName);
 }
+
+export type MonthlyReportPdf = {
+  clubName: string; studentName: string; monthName: string; lessonName: string; coachName: string;
+  attendance: string[][]; results: string[][]; skills: string[][]; comments: string[][]; payment: string[][];
+};
+
+/** Veliye aylık rapor: her bölüm başlıklı ayrı tablo, boş bölüm kısa bir notla geçilir. */
+export async function downloadMonthlyReportPdf(fileName: string, r: MonthlyReportPdf) {
+  const { doc, autoTable } = await newDoc();
+  doc.setFont('DejaVu', 'bold');
+  doc.setFontSize(16);
+  doc.text(r.clubName, 14, 18);
+  doc.setFontSize(12);
+  doc.text(`${r.monthName} aylık raporu`, 14, 27);
+  doc.setFont('DejaVu', 'normal');
+  doc.setFontSize(10);
+  doc.text(`${r.studentName}${r.lessonName ? ` · ${r.lessonName}` : ''}${r.coachName ? ` · Antrenör: ${r.coachName}` : ''}`, 14, 34);
+  let y = 42;
+  const last = () => (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y;
+  const section = (title: string, head: string[] | null, body: string[][], empty: string) => {
+    if (y > 260) { doc.addPage(); y = 18; }
+    doc.setFont('DejaVu', 'bold');
+    doc.setFontSize(11);
+    doc.text(title, 14, y);
+    doc.setFont('DejaVu', 'normal');
+    if (!body.length) {
+      doc.setFontSize(9);
+      doc.text(empty, 14, y + 6);
+      y += 14;
+      return;
+    }
+    autoTable(doc, {
+      startY: y + 3, theme: 'grid', ...(head ? { head: [head] } : {}), body,
+      styles: { font: 'DejaVu', fontSize: 9, cellPadding: 2.5 },
+      headStyles: { font: 'DejaVu', fontStyle: 'bold', fillColor: [14, 94, 122] },
+      ...(head ? {} : { columnStyles: { 0: { fontStyle: 'bold', cellWidth: 55 } } }),
+    });
+    y = last() + 10;
+  };
+  section('Devam', null, r.attendance, 'Bu ay yoklama girilmedi.');
+  section('Dereceler', ['Branş', 'Tür', 'Ayın en iyisi', 'Önceki en iyi', 'Fark'], r.results, 'Bu ay derece kaydı yok.');
+  section('Beceri karnesi', null, r.skills, 'Antrenör henüz beceri işaretlemedi.');
+  section('Antrenör yorumları', ['Tarih', 'Yorum'], r.comments, 'Bu ay antrenör yorumu yok.');
+  section('Ödeme', null, r.payment, 'Ödeme planı yok.');
+  doc.setFontSize(8);
+  doc.text('Bu rapor kulübün uygulamadaki kayıtlarından oluşturulmuştur.', 14, Math.min(y, 285));
+  doc.save(fileName);
+}
