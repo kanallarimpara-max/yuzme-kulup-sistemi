@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-APK ve exe derlemelerini dogrula
+Kulup yanitlarini takip et; yanit veren kulube deneme kulubu ac
 
 ## Modüller
 
@@ -39,6 +39,7 @@ APK ve exe derlemelerini dogrula
 
 ## Son kayıtlar
 
+- 2026-11-26: 26 kulubun resmi Instagram hesabina deneme programi mesaji gonderildi (kullanici onayli metin); liste docs/sosyal-medya-profili.md
 - 2026-11-26: 6 yeni ozellik: (1) kulup acilis rehberi: yonetici panelinde kurulum adimlari ve siradaki isin dugmesi (or. Ilk dersi olustur), sistem sahibinde Kurulum sutunu ve siralamasi; (2) Donem dolulugu ekrani (/doluluk): mevcut, donemi biten, devam/ayrilacak/yanitsiz, bekleyen basvuru, degerlendirme; veliye 45 gun kala devam sorusu (renewals); (3) taksit makbuzu PDF ve duzeltme gecmisi: tahsilat/duzeltme/iptal gerekceyle, kim yaptiysa sona eklenir, kural silmeyi engeller, veliye odeme bildirimi; (4) yuzme beceri karnesi (/beceri, skillCards) 15 beceri 3 duzey, veli ekraninda ozet; (5) TYF start listesinden yaris gunu programi (/yaris-gunu): seri/kulvar, bulusma, veli katilim onayi ayri; (6) yarisa ozel duyuru (raceDayId). 334 kural, 82 birim, 43 Worker testi; web ve kurallar yayinda
 - 2026-11-26: Canli sonuclar: yalniz bugun suren yarislar listelenir, son 2 saatte sonuc/start listesi gelenler Canli etiketiyle en ustte. Ara sureler (lap): canli sonuc PDF'i (satira yayilan blok ve kirilan ara sure duzeltildi, 200m+ derece okunmuyordu), toplu sonuc PDF'inin iki bicimi okunur; toplam sure olarak lapsMs + lapEvery kaydedilir, dereceyle tutarsizsa yazilmaz. Worker diziyi denetler ve yazar, ayni derecede ara suresi eksik kayit tamamlanir; PARSER_VERSION 3 ile eski dosyalar yeniden taranir. Performans ekraninda brans bazli Yaris ara sureleri tablosu (en hizli/yavas bolum). 78 birim, 43 Worker testi gecti; web ve Worker yayinda
 - 2026-11-26: Giris sayfasi kartlarindaki bulaniklik (backdrop-filter) kaldirildi; Android test emulatoru bu efektle cokuyordu. Yari saydam gorunum kaldi

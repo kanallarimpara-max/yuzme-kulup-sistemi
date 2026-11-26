@@ -91,3 +91,40 @@ yönetici 2, veli kontrol listesi, antrenör 3, veli 2, özellik 1 (kronometre),
 rol videosu yönetici, antrenör 5, özellik 3 (gelir-gider), rol videosu antrenör, özellik 4 (performans), rol videosu veli, özellik 5 (yapay zekâ),
 sekreter 1, özellik 6 (personel), özellik 7 (canlı sonuç), sekreter 2, özellik 8 (antrenman pazarı), özellik 9 (duyuru), rol videosu sekreter.
 Paylaşım yöntemi: Chrome'da Yeni Gönderi → Gönderi, dosya yükleme, oran (Reels: Orijinal, görsel: 4:5), metin klavyeyle yazılır.
+
+## Kulüplere deneme programı mesajı (26.11.2026)
+
+Kaynak: TYF toplu sonuç dosyalarında yarışa sporcu getiren özel kulüpler (belediye, üniversite, kolej ve büyük kulüpler hariç); yalnız kulüplerin resmi Instagram hesapları.
+Metin kullanıcı onayıyla gönderildi: 2 hafta ücretsiz deneme, görüş paylaşan kulübe deneme sonrası ana modelde 2 hafta ücretsiz.
+Instagram kısıtlama göstermedi. Gordion otomatik yanıt verdi (iletişim bilgileri); gerçek yanıt henüz yok.
+
+| # | Kulüp | Instagram | Durum |
+| --- | --- | --- | --- |
+| 1 | Biga Gelişim Spor Kulübü | @bigagelisimspor | Gönderildi |
+| 2 | Bodrum Yüzme İhtisas Kulübü | @bodrumyuzmeihtisaskulubu | Gönderildi |
+| 3 | Dragos Spor Kulübü | @dragos_sporkulubu | Gönderildi |
+| 4 | Eskişehir Su Sporları Kulübü | @eskisehirsusporlarikulubu | Gönderildi |
+| 5 | Fırtına 1461 Spor Kulübü | @firtina1461yuzme | Gönderildi |
+| 6 | Hatay Yıldızlar Spor Kulübü | @hatayyildizlarsporkulubu | Gönderildi |
+| 7 | Kastamonu Ilgaz Yüzme SK | @ilgazyuzmesk | Gönderildi |
+| 8 | Manavgat Barlas Spor Kulübü | @barlas_spor | Gönderildi |
+| 9 | Sakarya Aqua Spor Kulübü | @aquasporkulubu | Gönderildi |
+| 10 | Uzunköprü Atak Spor Kulübü | @uzunkopruataksporkulubu | Gönderildi |
+| 11 | Niğde Yeni Turkuaz Yüzme Kulübü | @yeni.turkuaz.spor.kulubu | Gönderildi |
+| 12 | Heybeliada Su Sporları SK | @heybeliadasusporlarikulubu | Gönderildi |
+| 13 | Gordion Yüzme Takımı | @gordionyuzme | Gönderildi (otomatik yanıt geldi) |
+| 14 | Lotus Yüzme Spor Kulübü | @lotusyuzmeeskisehir | Gönderildi |
+| 15 | Eskalen Yüzme Spor Kulübü | @eskalensporkulubu | Gönderildi |
+| 16 | Toroslar Yüzme Spor Kulübü | @toroslaryuzmesporkulubu | Gönderildi |
+| 17 | Bolu TÖAL Yüzme Spor Kulübü | @toalyuzmesporkulubu | Gönderildi |
+| 18 | Anadolu Yüzme Spor Kulübü | @anadoluyuzme_sk | Gönderildi |
+| 19 | Burak Sezgin Yüzme Spor Kulübü | @buraksezginyuzmekulubu | Gönderildi |
+| 20 | Kayseri Yüzme Kulübü | @kayseriyuzmekulubu | Gönderildi |
+| 21 | Kayseri Su Sporları Kulübü | @kayserisusporlarikulubu | Gönderildi |
+| 22 | Nevşehir Yüzme Gelişim SK | @nevsehir_yuzme_gelisim_sk | Gönderildi |
+| 23 | Nevşehir Su Sporları Kulübü | @nevsehir_su_sporlari | Gönderildi |
+| 24 | Faroz Yüzme Kulübü | @farozyuzme_antalya | Gönderildi |
+| 25 | Kocaeli Yüzme Kulübü | @kocaeliyuzmekulubu | Gönderildi |
+| 26 | Buzadam (Iceman) Yüzme İhtisas SK | @icemanyuzme | Gönderildi |
+
+Aynı kulübe ikinci kez yazılmaz. Yanıt veren kulüp için kulüp ve yönetici hesabı süper admin ekranından açılır.
