@@ -177,12 +177,19 @@ class FirestoreStore implements DataStore {
       return () => {};
     }
     // Oturum kapanınca dinleyici izin hatası alır; ekran boş listeye düşer.
+    // Hesap yeni açıldığında veya hesap değiştirildiğinde yetki birkaç saniye geç ulaşabilir;
+    // Firestore hata alan dinleyiciyi kapattığı için artan aralıklarla birkaç kez yeniden bağlanılır.
+    let tries = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const denied = (error: Error) => {
       console.warn(`${name} okunamadı:`, error.message);
       listener([]);
+      if (closed || tries >= RETRY_MS.length) return;
+      timer = setTimeout(() => { if (!closed) void start(); }, RETRY_MS[tries++]);
     };
-    this.sdk.then((f) => {
+    const start = () => this.sdk.then((f) => {
       if (closed) return;
+      stop();
       if (scope.id) {
         stop = f.onSnapshot(f.doc(f.db, name, scope.id), (d) => listener(d.exists() ? [{ ...d.data(), id: d.id }] : []), denied);
         return;
@@ -197,8 +204,10 @@ class FirestoreStore implements DataStore {
       ];
       stop = f.onSnapshot(f.query(ref, ...filters), (snap) => listener(snap.docs.map((d) => ({ ...d.data(), id: d.id }))), denied);
     });
+    void start();
     return () => {
       closed = true;
+      if (timer) clearTimeout(timer);
       stop();
     };
   }
@@ -250,6 +259,9 @@ class FirestoreStore implements DataStore {
     return (snap.data()?.at as { toMillis(): number }).toMillis();
   }
 }
+
+/** İzin hatasından sonra yeniden bağlanma bekleme süreleri (ms). */
+const RETRY_MS = [1500, 4000, 10000];
 
 export const localStore = firebaseEnabled ? null : new LocalStore();
 export const db: DataStore = localStore ?? new FirestoreStore();
