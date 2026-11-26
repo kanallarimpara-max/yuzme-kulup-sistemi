@@ -50,7 +50,7 @@ const fieldsOf = (doc) => Object.fromEntries(Object.entries(doc.fields ?? {}).ma
 export function pushTarget(collection, row) {
   const unique = (ids, sender) => [...new Set((ids ?? []).filter((id) => typeof id === 'string' && id !== sender))].sort();
   if (collection === 'notices') {
-    const title = row.kind === 'yaris' ? 'Yeni yarış duyurusu' : row.kind === 'ders' ? 'Yeni ders bildirimi' : 'Yeni duyuru';
+    const title = row.kind === 'yaris' ? 'Yeni yarış duyurusu' : row.kind === 'ders' ? 'Yeni ders bildirimi' : row.kind === 'odeme' ? 'Ödeme bildirimi' : 'Yeni duyuru';
     return { sender: row.senderId, recipients: unique(row.recipientIds, row.senderId), title, link: '#/duyurular', ttl: 86400 };
   }
   if (collection === 'messages') return { sender: row.senderId, recipients: unique(row.memberIds, row.senderId), title: 'Yeni mesaj', link: '#/mesajlar', ttl: 86400 };

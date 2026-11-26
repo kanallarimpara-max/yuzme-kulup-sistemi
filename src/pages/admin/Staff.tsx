@@ -110,6 +110,10 @@ export default function Staff() {
             <ul className="simple-list">{discounts.map((d) => <li key={d.id}><span>{d.code}<small>{d.type === 'percent' ? `%${d.value}` : `${d.value / 100} TL`} · {d.active ? 'Aktif' : 'Kapalı'}</small></span><span className="form-actions"><button onClick={(e) => { e.preventDefault(); db.update('discounts', d.id, { active: !d.active }); }}>{d.active ? 'Kapat' : 'Aç'}</button><button type="button" className="ghost icon" aria-label={`${d.code} kodunu sil`} onClick={async () => { if (await confirm({ title: `${d.code} kodu silinsin mi?`, text: 'Bu işlem geri alınamaz.', ok: 'Evet, sil', danger: true })) await db.remove('discounts', d.id); }}><Trash2 size={16} /></button></span></li>)}</ul>
           </form>
           <section className="card"><h2>Ön kayıt ödeme tercihleri</h2><div className="chips">{METHODS.map((m) => <button key={m} className={methods.includes(m) ? 'chip on' : 'chip'} aria-pressed={methods.includes(m)} onClick={() => toggleMethod(m)}>{m}</button>)}</div></section>
+          <section className="card stack"><h2>Taksit hatırlatması</h2>
+            <label className="check"><input type="checkbox" checked={!club.reminderOff} onChange={(e) => db.update('clubs', club.id, { reminderOff: !e.target.checked })} /><span>Veliye her sabah 09:00'da otomatik hatırlat</span></label>
+            <p className="muted">Vadeye 3 gün kala, vade günü ve gecikmede birer kez bildirim gider. 30 günden eski gecikmeler için Öğrenciler ekranındaki Hatırlat düğmesini kullanın.</p>
+          </section>
         </section>
       </div>
       {confirmDialog}

@@ -1,6 +1,7 @@
 // Worker'ı Cloudflare hesabı olmadan, ağ çağrılarını taklit ederek dener: npm run test:worker
 import assert from 'node:assert/strict';
-import worker from './index.js';
+import worker, { REMINDER_CRON } from './index.js';
+import { sendPaymentReminders, trToday } from './reminders.js';
 import { sameClubRecipients } from './push.js';
 import { pickWrites, validResult } from './results.js';
 import { activeMeets, listedMeets, meetCandidates } from './tyfMeets.js';
@@ -293,6 +294,47 @@ const checks = [
       { key: 'd', url: 'https://canli.tyf.gov.tr/live/2026/4/', start: '2026-11-24', end: '2026-11-26' },
     ];
     assert.deepEqual(activeMeets(index, Date.parse('2026-11-26T09:00:00Z')).map((e) => e.key), ['a', 'd']);
+  }],
+  ['Taksit hatırlatması: yalnız ödenmemiş ve zamanı gelen taksit, kapalı kulüp atlanır, daha önce gönderilen tekrar gitmez', async () => {
+    const real = globalThis.fetch;
+    const at = Date.parse('2026-11-26T06:00:00Z');
+    assert.equal(trToday(at), '2026-11-26');
+    const inst = (no, dueDate, paid) => ({ mapValue: { fields: { no: { integerValue: String(no) }, dueDate: str(dueDate), amountKurus: { integerValue: '150000' }, ...(paid ? { paidAt: str(paid) } : {}) } } });
+    const enr = (id, clubId, parentId, items) => ({ document: { name: `x/enrollments/${id}`, fields: { clubId: str(clubId), studentId: str('s1'), parentId: str(parentId), installments: { arrayValue: { values: items } } } } });
+    const written = []; const pushed = []; const existing = new Set(['odeme-e2-1-bugun']);
+    globalThis.fetch = async (url, init = {}) => {
+      const u = String(url);
+      if (u === 'https://oauth2.googleapis.com/token') return Response.json({ access_token: 't', expires_in: 3600 });
+      if (u.includes('/clubs?')) return Response.json({ documents: [{ name: 'x/clubs/c1', fields: {} }, { name: 'x/clubs/kapali', fields: { reminderOff: { booleanValue: true } } }] });
+      if (u.endsWith(':runQuery')) {
+        const q = JSON.parse(init.body).structuredQuery;
+        if (q.from[0].collectionId === 'enrollments') return Response.json([
+          enr('e1', 'c1', 'p1', [inst(1, '2026-11-01', '2026-11-01'), inst(2, '2026-11-28'), inst(3, '2026-12-28')]),
+          enr('e2', 'c1', 'p2', [inst(1, '2026-11-26')]),
+          enr('e3', 'kapali', 'p3', [inst(1, '2026-11-26')]),
+          enr('e4', 'c1', 'p4', [inst(1, '2026-08-01')]),
+        ]);
+        return Response.json([{ document: { name: 'x/pushTokens/p1', fields: { uid: str('p1'), token: str('tok1'), platform: str('android') } } }]);
+      }
+      if (u.endsWith(':batchGet')) return Response.json([{ found: { name: 'x/students/s1', fields: { firstName: str('Ayşe'), lastName: str('Yılmaz') } } }]);
+      if (u.endsWith(':batchWrite')) {
+        const { writes } = JSON.parse(init.body);
+        return Response.json({ status: writes.map((w) => { const id = w.update.name.split('/').pop(); if (existing.has(id)) return { code: 6 }; written.push(w.update); return {}; }) });
+      }
+      if (u.includes('fcm.googleapis.com')) { pushed.push(JSON.parse(init.body).message); return Response.json({}); }
+      throw new Error('beklenmeyen istek ' + u);
+    };
+    try {
+      const out = await sendPaymentReminders(env, at);
+      assert.deepEqual(written.map((w) => w.name.split('/').pop()), ['odeme-e1-2-yaklasan']);
+      assert.equal(written[0].fields.senderId.stringValue, 'sistem');
+      assert.equal(written[0].fields.kind.stringValue, 'odeme');
+      assert.match(written[0].fields.body.stringValue, /Ayşe Yılmaz · 2\/3\. taksit · 1\.500,00 TL · vade 28\.11\.2026/);
+      assert.equal(out.written, 1);
+      assert.equal(pushed.length, 1);
+      assert.ok(!JSON.stringify(pushed[0]).includes('Ayşe'), 'kapalı uygulama bildiriminde ad olmamalı');
+      assert.equal(REMINDER_CRON, '0 6 * * *');
+    } finally { globalThis.fetch = real; }
   }],
 ];
 

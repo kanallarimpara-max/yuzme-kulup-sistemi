@@ -60,7 +60,7 @@ service cloud.firestore {
     match /clubs/{clubId} {
       allow read: if true;
       allow create, delete: if isSuper();
-      allow update: if isSuper() || (hasRole(clubId, ['admin']) && onlyChanges(['name', 'logoUrl', 'color', 'paymentMethods', 'preRegLook']))
+      allow update: if isSuper() || (hasRole(clubId, ['admin']) && onlyChanges(['name', 'logoUrl', 'color', 'paymentMethods', 'preRegLook', 'reminderOff']))
         || (hasRole(clubId, ['secretary']) && onlyChanges(['preRegLook']));
     }
     match /branches/{id} {

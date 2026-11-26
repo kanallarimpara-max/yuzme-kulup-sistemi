@@ -27,6 +27,8 @@ export type Post = Row & {
 export type PreRegLook = { eyebrow: string; color: string; title: string; description: string; logoUrl: string; videoUrl: string };
 export type Club = Row & {
   name: string; logoUrl?: string; color: string; slug: string; paymentMethods?: string[]; preRegLook?: Partial<PreRegLook>;
+  /** true ise Worker her sabah veliye taksit hatırlatması göndermez. */
+  reminderOff?: boolean;
 };
 /** Antrenör maaşı herkese açık ders kaydından ayrı tutulur. */
 export type LessonPay = Row & { clubId: string; coachIds: string[]; coachPayKurus: number };

@@ -6,6 +6,7 @@ import { saveMeet, syncMeets } from './tyfMeets.js';
 import { handleStandards } from './standards.js';
 import { handleResults } from './results.js';
 import { handleCalendar } from './calendar.js';
+import { sendPaymentReminders } from './reminders.js';
 
 const JWK_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 const AI_MODEL = '@cf/mistralai/mistral-small-3.1-24b-instruct';
@@ -139,6 +140,9 @@ export function completeText(text, finishReason) {
   return clean.slice(0, clean.lastIndexOf('\n')).trim();
 }
 
+/** Her gün 06:00 UTC = 09:00 Türkiye. wrangler.toml ile aynı olmalı. */
+export const REMINDER_CRON = '0 6 * * *';
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
@@ -168,6 +172,8 @@ export default {
     return json({ error: 'Bulunamadı.' }, 404);
   },
   scheduled(event, env, ctx) {
+    // Taksit hatırlatması ayrı tetikleyiciyle çalışır; böylece canlı sonuç taramasının istek hakkını paylaşmaz.
+    if (event.cron === REMINDER_CRON) return ctx.waitUntil(sendPaymentReminders(env, event.scheduledTime).catch(() => undefined));
     ctx.waitUntil(syncMeets(env, event.scheduledTime));
   },
 };

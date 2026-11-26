@@ -558,3 +558,6 @@ input[type='color'] { cursor: pointer; min-height: 42px; padding: 4px; }
 .recharts-legend-item-text, .recharts-tooltip-item, .recharts-tooltip-label { color: var(--text) !important; }
 
 .upload-button { width: fit-content; }
+
+/* Tablo satırındaki küçük düğmeler yan yana durur, satır uzamaz */
+.row-actions { display: flex; gap: 8px; flex-wrap: nowrap; white-space: nowrap; }

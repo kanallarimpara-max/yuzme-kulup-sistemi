@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { FileDown, History, Pencil } from 'lucide-react';
+import { BellRing, FileDown, History, Pencil } from 'lucide-react';
 import { useConfirm } from '../../lib/confirm';
 import { useSession } from '../../lib/session';
 import { db, useCollection } from '../../lib/store';
 import { paymentSummary, toIso } from '../../lib/rules';
 import { dateTr, money } from '../../lib/format';
+import { reminderText, type ReminderStage } from '../../lib/reminders';
 import { downloadTablePdf } from '../../lib/pdf';
 import type { Branch, Enrollment, Lesson, PaymentLog, Student, User } from '../../lib/types';
 import AttendanceReport from '../coach/AttendanceReport';
@@ -23,6 +24,8 @@ export default function StudentsPayments() {
   const [branchId, setBranchId] = useState('');
   const [lessonId, setLessonId] = useState('');
   const [open, setOpen] = useState<string | null>(null);
+  const [due, setDue] = useState<'' | 'gecikti' | 'yakin'>('');
+  const [reminded, setReminded] = useState<string[]>([]);
   const [method, setMethod] = useState('');
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
@@ -34,7 +37,23 @@ export default function StudentsPayments() {
 
   const lessonOf = (s: Student) => lessons.find((l) => l.id === s.lessonId);
   const coachOf = (s: Student) => users.find((u) => u.id === s.coachId)?.name ?? '';
-  const rows = students.filter((s) => (!branchId || lessonOf(s)?.branchId === branchId) && (!lessonId || s.lessonId === lessonId));
+  const summaryOf = (s: Student) => {
+    const e = enrollments.find((x) => x.studentId === s.id);
+    return e ? { e, sum: paymentSummary(e.installments, today) } : null;
+  };
+  // Gecikenler: vadesi geçmiş ödenmemiş taksiti olanlar. Yakın: 7 gün içinde vadesi gelenler.
+  const dueMatch = (s: Student) => {
+    if (!due) return true;
+    const sum = summaryOf(s)?.sum;
+    if (!sum?.next || sum.daysToDue === null) return false;
+    return due === 'gecikti' ? sum.daysToDue < 0 : sum.daysToDue >= 0 && sum.daysToDue <= 7;
+  };
+  const rows = students.filter((s) => (!branchId || lessonOf(s)?.branchId === branchId) && (!lessonId || s.lessonId === lessonId) && dueMatch(s));
+  const lateRows = students.filter((s) => summaryOf(s)?.sum.status === 'gecikti');
+  const lateKurus = lateRows.reduce((t, s) => {
+    const e = summaryOf(s)!.e;
+    return t + e.installments.filter((i) => !i.paidAt && i.dueDate < today).reduce((a, i) => a + i.amountKurus, 0);
+  }, 0);
 
   const log = (e: Enrollment, entry: Omit<PaymentLog, 'at' | 'byId' | 'byName'>): PaymentLog[] => [...(e.history ?? []), { ...entry, at: Date.now(), byId: user?.id ?? '', byName: user?.name ?? '' }];
   const nameOf = (id: string) => students.find((x) => x.id === id);
@@ -52,6 +71,24 @@ export default function StudentsPayments() {
         body: `${kid?.firstName ?? 'Sporcu'} ${kid?.lastName ?? ''} · ${no}/${enrollment.installments.length}. taksit · ${money(inst.amountKurus)} (${payMethod}). Makbuzu Sporcularım ekranından indirebilirsiniz.` }).catch(() => undefined);
     }
     setStatus(`${no}. taksit tahsil edildi, veliye makbuz bildirimi gönderildi.`);
+  };
+  // Sekreter veya yönetici sıradaki ödenmemiş taksit için veliye elle hatırlatma gönderir.
+  const remind = async (s: Student) => {
+    const found = summaryOf(s);
+    if (!found?.sum.next || !found.e.parentId || !user || found.sum.daysToDue === null) return;
+    const { e, sum } = found;
+    const days = sum.daysToDue as number;
+    const stage: ReminderStage = days > 0 ? 'yaklasan' : days === 0 ? 'bugun' : 'gecikti';
+    const text = reminderText({ no: sum.next!.no, count: e.installments.length, dueDate: sum.next!.dueDate, amountKurus: sum.next!.amountKurus, stage, days }, `${s.firstName} ${s.lastName}`);
+    if (!(await confirm({ title: 'Veliye hatırlatma gönderilsin mi?', text: text.body, ok: 'Gönder' }))) return;
+    setError('');
+    try {
+      await db.add('notices', { clubId, senderId: user.id, kind: 'odeme', title: text.title, body: text.body, recipientIds: [e.parentId], readBy: [] });
+      setReminded((r) => [...r, s.id]);
+      setStatus(`${s.firstName} ${s.lastName} için veliye hatırlatma gönderildi.`);
+    } catch {
+      setError('Hatırlatma gönderilemedi, tekrar deneyin.');
+    }
   };
   const saveFix = async () => {
     const e = enrollments.find((x) => x.id === fix?.enrollmentId);
@@ -92,8 +129,10 @@ export default function StudentsPayments() {
       <section className="card form-grid">
         <label>Şube<select value={branchId} onChange={(e) => { setBranchId(e.target.value); setLessonId(''); }}><option value="">Tümü</option>{branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}</select></label>
         <label>Ders saati<select value={lessonId} onChange={(e) => setLessonId(e.target.value)}><option value="">Tümü</option>{lessons.filter((l) => !branchId || l.branchId === branchId).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></label>
+        <label>Ödeme durumu<select value={due} onChange={(e) => setDue(e.target.value as typeof due)}><option value="">Tümü</option><option value="gecikti">Gecikenler</option><option value="yakin">7 gün içinde vadesi gelenler</option></select></label>
         <label>Tahsilat yöntemi<select value={payMethod} onChange={(e) => setMethod(e.target.value)}>{methods.map((m) => <option key={m}>{m}</option>)}</select></label>
       </section>
+      {lateRows.length > 0 && <p className="muted" role="status">{lateRows.length} öğrencinin gecikmiş taksiti var · toplam {money(lateKurus)}{!club?.reminderOff ? ' · velilere her sabah otomatik hatırlatma gidiyor' : ' · otomatik hatırlatma kapalı'}</p>}
       <section className="card"><div className="table-wrap"><table>
         <thead><tr><th>Öğrenci</th><th>Ders</th><th>Antrenör</th><th>Toplam</th><th>Ödenen</th><th>Kalan</th><th>Sonraki vade</th><th>Durum</th><th /></tr></thead>
         <tbody>{rows.flatMap((s) => {
@@ -105,7 +144,8 @@ export default function StudentsPayments() {
               <td>{sum ? money(sum.totalKurus) : '—'}</td><td>{sum ? money(sum.paidKurus) : '—'}</td><td>{sum ? money(sum.remainingKurus) : '—'}</td>
               <td>{sum?.next ? `${dateTr(sum.next.dueDate)} (${sum.daysToDue} gün)` : '—'}</td>
               <td>{sum ? <em className={`badge ${STATUS[sum.status][1]}`}>{STATUS[sum.status][0]}</em> : <em className="badge">Plan yok</em>}</td>
-              <td>{enrollment && <button onClick={() => setOpen(open === s.id ? null : s.id)}>Taksitler</button>}</td>
+              <td><span className="row-actions">{enrollment && <button onClick={() => setOpen(open === s.id ? null : s.id)}>Taksitler</button>}
+                {sum?.next && enrollment?.parentId && (sum.daysToDue ?? 99) <= 7 && <button aria-label={`${s.firstName} ${s.lastName} velisine hatırlat`} disabled={reminded.includes(s.id)} onClick={() => remind(s)}><BellRing size={15} />{reminded.includes(s.id) ? 'Gönderildi' : 'Hatırlat'}</button>}</span></td>
             </tr>
           );
           if (open !== s.id || !enrollment) return [row];
