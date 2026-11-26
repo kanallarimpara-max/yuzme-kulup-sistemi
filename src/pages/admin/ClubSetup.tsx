@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Check, Info, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { Check, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useConfirm } from '../../lib/confirm';
 import { useSession } from '../../lib/session';
 import { db, useCollection } from '../../lib/store';
@@ -7,6 +7,19 @@ import ImageField from '../../lib/ImageField';
 import type { Branch, Lesson, TrainingModel } from '../../lib/types';
 
 /** Eğitim modeli türleri ve dokununca görünen kısa açıklamaları. */
+/** Model adı ve öğrenci sayısı alanlarında türe göre gösterilen örnekler; kullanıcı yazana kadar yalnız ipucudur. */
+const EXAMPLE: Record<TrainingModel['kind'], { name: string; perCoach: number }> = {
+  minik: { name: 'Örn. Minikler', perCoach: 6 },
+  altgrup: { name: 'Örn. Başlangıç', perCoach: 8 },
+  grup: { name: 'Örn. Akşam grubu', perCoach: 12 },
+  performans: { name: 'Örn. Performans', perCoach: 15 },
+  sporcu: { name: 'Örn. Lisanslılar', perCoach: 20 },
+  yetiskin: { name: 'Örn. Yetişkinler', perCoach: 10 },
+  ozel: { name: 'Örn. Birebir ders', perCoach: 1 },
+};
+const NAME_MAX = 60;
+const PER_COACH_MAX = 100;
+
 const KIND: Record<TrainingModel['kind'], { label: string; help: string }> = {
   minik: { label: 'Minikler', help: 'Suyla tanışan 4-6 yaş çocuklar. Oyunla öğrenme, küçük gruplar.' },
   altgrup: { label: 'Alt grup (başlangıç)', help: 'Yüzmeyi yeni öğrenenler. Temel teknik ve suda güven.' },
@@ -28,10 +41,13 @@ export default function ClubSetup() {
   const [logoUrl, setLogoUrl] = useState('');
   const [saved, setSaved] = useState(false);
   const [branch, setBranch] = useState('');
-  const [model, setModel] = useState({ name: '', kind: 'grup' as TrainingModel['kind'], perCoach: 5 });
+  // Öğrenci sayısı boş başlar; kullanıcı sayı girene kadar alanda yalnız örnek görünür.
+  const [model, setModel] = useState({ name: '', kind: 'grup' as TrainingModel['kind'], perCoach: '' });
+  const [modelError, setModelError] = useState('');
+  const [editError, setEditError] = useState('');
+  const [savingModel, setSavingModel] = useState(false);
   const [editBranch, setEditBranch] = useState<{ id: string; name: string } | null>(null);
-  const [editModel, setEditModel] = useState<{ id: string; name: string; kind: TrainingModel['kind']; perCoach: number } | null>(null);
-  const [help, setHelp] = useState('');
+  const [editModel, setEditModel] = useState<{ id: string; name: string; kind: TrainingModel['kind']; perCoach: string } | null>(null);
   const [confirmDialog, confirm] = useConfirm();
 
   useEffect(() => {
@@ -52,11 +68,32 @@ export default function ClubSetup() {
     await db.add('branches', { clubId, name: branch.trim() });
     setBranch('');
   };
+  // Ad boş, çok uzun ya da aynı adda başka model varsa; sayı tam sayı ve 1-100 arasında değilse kayıt yapılmaz.
+  const checkModel = (name: string, perCoach: string, exceptId = '') => {
+    const clean = name.trim().replace(/\s+/g, ' ');
+    if (!clean) return 'Model adını yazın.';
+    if (clean.length > NAME_MAX) return `Model adı en fazla ${NAME_MAX} karakter olabilir.`;
+    if (models.some((m) => m.id !== exceptId && m.name.trim().toLocaleLowerCase('tr-TR') === clean.toLocaleLowerCase('tr-TR'))) return `"${clean}" adında bir model zaten var.`;
+    if (!perCoach.trim()) return 'Antrenör başına en fazla öğrenci sayısını yazın.';
+    const n = Number(perCoach);
+    if (!Number.isInteger(n) || n < 1 || n > PER_COACH_MAX) return `Öğrenci sayısı 1 ile ${PER_COACH_MAX} arasında tam sayı olmalı.`;
+    return '';
+  };
   const addModel = async (e: FormEvent) => {
     e.preventDefault();
-    if (!model.name.trim() || model.perCoach < 1) return;
-    await db.add('models', { clubId, ...model, name: model.name.trim() });
-    setModel({ name: '', kind: 'grup', perCoach: 5 });
+    if (savingModel) return;
+    const problem = checkModel(model.name, model.perCoach);
+    setModelError(problem);
+    if (problem) return;
+    setSavingModel(true);
+    try {
+      await db.add('models', { clubId, kind: model.kind, name: model.name.trim().replace(/\s+/g, ' '), perCoach: Number(model.perCoach) });
+      setModel({ name: '', kind: 'grup', perCoach: '' });
+    } catch {
+      setModelError('Model kaydedilemedi, bağlantınızı kontrol edip tekrar deneyin.');
+    } finally {
+      setSavingModel(false);
+    }
   };
 
   // Ders bağlı şube veya model silinirse kayıt ve yoklama ekranları boş kalır.
@@ -78,10 +115,22 @@ export default function ClubSetup() {
   };
   const saveModel = async (e: FormEvent) => {
     e.preventDefault();
-    if (!editModel?.name.trim() || editModel.perCoach < 1) return;
-    await db.update('models', editModel.id, { name: editModel.name.trim(), kind: editModel.kind, perCoach: editModel.perCoach });
-    setEditModel(null);
+    if (!editModel || savingModel) return;
+    const problem = checkModel(editModel.name, editModel.perCoach, editModel.id);
+    setEditError(problem);
+    if (problem) return;
+    setSavingModel(true);
+    try {
+      await db.update('models', editModel.id, { name: editModel.name.trim().replace(/\s+/g, ' '), kind: editModel.kind, perCoach: Number(editModel.perCoach) });
+      setEditModel(null);
+    } catch {
+      setEditError('Değişiklik kaydedilemedi, tekrar deneyin.');
+    } finally {
+      setSavingModel(false);
+    }
   };
+  // Sayı alanına yalnız rakam yazılabilir; harf, eksi, virgül ve nokta kabul edilmez.
+  const digits = (v: string) => v.replace(/\D/g, '').slice(0, 3);
 
   return (
     <div className="page">
@@ -113,27 +162,26 @@ export default function ClubSetup() {
         </section>
         <section className="card">
           <h2>Eğitim modelleri</h2>
-          <p className="muted">Derslerin seviyesi ve bir antrenörün en fazla kaç öğrenciyle çalışacağı. Türe dokunarak açıklamasını görebilirsiniz.</p>
-          <div className="chips">{(Object.keys(KIND) as TrainingModel['kind'][]).map((k) => <button type="button" key={k} className={help === k ? 'chip on' : 'chip'} aria-pressed={help === k} onClick={() => setHelp(help === k ? '' : k)}><Info size={13} />{KIND[k].label}</button>)}</div>
-          {help && <p className="help-note" role="status"><strong>{KIND[help as TrainingModel['kind']].label}:</strong> {KIND[help as TrainingModel['kind']].help}</p>}
-          <form className="inline-form wrap" onSubmit={addModel}>
-            <input aria-label="Model adı" placeholder="Model adı" value={model.name} onChange={(e) => setModel({ ...model, name: e.target.value })} />
-            <select aria-label="Model türü" title={KIND[model.kind].help} value={model.kind} onChange={(e) => setModel({ ...model, kind: e.target.value as TrainingModel['kind'] })}>
+          <p className="muted">Derslerin seviyesi ve bir antrenörün en fazla kaç öğrenciyle çalışacağı.</p>
+          <form className="inline-form wrap" onSubmit={addModel} noValidate>
+            <input aria-label="Model adı" placeholder={EXAMPLE[model.kind].name} maxLength={NAME_MAX} aria-invalid={Boolean(modelError) && !modelError.includes('sayı')} value={model.name} onChange={(e) => { setModel({ ...model, name: e.target.value }); setModelError(''); }} />
+            <select aria-label="Model türü" title={KIND[model.kind].help} value={model.kind} onChange={(e) => { setModel({ ...model, kind: e.target.value as TrainingModel['kind'] }); setModelError(''); }}>
               {(Object.keys(KIND) as TrainingModel['kind'][]).map((k) => <option key={k} value={k}>{KIND[k].label}</option>)}
             </select>
-            <input aria-label="Antrenör başına en fazla öğrenci" title="Bir antrenörün bu modelde en fazla kaç öğrenciyle çalışacağı" type="number" min={1} value={model.perCoach} onChange={(e) => setModel({ ...model, perCoach: Number(e.target.value) })} />
-            <button className="primary"><Plus size={16} />Ekle</button>
+            <input aria-label="Antrenör başına en fazla öğrenci" title="Bir antrenörün bu modelde en fazla kaç öğrenciyle çalışacağı" inputMode="numeric" pattern="[0-9]*" placeholder={`Örn. ${EXAMPLE[model.kind].perCoach} kişi`} aria-invalid={modelError.includes('sayı')} value={model.perCoach} onChange={(e) => { setModel({ ...model, perCoach: digits(e.target.value) }); setModelError(''); }} />
+            <button className="primary" disabled={savingModel}><Plus size={16} />Ekle</button>
           </form>
+          {modelError && <p className="error" role="alert">{modelError}</p>}
           <ul className="simple-list">
             {models.map((m) => (
               editModel?.id === m.id
-                ? <li key={m.id}><form className="inline-form wrap grow" onSubmit={saveModel}>
-                  <input aria-label="Model adı" required value={editModel.name} onChange={(e) => setEditModel({ ...editModel, name: e.target.value })} />
+                ? <li key={m.id} className="wrap-row"><form className="inline-form wrap grow" onSubmit={saveModel} noValidate>
+                  <input aria-label="Model adı" maxLength={NAME_MAX} placeholder={EXAMPLE[editModel.kind].name} value={editModel.name} onChange={(e) => { setEditModel({ ...editModel, name: e.target.value }); setEditError(''); }} />
                   <select aria-label="Model türü" value={editModel.kind} onChange={(e) => setEditModel({ ...editModel, kind: e.target.value as TrainingModel['kind'] })}>{(Object.keys(KIND) as TrainingModel['kind'][]).map((k) => <option key={k} value={k}>{KIND[k].label}</option>)}</select>
-                  <input aria-label="Antrenör başına en fazla öğrenci" type="number" min={1} value={editModel.perCoach} onChange={(e) => setEditModel({ ...editModel, perCoach: Number(e.target.value) })} />
-                  <button className="primary icon" aria-label="Kaydet"><Check size={16} /></button><button type="button" className="icon" aria-label="Vazgeç" onClick={() => setEditModel(null)}><X size={16} /></button>
-                </form></li>
-                : <li key={m.id}><span>{m.name}<small>{KIND[m.kind]?.label ?? m.kind} · antrenör başına en fazla {m.perCoach} kişi</small></span><span className="row-actions"><button className="ghost icon" aria-label={`${m.name} modelini düzenle`} title="Düzenle" onClick={() => setEditModel({ id: m.id, name: m.name, kind: m.kind, perCoach: m.perCoach })}><Pencil size={16} /></button><button className="ghost icon" aria-label={`${m.name} modelini sil`} title="Sil" onClick={() => removeModel(m)}><Trash2 size={16} /></button></span></li>
+                  <input aria-label="Antrenör başına en fazla öğrenci" inputMode="numeric" pattern="[0-9]*" placeholder={`Örn. ${EXAMPLE[editModel.kind].perCoach} kişi`} value={editModel.perCoach} onChange={(e) => { setEditModel({ ...editModel, perCoach: digits(e.target.value) }); setEditError(''); }} />
+                  <button className="primary icon" aria-label="Kaydet" disabled={savingModel}><Check size={16} /></button><button type="button" className="icon" aria-label="Vazgeç" onClick={() => { setEditModel(null); setEditError(''); }}><X size={16} /></button>
+                </form>{editError && <p className="error" role="alert">{editError}</p>}</li>
+                : <li key={m.id}><span>{m.name}<small>{KIND[m.kind]?.label ?? m.kind} · antrenör başına en fazla {m.perCoach} kişi</small></span><span className="row-actions"><button className="ghost icon" aria-label={`${m.name} modelini düzenle`} title="Düzenle" onClick={() => { setEditModel({ id: m.id, name: m.name, kind: m.kind, perCoach: String(m.perCoach) }); setEditError(''); }}><Pencil size={16} /></button><button className="ghost icon" aria-label={`${m.name} modelini sil`} title="Sil" onClick={() => removeModel(m)}><Trash2 size={16} /></button></span></li>
             ))}
           </ul>
         </section>

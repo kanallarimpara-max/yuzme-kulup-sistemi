@@ -39,6 +39,7 @@ Heybeliada yanit taslagi kullanici onayinda
 
 ## Son kayıtlar
 
+- 2026-11-26: Kulup ayarlari egitim modelleri: bilgi kutucuklari kaldirildi; model adinda ture gore koyu gri ornek metin, ogrenci sayisi bos baslar ve ornek sayi gosterir; denetim: bos/uzun/ayni ad, yalniz rakam, 1-100 tam sayi, cift tiklama ve kayit hatasi mesaji; duzenlemede ayni kurallar. Web yayinda
 - 2026-11-26: Canli sonuclar: yaris sonucuna basinca dogrudan TYF resmi listesi (PDF) gosterilir; uygulamanin kendi urettigi tablo, arama, Yalniz kulubum ve Resmi liste/Tabloya don dugmesi kaldirildi; PDF telefonda daha net cizilir. Web yayinda
 - 2026-11-26: Instagram haftalik paket basladi: biyografi guncellendi, 10 yeni kulube onayli deneme mesaji, 13 resmi hesap takip edildi (TYF dahil), gunluk 19:00 paylasim gorevi kuruldu; Heybeliada sunum istedi
 - 2026-11-26: Tasarim gecisleri (typeset, layout, colorize, polish): baslik ustu etiketler kaldirildi, bilgi tasiyanlar basligin altina (page-meta); govde 16px, yazi olcegi 12/13/14/15/16/18/28, h3 tanimli, agirlik en cok 600; bosluklar 4px duzeninde, kose yaricaplari tek olcekte; yan serit vurgular tam kenarlikla; beyaz yazili dolu zeminler 4.5:1 (danger/ok-fill), acik temada odak rengi koyu camgobegi, yoklama secimleri anlam renginde ton. 82 test gecti, web yayinda
