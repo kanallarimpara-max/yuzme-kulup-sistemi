@@ -87,7 +87,7 @@ export default function ResultUpload() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Sistem sahibi</p><h1>Yarış sonucu yükle</h1></div></header>
+      <header className="page-head"><div><h1>Yarış sonucu yükle</h1></div></header>
       <section className="card stack">
         <p className="muted">TYF toplu sonuç PDF'ini seçin. Adı soyadı, doğum yılı, cinsiyeti ve kulübü tutan sporculara yarış derecesi kendiliğinden yazılır. Aynı kulüpte iki aday varsa ya da kulüp adı tutmuyorsa derece yazılmaz. TYF sonuçlar sayfasındaki dosyalar her sabah zaten kendiliğinden okunur; bu ekran orada olmayan yarışlar içindir.</p>
         <label className="button upload-button"><FileUp size={18} />PDF seç<input type="file" accept="application/pdf" hidden disabled={busy} onChange={(e) => { void read(e.target.files?.[0]); e.target.value = ''; }} /></label>

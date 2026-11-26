@@ -134,7 +134,7 @@ export default function LiveResults() {
   return (
     <div className="page live-page">
       <header className="page-head">
-        <div><p className="eyebrow">TYF</p><h1>{event ? `${event.name} · ${event.gender}` : detail?.title ?? 'Canlı sonuçlar'}</h1>{detail && <p className="muted">{event ? `${event.age} · ${event.round}` : detail.info}</p>}</div>
+        <div><h1>{event ? `${event.name} · ${event.gender}` : detail?.title ?? 'Canlı sonuçlar'}</h1>{detail && <p className="muted">{event ? `${event.age} · ${event.round}` : detail.info}</p>}</div>
         {meetUrl && <button onClick={() => (event ? setEventNo('') : openMeet(''))}><ArrowLeft size={16} />{event ? 'Yarış programı' : 'Tüm yarışlar'}</button>}
       </header>
       {error && <p className="error" role="alert">{error}</p>}

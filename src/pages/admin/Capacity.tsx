@@ -45,7 +45,7 @@ export default function Capacity() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Kulüp yönetimi</p><h1>Gelecek dönem doluluğu</h1>
+      <header className="page-head"><div><h1>Gelecek dönem doluluğu</h1>
         <p className="muted">Dönemi {SOON_DAYS} gün içinde biten derslerde velilere "devam edecek misiniz?" sorusu gösterilir. Bekleyen başvurular aynı şube ve eğitim modeline göre sayılır.</p></div></header>
       <section className="card"><div className="table-wrap"><table className="capacity-table">
         <thead><tr><th>Ders saati</th><th>Dönem sonu</th><th>Kontenjan</th><th>Mevcut</th><th>Devam edecek</th><th>Ayrılacak</th><th>Yanıt yok</th><th>Bekleyen başvuru</th><th>Değerlendirme</th></tr></thead>

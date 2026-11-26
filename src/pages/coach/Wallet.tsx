@@ -62,7 +62,7 @@ export default function Wallet() {
   const mine = wallet.requests.filter((r) => r.userId === user.id).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Antrenör</p><h1>Kredilerim</h1></div></header>
+      <header className="page-head"><div><h1>Kredilerim</h1></div></header>
       {status && <p className="ok" role="status">{status}</p>}
       {error && <p className="error" role="alert">{error}</p>}
       <section className="stats three">

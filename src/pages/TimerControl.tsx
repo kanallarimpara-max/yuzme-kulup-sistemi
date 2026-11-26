@@ -55,7 +55,7 @@ export default function TimerControl() {
   return (
     <div className="page">
       <header className="page-head">
-        <div><p className="eyebrow">Uzaktan kumanda</p><h1>Kronometre kontrol</h1></div>
+        <div><h1>Kronometre kontrol</h1></div>
         <Link className="button primary" to="/kronometre/ekran"><Maximize2 size={16} />Ekranı aç</Link>
       </header>
 

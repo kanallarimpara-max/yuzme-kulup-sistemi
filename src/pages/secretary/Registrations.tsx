@@ -83,7 +83,7 @@ export default function Registrations() {
   const waiting = preregs.filter((p) => p.status === 'yeni');
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Sekreter</p><h1>Kayıt ekranı</h1></div></header>
+      <header className="page-head"><div><h1>Kayıt ekranı</h1></div></header>
       {status && <p className="ok" role="status">{status}</p>}
       <section className="card">
         <h2>Bekleyen ön kayıtlar ({waiting.length})</h2>

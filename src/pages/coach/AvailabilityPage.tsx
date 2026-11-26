@@ -22,7 +22,7 @@ export default function AvailabilityPage() {
   return (
     <div className="page">
       <header className="page-head">
-        <div><p className="eyebrow">Antrenör</p><h1>Dersler ve müsaitlik</h1></div>
+        <div><h1>Dersler ve müsaitlik</h1></div>
       </header>
       <section className="card">
         <h2>Aktif derslerim</h2>

@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Haftalik sosyal medya paketi onayi bekleniyor; onaydan sonra 27 Kas gonderisi, takip ve kulup mesajlari
+Haftalik sosyal medya paketi onayi bekleniyor
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Haftalik sosyal medya paketi onayi bekleniyor; onaydan sonra 27 Kas gonderisi, t
 
 ## Son kayıtlar
 
+- 2026-11-26: Tasarim gecisleri (typeset, layout, colorize, polish): baslik ustu etiketler kaldirildi, bilgi tasiyanlar basligin altina (page-meta); govde 16px, yazi olcegi 12/13/14/15/16/18/28, h3 tanimli, agirlik en cok 600; bosluklar 4px duzeninde, kose yaricaplari tek olcekte; yan serit vurgular tam kenarlikla; beyaz yazili dolu zeminler 4.5:1 (danger/ok-fill), acik temada odak rengi koyu camgobegi, yoklama secimleri anlam renginde ton. 82 test gecti, web yayinda
 - 2026-11-26: Sosyal medya kiti yeni duz logo ve uygulamayla ayni sade tasarimla yeniden uretildi (kit.mjs, motor.mjs logoSvg duz); Instagram profil fotografi yeni logoyla degisti; haftalik paket taslagi docs/sosyal-medya-haftalik-paket.md
 - 2026-11-26: Tasarim yenilendi (unslop): duz yeni logo ve tum ikonlar, IBM Plex Sans/Mono yazi tipleri (pakete gomulu), notr koyu/acik palet tek camgobegi vurgu, parlama/gradyan/bulaniklik kaldirildi, menude sakin secili durum, rakamlar mono, rozetler etiket, panel basligi gunun tarihi, tanitimda kulvar ve canli sonuc karti. Duzen ve islevler ayni; 82 test gecti, web yayinda
 - 2026-11-26: Gorsel iyilestirme (yalniz styles.css): yeni token'lar (--field, --line-strong, --label, --accent-soft, --radius*, --shadow-*), acik temada beyaz form alanlari ve guclu kenarlik, kartlara olculu golge; menude secili sayfa dolu vurgu yerine yumusak ton (ana eylem one cikar); govde satir yuksekligi 1.5, sabit baslik olcegi (h1 1.75/1.5rem, h2 1.125rem), etiketler daha okunur; buton/alan hover-active-focus-hata durumlari, tablo basligi ve satir vurgusu, secim/imlec/kaydirma cubugu marka renginde. Yerlesim, kirilim, bosluk olculeri degismedi. 82 test gecti, web yayinda

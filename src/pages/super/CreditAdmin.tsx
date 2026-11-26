@@ -68,7 +68,7 @@ export default function CreditAdmin() {
   const pending = requests.filter((r) => r.status === 'bekliyor');
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Süper admin</p><h1>Kredi yönetimi</h1></div></header>
+      <header className="page-head"><div><h1>Kredi yönetimi</h1></div></header>
       {status && <p className="ok" role="status">{status}</p>}
       <section className="card">
         <h2>Bekleyen talepler ({pending.length})</h2>

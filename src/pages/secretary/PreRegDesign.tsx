@@ -36,11 +36,11 @@ export default function PreRegDesign() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Sekreter</p><h1>Ön kayıt sayfası görünümü</h1><p className="muted">Velilerin gördüğü formu özelleştirin.</p></div></header>
+      <header className="page-head"><div><h1>Ön kayıt sayfası görünümü</h1><p className="muted">Velilerin gördüğü formu özelleştirin.</p></div></header>
       <section className="card inline-form"><input aria-label="Ön kayıt linki" readOnly value={link} /><button onClick={copy}>Kopyala</button></section>
       <div className="two-col">
         <section className="card stack">
-          <label>Üst etiket<input value={look.eyebrow} onChange={(e) => set('eyebrow', e.target.value)} /></label>
+          <label>Başlık altı etiketi<input value={look.eyebrow} onChange={(e) => set('eyebrow', e.target.value)} /></label>
           <label>Tema rengi<input type="color" value={look.color} onChange={(e) => set('color', e.target.value)} /></label>
           <label>Başlık (boşsa kulüp adı)<input value={look.title} onChange={(e) => set('title', e.target.value)} /></label>
           <label>Açıklama metni<textarea rows={3} value={look.description} onChange={(e) => set('description', e.target.value)} /></label>

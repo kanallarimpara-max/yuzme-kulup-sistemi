@@ -38,7 +38,7 @@ export default function SkillCards() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">{user.role === 'coach' ? 'Antrenör' : 'Kulüp yönetimi'}</p><h1>Yüzme beceri karnesi</h1>
+      <header className="page-head"><div><h1>Yüzme beceri karnesi</h1>
         <p className="muted">Her beceriyi gözleminize göre işaretleyin. Veli, çocuğu yarışa girmese de kazandığı becerileri görür.</p></div></header>
       {error && <p className="error" role="alert">{error}</p>}
       <div className="skill-layout">

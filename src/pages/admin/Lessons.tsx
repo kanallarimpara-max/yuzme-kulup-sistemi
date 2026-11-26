@@ -69,7 +69,7 @@ export default function Lessons() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Kulüp yönetimi</p><h1>Ders saatleri</h1></div></header>
+      <header className="page-head"><div><h1>Ders saatleri</h1></div></header>
       {(branches.length === 0 || models.length === 0 || users.every((u) => u.role !== 'coach')) && (
         <section className="card setup-steps" aria-label="Ders açmadan önce yapılacaklar">
           <h2><Info size={18} /> Ders saati açmadan önce</h2>

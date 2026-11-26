@@ -57,7 +57,7 @@ export default function WorkoutStore() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Antrenör</p><h1>Antrenman pazarı</h1></div><span className="badge good">{wallet.available} kredi</span></header>
+      <header className="page-head"><div><h1>Antrenman pazarı</h1></div><span className="badge good">{wallet.available} kredi</span></header>
       {status && <p className="ok" role="status">{status}</p>}
       {error && <p className="error" role="alert">{error}</p>}
       <form className="card form-grid" onSubmit={publish}>

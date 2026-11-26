@@ -59,7 +59,6 @@ export default function Landing() {
 
       <section className="landing-hero">
         <div className="landing-copy">
-          <p className="eyebrow">Yüzme kulüpleri için yönetim sistemi</p>
           <h1>Kulübünün bütün işleri tek kulvarda</h1>
           <p className="landing-lead">Kayıttan yarış sonucuna, aidattan antrenmana kadar yönetici, sekreter, antrenör ve veli aynı sistemde buluşur.</p>
           <div className="landing-cta">
@@ -84,7 +83,6 @@ export default function Landing() {
       </section>
 
       <section className="landing-section" id="ozellikler">
-        <p className="eyebrow">Özellikler</p>
         <h2>Havuz başından ofise, ihtiyacın olan her şey</h2>
         <div className="landing-features">
           {FEATURES.map(({ icon: Icon, title, text }) => (
@@ -94,7 +92,6 @@ export default function Landing() {
       </section>
 
       <section className="landing-section">
-        <p className="eyebrow">Herkese kendi ekranı</p>
         <h2>Herkes yalnız kendi işini görür</h2>
         <div className="landing-roles">
           {ROLES.map((r, i) => <article key={r.title}><span>{i + 1}</span><div><h3>{r.title}</h3><p>{r.text}</p></div></article>)}
@@ -102,7 +99,6 @@ export default function Landing() {
       </section>
 
       <section className="landing-section" id="guvenlik">
-        <p className="eyebrow">Güvenlik</p>
         <h2>Kulübünün verisi yalnız kulübüne ait</h2>
         <div className="landing-features">
           {SECURITY.map(({ icon: Icon, title, text }) => (
@@ -112,7 +108,6 @@ export default function Landing() {
       </section>
 
       <section className="landing-section" id="hakkimizda">
-        <p className="eyebrow">Hakkımızda</p>
         <h2>Havuz başında doğan bir fikir</h2>
         <div className="landing-about">
           <p>{appName}, yüzme kulüplerinin kâğıt, Excel tablosu ve mesaj grupları arasında dağılan işlerini tek yerde toplamak için geliştirildi. Kayıt, aidat, yoklama, antrenman, yarış sonucu ve veli iletişimi aynı sistemde buluşur.</p>
@@ -121,7 +116,6 @@ export default function Landing() {
       </section>
 
       <section className="landing-section" id="sss">
-        <p className="eyebrow">Sık sorulan sorular</p>
         <h2>Merak edilenler</h2>
         <div className="landing-faq">
           {FAQ.map(({ q, a }) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}

@@ -93,7 +93,7 @@ export default function Social() {
 
   return (
     <div className="page social">
-      <header className="page-head"><div><p className="eyebrow">Sosyal</p><h1>Kulüp akışı</h1></div></header>
+      <header className="page-head"><div><h1>Kulüp akışı</h1></div></header>
       <div className="chips" role="tablist">
         {([['akis', 'Akış'], ['kesfet', 'Keşfet'], ['profil', 'Profilim']] as Array<[Tab, string]>).map(([id, label]) => <button key={id} role="tab" aria-selected={tab === id} className={tab === id ? 'chip on' : 'chip'} onClick={() => setTab(id)}>{label}</button>)}
       </div>

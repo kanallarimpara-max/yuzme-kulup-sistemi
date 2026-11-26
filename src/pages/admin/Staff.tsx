@@ -77,7 +77,7 @@ export default function Staff() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Kulüp yönetimi</p><h1>Personel ve kayıt ayarları</h1></div></header>
+      <header className="page-head"><div><h1>Personel ve kayıt ayarları</h1></div></header>
       {status && <p className="ok" role="status">{status}</p>}
       {error && <p className="error" role="alert">{error}</p>}
       <div className="two-col">

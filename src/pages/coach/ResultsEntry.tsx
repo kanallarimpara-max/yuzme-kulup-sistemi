@@ -34,7 +34,7 @@ export default function ResultsEntry() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Antrenör</p><h1>Antrenman derecesi</h1></div></header>
+      <header className="page-head"><div><h1>Antrenman derecesi</h1></div></header>
       <form className="card stack" onSubmit={submit}>
         <div className="form-grid">
           <label>Grup<select value={lessonId} onChange={(e) => setLessonId(e.target.value)}><option value="">Tüm öğrencilerim</option>{lessons.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></label>

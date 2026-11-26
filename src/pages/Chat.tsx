@@ -257,7 +257,7 @@ export default function Chat() {
   const lastOf = (id: string) => messages.filter((m) => m.chatId === id).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0))[0];
   return (
     <div className="page chat-page">
-      <header className="page-head"><div><p className="eyebrow">İletişim</p><h1>Mesajlar</h1></div><span className="badge">{user.tag}</span></header>
+      <header className="page-head"><div><h1>Mesajlar</h1></div><span className="badge">{user.tag}</span></header>
       {error && <p className="error" role="alert">{error}</p>}
       {info && <p className="ok" role="status">{info}</p>}
       {incoming && <section className="card call-bar"><strong>{nameOf(incoming.callerId)} arıyor</strong><span className="form-actions"><button className="primary" onClick={() => pickUp(incoming)}><Phone size={16} />Aç</button><button onClick={() => db.update('calls', incoming.id, { status: 'bitti' })}><PhoneOff size={16} />Reddet</button></span></section>}

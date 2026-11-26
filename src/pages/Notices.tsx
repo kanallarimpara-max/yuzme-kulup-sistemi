@@ -59,7 +59,7 @@ export default function Notices() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">İletişim</p><h1>Duyuru ve yarışlar</h1></div></header>
+      <header className="page-head"><div><h1>Duyuru ve yarışlar</h1></div></header>
       {canPost && (
         <form className="card stack" onSubmit={submit}>
           <div className="form-grid">

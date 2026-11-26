@@ -69,7 +69,7 @@ export default function Performance() {
   return (
     <div className="page">
       <header className="page-head">
-        <div><p className="eyebrow">Performans raporu</p><h1>{student.firstName} {student.lastName}</h1></div>
+        <div><h1>{student.firstName} {student.lastName}</h1><p className="page-meta">Performans raporu</p></div>
         {students.length > 1 && <label>Sporcu<select value={student.id} onChange={(e) => setPicked(e.target.value)}>{students.map((s) => <option key={s.id} value={s.id}>{s.firstName} {s.lastName}</option>)}</select></label>}
       </header>
       <section className="stats">

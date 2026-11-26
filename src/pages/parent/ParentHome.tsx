@@ -64,7 +64,7 @@ export default function ParentHome() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Veli</p><h1>Sporcularım</h1></div></header>
+      <header className="page-head"><div><h1>Sporcularım</h1></div></header>
       {error && <p className="error" role="alert">{error}</p>}
       {programs.length > 0 && <section className="card stack"><h2>Yarış programı</h2>{programs.map((e) => {
         const related = notices.filter((n) => n.raceDayId === e.raceDayId).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));

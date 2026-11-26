@@ -86,7 +86,7 @@ export default function StudentsPayments() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Sekreter</p><h1>Öğrenciler</h1></div><button className="primary" onClick={pdf} disabled={!rows.length}><FileDown size={16} />PDF indir</button></header>
+      <header className="page-head"><div><h1>Öğrenciler</h1></div><button className="primary" onClick={pdf} disabled={!rows.length}><FileDown size={16} />PDF indir</button></header>
       {error && <p className="error" role="alert">{error}</p>}
       {status && <p className="ok" role="status">{status}</p>}
       <section className="card form-grid">

@@ -46,7 +46,7 @@ export default function WorkoutBuilder() {
   const mine = workouts.filter((w) => w.coachId === user.id);
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Antrenör</p><h1>Antrenman oluştur</h1></div></header>
+      <header className="page-head"><div><h1>Antrenman oluştur</h1></div></header>
       <form className="card stack" onSubmit={submit}>
         <div className="form-grid">
           <label>Antrenman adı<input required value={title} onChange={(e) => setTitle(e.target.value)} /></label>

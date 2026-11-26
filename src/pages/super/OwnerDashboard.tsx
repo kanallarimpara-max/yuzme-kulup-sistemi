@@ -69,7 +69,7 @@ export default function OwnerDashboard() {
   return (
     <div className="page">
       <header className="page-head">
-        <div><p className="eyebrow">Sistem sahibi</p><h1>Platform özeti</h1></div>
+        <div><h1>Platform özeti</h1></div>
         <p className="muted">{new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' })}</p>
       </header>
       <section className="stats">

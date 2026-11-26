@@ -65,7 +65,7 @@ function RaceRow({ race, today, children }: { race: Race; today: string; childre
 }
 
 export default function RaceCalendar() {
-  const { user, club } = useSession();
+  const { user } = useSession();
   const staff = user?.role === 'admin' || user?.role === 'coach';
   const clubId = user?.clubId ?? '';
   const today = toIso(new Date());
@@ -114,7 +114,7 @@ export default function RaceCalendar() {
   return (
     <div className="page">
       <header className="page-head">
-        <div><p className="eyebrow">{club?.name ?? 'Kulüp'}</p><h1>Yarış takvimi</h1>
+        <div><h1>Yarış takvimi</h1>
           <p className="muted">{staff ? 'TYF faaliyet takviminden kulübünüzün katılacağı yarışları seçin. Seçtikleriniz velilerin takviminde görünür.' : 'Kulübünüzün katılacağı yarışlar.'}</p></div>
       </header>
 

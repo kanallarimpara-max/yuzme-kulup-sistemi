@@ -41,7 +41,7 @@ export default function Standards() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">{season} sezonu</p><h1>Barajlar</h1>{checkedAt && <p className="muted">TYF son kontrol {new Date(checkedAt).toLocaleDateString('tr-TR')}{changedAt ? ` · son değişiklik ${new Date(changedAt).toLocaleDateString('tr-TR')}` : ''}</p>}</div><a className="button" href={source} target="_blank" rel="noreferrer">TYF kaynağı</a></header>
+      <header className="page-head"><div><h1>Barajlar</h1><p className="page-meta">{season} sezonu</p>{checkedAt && <p className="muted">TYF son kontrol {new Date(checkedAt).toLocaleDateString('tr-TR')}{changedAt ? ` · son değişiklik ${new Date(changedAt).toLocaleDateString('tr-TR')}` : ''}</p>}</div><a className="button" href={source} target="_blank" rel="noreferrer">TYF kaynağı</a></header>
       <section className="card form-grid">
         <label>Yarış<select value={group} onChange={(e) => setGroup(e.target.value)}>{groups.map((g) => <option key={g}>{g}</option>)}</select></label>
         <label>Havuz<select value={pool} onChange={(e) => setPool(e.target.value as '25m' | '50m')}><option value="25m" disabled={!pools.includes('25m')}>25 m</option><option value="50m" disabled={!pools.includes('50m')}>50 m</option></select></label>

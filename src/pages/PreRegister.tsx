@@ -19,8 +19,8 @@ export function PreRegHeader({ club, look }: { club: Club; look: Partial<PreRegL
   return (
     <header className="prereg-head">
       {logo && <img src={logo} alt={`${club.name} logosu`} />}
-      <p className="eyebrow">{look.eyebrow || 'Ön kayıt formu'}</p>
       <h1>{look.title || club.name}</h1>
+      <p className="page-meta">{look.eyebrow || 'Ön kayıt formu'}</p>
       <p className="muted">{look.description || 'Bilgilerinizi gönderin. Kulüp ekibi başvurunuzu inceleyip sizinle iletişime geçecektir.'}</p>
       {video && <iframe src={video} title="Tanıtım videosu" allowFullScreen loading="lazy" />}
     </header>

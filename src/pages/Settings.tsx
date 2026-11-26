@@ -56,7 +56,7 @@ export default function Settings() {
 
   return (
     <div className="page settings-page">
-      <header className="page-head"><div><p className="eyebrow">Hesap</p><h1>Ayarlar</h1></div></header>
+      <header className="page-head"><div><h1>Ayarlar</h1></div></header>
       {status && <p className="ok" role="status">{status}</p>}
       {error && <p className="error" role="alert">{error}</p>}
 

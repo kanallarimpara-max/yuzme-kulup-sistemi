@@ -147,7 +147,7 @@ export default function RaceDayPage() {
   return (
     <div className="page">
       <header className="page-head">
-        <div><p className="eyebrow">Yarış günü</p><h1>{meet ? meet.title : 'Yarış günü programı'}</h1>{meet && <p className="muted">{meet.info}</p>}</div>
+        <div><h1>{meet ? meet.title : 'Yarış günü programı'}</h1>{meet && <p className="muted">{meet.info}</p>}</div>
         {meet && <button onClick={() => open('')}><ArrowLeft size={16} />Yarışlar</button>}
       </header>
       {error && <p className="error" role="alert">{error}</p>}

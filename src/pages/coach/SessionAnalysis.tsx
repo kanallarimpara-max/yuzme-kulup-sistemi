@@ -104,7 +104,7 @@ export default function SessionAnalysis() {
   return (
     <div className="page">
       <header className="page-head">
-        <div><p className="eyebrow">{state}</p><h1>Ders analizi</h1></div>
+        <div><h1>Ders analizi</h1><p className="page-meta">{state}</p></div>
         <label>Ders<select value={lesson.id} onChange={(e) => setPicked(e.target.value)}>{lessons.map((l) => <option key={l.id} value={l.id}>{l.startTime}-{l.endTime} · {l.name}{branchName(l.branchId) ? ` · ${branchName(l.branchId)}` : ''}</option>)}</select></label>
       </header>
       <section className="stats">

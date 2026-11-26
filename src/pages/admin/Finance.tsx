@@ -40,7 +40,7 @@ export default function Finance() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Kulüp yönetimi</p><h1>Gelir gider</h1></div></header>
+      <header className="page-head"><div><h1>Gelir gider</h1></div></header>
       <section className="stats finance">
         <article><span>Ciro</span><strong className="fit">{money(f.revenueKurus)}</strong></article>
         <article><span>Tahsil edilen</span><strong className="fit">{money(f.collectedKurus)}</strong></article>

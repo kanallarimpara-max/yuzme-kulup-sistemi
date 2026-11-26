@@ -79,7 +79,7 @@ export default function Platform() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Süper admin</p><h1>Platform yönetimi</h1></div></header>
+      <header className="page-head"><div><h1>Platform yönetimi</h1></div></header>
       <section className="stats">
         <article><span>Kulüp</span><strong>{clubs.length}</strong></article>
         <article><span>Satış</span><strong>{sales.length}</strong></article>

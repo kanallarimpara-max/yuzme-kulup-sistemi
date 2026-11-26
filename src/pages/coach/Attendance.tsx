@@ -76,7 +76,7 @@ export default function Attendance() {
   return (
     <div className="page">
       <header className="page-head">
-        <div><p className="eyebrow">{lesson ? (ended ? 'Ders saati bitti' : 'Şu an aktif ders') : dateTr(today)}</p><h1>Yoklama</h1></div>
+        <div><h1>Yoklama</h1><p className="page-meta">{lesson ? (ended ? 'Ders saati bitti' : 'Şu an aktif ders') : dateTr(today)}</p></div>
         {lesson && <p className="muted">{dateTr(date)} · {lesson.startTime}-{lesson.endTime}</p>}
       </header>
       {!lesson ? (

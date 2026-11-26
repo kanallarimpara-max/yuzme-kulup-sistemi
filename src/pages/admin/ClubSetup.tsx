@@ -85,7 +85,7 @@ export default function ClubSetup() {
 
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Kulüp yönetimi</p><h1>Kulüp ayarları</h1></div></header>
+      <header className="page-head"><div><h1>Kulüp ayarları</h1></div></header>
       {error && <p className="error" role="alert">{error}</p>}
       <section className="card">
         <h2>Kulüp bilgileri</h2>

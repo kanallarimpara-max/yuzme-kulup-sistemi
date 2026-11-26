@@ -58,7 +58,7 @@ export default function Market() {
   const visibleOrders = (isSuper ? orders : orders.filter((o) => o.userId === user.id)).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
   return (
     <div className="page">
-      <header className="page-head"><div><p className="eyebrow">Market</p><h1>{isSuper ? 'Market yönetimi' : 'Ürünler'}</h1></div>{canUseCredits && <span className="badge good">{wallet.available} kredi</span>}</header>
+      <header className="page-head"><div><h1>{isSuper ? 'Market yönetimi' : 'Ürünler'}</h1></div>{canUseCredits && <span className="badge good">{wallet.available} kredi</span>}</header>
       {status && <p className="ok" role="status">{status}</p>}
       {error && <p className="error" role="alert">{error}</p>}
       {isSuper && (
