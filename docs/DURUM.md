@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-APK ve exe derlemesini dogrula
+Sosyal medya: kit.mjs logosunu duzlestir, yeni profil fotografi, haftalik gonderi/mesaj paketi taslagi
 
 ## Modüller
 
@@ -39,6 +39,7 @@ APK ve exe derlemesini dogrula
 
 ## Son kayıtlar
 
+- 2026-11-26: Tasarim yenilendi (unslop): duz yeni logo ve tum ikonlar, IBM Plex Sans/Mono yazi tipleri (pakete gomulu), notr koyu/acik palet tek camgobegi vurgu, parlama/gradyan/bulaniklik kaldirildi, menude sakin secili durum, rakamlar mono, rozetler etiket, panel basligi gunun tarihi, tanitimda kulvar ve canli sonuc karti. Duzen ve islevler ayni; 82 test gecti, web yayinda
 - 2026-11-26: Gorsel iyilestirme (yalniz styles.css): yeni token'lar (--field, --line-strong, --label, --accent-soft, --radius*, --shadow-*), acik temada beyaz form alanlari ve guclu kenarlik, kartlara olculu golge; menude secili sayfa dolu vurgu yerine yumusak ton (ana eylem one cikar); govde satir yuksekligi 1.5, sabit baslik olcegi (h1 1.75/1.5rem, h2 1.125rem), etiketler daha okunur; buton/alan hover-active-focus-hata durumlari, tablo basligi ve satir vurgusu, secim/imlec/kaydirma cubugu marka renginde. Yerlesim, kirilim, bosluk olculeri degismedi. 82 test gecti, web yayinda
 - 2026-11-26: 26 kulubun resmi Instagram hesabina deneme programi mesaji gonderildi (kullanici onayli metin); liste docs/sosyal-medya-profili.md
 - 2026-11-26: 6 yeni ozellik: (1) kulup acilis rehberi: yonetici panelinde kurulum adimlari ve siradaki isin dugmesi (or. Ilk dersi olustur), sistem sahibinde Kurulum sutunu ve siralamasi; (2) Donem dolulugu ekrani (/doluluk): mevcut, donemi biten, devam/ayrilacak/yanitsiz, bekleyen basvuru, degerlendirme; veliye 45 gun kala devam sorusu (renewals); (3) taksit makbuzu PDF ve duzeltme gecmisi: tahsilat/duzeltme/iptal gerekceyle, kim yaptiysa sona eklenir, kural silmeyi engeller, veliye odeme bildirimi; (4) yuzme beceri karnesi (/beceri, skillCards) 15 beceri 3 duzey, veli ekraninda ozet; (5) TYF start listesinden yaris gunu programi (/yaris-gunu): seri/kulvar, bulusma, veli katilim onayi ayri; (6) yarisa ozel duyuru (raceDayId). 334 kural, 82 birim, 43 Worker testi; web ve kurallar yayinda

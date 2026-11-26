@@ -16,7 +16,7 @@ function createWindow() {
     minWidth: 360,
     minHeight: 600,
     autoHideMenuBar: true,
-    backgroundColor: '#07182b',
+    backgroundColor: '#0c1016',
     icon: path.join(__dirname, 'icon.png'),
     webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, webSecurity: true, webviewTag: false },
   });

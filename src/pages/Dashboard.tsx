@@ -44,8 +44,8 @@ function ClubDashboard() {
   return (
     <div className="page">
       <header className="page-head">
-        <div>{club?.logoUrl && <img src={club.logoUrl} alt={`${club.name} logosu`} style={{ borderRadius: 10, height: 48, marginBottom: 8, width: 48, objectFit: 'cover' }} />}<p className="eyebrow">{ROLE_LABEL[user.role]}</p><h1>Merhaba, {user.name.split(' ')[0]}</h1></div>
-        <p className="muted">{club?.name} ·{now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' })}</p>
+        <div>{club?.logoUrl && <img src={club.logoUrl} alt={`${club.name} logosu`} style={{ borderRadius: 10, height: 48, marginBottom: 8, width: 48, objectFit: 'cover' }} />}<p className="eyebrow">{ROLE_LABEL[user.role]} · {user.name}</p><h1>{now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' })}</h1></div>
+        <p className="muted">{club?.name}</p>
       </header>
       {user.role === 'admin' && club && <SetupGuide club={club} />}
       <section className="stats">

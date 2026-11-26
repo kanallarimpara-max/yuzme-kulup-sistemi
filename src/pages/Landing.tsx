@@ -21,6 +21,9 @@ const ROLES = [
   { title: 'Veli', text: 'Yalnız kendi çocuğunun gelişimini ve ödemesini izler.' },
 ];
 
+/** Tanıtım görselindeki örnek yarış sonucu (kurgusal adlar). */
+const POOL_RESULTS: Array<[number, string, string]> = [[3, 'Ece Y.', '1:04.32'], [4, 'Defne A.', '1:04.87'], [2, 'Zeynep K.', '1:06.15'], [5, 'Lara T.', '1:07.40']];
+
 const SECURITY = [
   { icon: Users, title: 'Kulüpler birbirinden ayrı', text: 'Her kulübün öğrencisi, ödemesi, duyurusu ve mesajı yalnız o kulübe aittir. Başka bir kulüp bu kayıtları göremez, değiştiremez.' },
   { icon: ShieldCheck, title: 'Rolüne göre yetki', text: 'Veli yalnız kendi çocuğunu, antrenör kendi derslerini görür. Kurallar sunucuda denetlenir; uygulama değiştirilse bile aşılamaz.' },
@@ -57,7 +60,7 @@ export default function Landing() {
       <section className="landing-hero">
         <div className="landing-copy">
           <p className="eyebrow">Yüzme kulüpleri için yönetim sistemi</p>
-          <h1>Kulübünün bütün işleri tek kulvarda.</h1>
+          <h1>Kulübünün bütün işleri tek kulvarda</h1>
           <p className="landing-lead">Kayıttan yarış sonucuna, aidattan antrenmana kadar yönetici, sekreter, antrenör ve veli aynı sistemde buluşur.</p>
           <div className="landing-cta">
             <Link className="button primary" to="/giris">Sisteme giriş yap <ArrowRight size={18} /></Link>
@@ -65,12 +68,18 @@ export default function Landing() {
           </div>
         </div>
         <div className="landing-pool" aria-hidden="true">
-          {[1, 2, 3, 4].map((lane) => (
+          {[1, 2, 3, 4, 5].map((lane) => (
             <div className="pool-lane" key={lane}>
               <span className="pool-no">{lane}</span>
-              <span className={`pool-swimmer s${lane}`} />
+              <span className="pool-floor" />
             </div>
           ))}
+          <div className="pool-card">
+            <header><strong>100 m serbest · Final</strong><small>Canlı sonuç</small></header>
+            <ol>
+              {POOL_RESULTS.map(([lane, name, time], i) => <li key={lane} className={i === 0 ? 'first' : ''}><span>{lane}</span><span>{name}</span><b>{time}</b></li>)}
+            </ol>
+          </div>
         </div>
       </section>
 

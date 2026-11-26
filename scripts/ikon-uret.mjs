@@ -1,23 +1,25 @@
 // Kulvar360 logosundan web, Android ve Windows simgelerini üretir: node scripts/ikon-uret.mjs
-// Logo: turkuazdan mora geçen yuvarlak kare, içinde kronometre halkası, dalga ve yukarı bakan ibre.
+// Logo: koyu havuz mavisi düz zemin üzerinde tek renk (turkuaz) kronometre: halka, dalga ve yukarı bakan ibre. Geçiş ve parlama yok.
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { chromium } from 'playwright-core';
 
-const GRAD = '<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#43f3ff"/><stop offset=".55" stop-color="#3d8bff"/><stop offset="1" stop-color="#6a4bff"/></linearGradient>';
-const GLYPH = `<rect x="52" y="17" width="16" height="9" rx="3" fill="#fff"/><path d="M60 26v6" stroke="#fff" stroke-width="6"/>
-<circle cx="60" cy="66" r="34" fill="none" stroke="#fff" stroke-width="7.5"/>
-<g clip-path="url(#c)"><path d="M22 72c6-8 12-8 18 0s12 8 18 0 12-8 18 0 12 8 18 0 12-8 18 0" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round"/><path d="M22 72c6-8 12-8 18 0s12 8 18 0 12-8 18 0 12 8 18 0 12-8 18 0V110H22Z" fill="rgba(255,255,255,.22)"/></g>
-<path d="M60 66l12-14" stroke="#fff" stroke-width="6" stroke-linecap="round"/>`;
+export const LOGO_BG = '#0f1d29';
+export const LOGO_INK = '#2fd0e3';
+const GRAD = '';
+const GLYPH = `<rect x="52" y="17" width="16" height="9" rx="3" fill="${LOGO_INK}"/><path d="M60 26v6" stroke="${LOGO_INK}" stroke-width="6"/>
+<circle cx="60" cy="66" r="34" fill="none" stroke="${LOGO_INK}" stroke-width="7.5"/>
+<g clip-path="url(#c)"><path d="M22 74c6-8 12-8 18 0s12 8 18 0 12-8 18 0 12 8 18 0 12-8 18 0" fill="none" stroke="${LOGO_INK}" stroke-width="6.5" stroke-linecap="round"/></g>
+<path d="M60 66l12-14" stroke="${LOGO_INK}" stroke-width="6" stroke-linecap="round"/>`;
 const CLIP = '<clipPath id="c"><circle cx="60" cy="66" r="29"/></clipPath>';
 
 /** shape: 'kare' yuvarlak kare, 'tam' kenarsız (maskelenebilir), 'yuvarlak' daire, 'zemin' yalnız renk, 'isaret' şeffaf zeminde işaret */
 export function logo(shape = 'kare', scale = 1) {
   const bg = {
-    kare: '<rect x="2" y="2" width="116" height="116" rx="32" fill="url(#g)"/><rect x="2" y="2" width="116" height="58" rx="32" fill="rgba(255,255,255,.12)"/>',
-    tam: '<rect width="120" height="120" fill="url(#g)"/>',
-    yuvarlak: '<circle cx="60" cy="60" r="60" fill="url(#g)"/>',
-    zemin: '<rect width="120" height="120" fill="url(#g)"/>',
+    kare: `<rect x="2" y="2" width="116" height="116" rx="28" fill="${LOGO_BG}"/>`,
+    tam: `<rect width="120" height="120" fill="${LOGO_BG}"/>`,
+    yuvarlak: `<circle cx="60" cy="60" r="60" fill="${LOGO_BG}"/>`,
+    zemin: `<rect width="120" height="120" fill="${LOGO_BG}"/>`,
     isaret: '',
   }[shape];
   const glyph = shape === 'zemin' ? '' : `<g transform="translate(60 60) scale(${scale}) translate(-60 -60)">${GLYPH}</g>`;

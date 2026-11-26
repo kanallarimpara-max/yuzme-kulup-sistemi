@@ -5,7 +5,7 @@ import { useTheme } from './theme';
 export type AppDesign = Row & { appName: string; logoUrl: string; accent: string; background: string; panel: string; supportEmail?: string };
 export type Ad = Row & { title: string; imageUrl: string; linkUrl: string; slot: string; active: boolean };
 
-export const DEFAULT_DESIGN = { appName: 'Kulvar360', logoUrl: '', accent: '#27c4d8', background: '#07182b', panel: '#0e2439', supportEmail: '' };
+export const DEFAULT_DESIGN = { appName: 'Kulvar360', logoUrl: '', accent: '#27c4d8', background: '#0c1016', panel: '#12171f', supportEmail: '' };
 
 /** Açık renkli vurguda koyu, koyu vurguda açık yazı kullanılır. */
 const inkFor = (hex: string) => {
@@ -32,7 +32,7 @@ export function useAppDesign() {
       root.removeProperty('--panel');
     }
     document.title = design.appName;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? design.background : '#eff5f9');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? design.background : '#f4f6f9');
   }, [design.accent, design.background, design.panel, design.appName, theme]);
   return design;
 }
