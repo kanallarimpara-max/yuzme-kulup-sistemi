@@ -39,6 +39,7 @@ Gelen Instagram mesajlarini oku (Claude in Chrome baglanmali)
 
 ## Son kayıtlar
 
+- 2026-11-27: Surum surum-2026-11-27 yayinlandi (commit 9d81e12): Android APK + Windows exe GitHub surumunde, yerel kopya tanitim-videolari/uygulamalar/2026-11-27
 - 2026-11-27: Veri dinleyicisi izin hatasinda kalici bos kalmiyor: hesap yeni acildiginda veya hesap degistirildiginde yetki gec ulasirsa 1,5 / 4 / 10 sn sonra yeniden baglanir, sayfa kapaninca durur (emulatorde denendi). Web yayinda
 - 2026-11-26: Veliye aylik rapor: Sporcularim ekraninda her cocuk icin Aylik rapor (son 6 ay secilir, varsayilan gecen ay): devam orani (izinli haric), ayin en iyi dereceleri ve onceki en iyiye gore fark (yaris/antrenman ayri), beceri karnesi ve siradaki hedef, antrenor yorumlari, odenen/kalan/geciken; Turkce PDF indirme. Worker her ayin 1'inde 09:00'da veliye 'Ekim 2026 aylik raporu hazir' bildirimi yazar (tek kimlik, tekrar gitmez). 90 birim, 45 Worker testi; web ve Worker yayinda
 - 2026-11-26: Taksit hatirlatma: Worker her sabah 09:00 (TR) vadeye 1-3 gun kala, vade gunu, 1-6 ve 7-30 gun gecikmede veliye birer kez bildirim yazar (sabit kimlik, tekrar gitmez) ve kapali uygulamaya iceriksiz uyari gonderir; kulup Personel ve kayit ayarlarindan kapatabilir (reminderOff). Ogrenciler ekraninda Odeme durumu suzgeci (Gecikenler / 7 gun icinde), geciken ozet satiri ve elle Hatirlat dugmesi. 86 birim, 44 Worker, 337 kural testi; web, kurallar ve Worker yayinda
