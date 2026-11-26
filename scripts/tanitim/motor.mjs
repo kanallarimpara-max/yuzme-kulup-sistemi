@@ -173,12 +173,14 @@ function background(W, H, d, accent = ['#1287b8', '#3b3fd8']) {
 
 export function logoSvg(size, t0 = null) {
   const draw = (len, delay) => (t0 === null ? '' : `style="--len:${len};stroke-dasharray:${len};${A(['draw', 0.9, t0 + delay, 'cubic-bezier(.65,0,.35,1)'])}"`);
-  return `<svg width="${size}" height="${size}" viewBox="0 0 120 120"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#43f3ff"/><stop offset=".55" stop-color="#3d8bff"/><stop offset="1" stop-color="#6a4bff"/></linearGradient><clipPath id="cp"><circle cx="60" cy="66" r="29"/></clipPath></defs>
-  <rect x="2" y="2" width="116" height="116" rx="32" fill="url(#lg)"/><rect x="2" y="2" width="116" height="58" rx="32" fill="rgba(255,255,255,.12)"/>
-  <rect x="52" y="17" width="16" height="9" rx="3" fill="#fff"/><path d="M60 26v6" stroke="#fff" stroke-width="6"/>
-  <circle cx="60" cy="66" r="34" fill="none" stroke="#fff" stroke-width="7.5" ${draw(214, 0)} transform="rotate(-90 60 66)"/>
-  <g clip-path="url(#cp)"><path d="M22 72c6-8 12-8 18 0s12 8 18 0 12-8 18 0 12 8 18 0 12-8 18 0" fill="none" stroke="#fff" stroke-width="6.5" stroke-linecap="round" ${draw(130, 0.35)}/><path d="M22 72c6-8 12-8 18 0s12 8 18 0 12-8 18 0 12 8 18 0 12-8 18 0V110H22Z" fill="rgba(255,255,255,.22)"/></g>
-  <path d="M60 66l12-14" stroke="#fff" stroke-width="6" stroke-linecap="round" ${draw(20, 0.6)}/></svg>`;
+  // Uygulama ikonuyla aynı düz işaret (scripts/ikon-uret.mjs): koyu zemin, tek renk çizgi
+  const bg = '#0f1d29', ink = '#2fd0e3';
+  return `<svg width="${size}" height="${size}" viewBox="0 0 120 120"><defs><clipPath id="cp"><circle cx="60" cy="66" r="29"/></clipPath></defs>
+  <rect x="2" y="2" width="116" height="116" rx="28" fill="${bg}"/>
+  <rect x="52" y="17" width="16" height="9" rx="3" fill="${ink}"/><path d="M60 26v6" stroke="${ink}" stroke-width="6"/>
+  <circle cx="60" cy="66" r="34" fill="none" stroke="${ink}" stroke-width="7.5" ${draw(214, 0)} transform="rotate(-90 60 66)"/>
+  <g clip-path="url(#cp)"><path d="M22 74c6-8 12-8 18 0s12 8 18 0 12-8 18 0 12 8 18 0 12-8 18 0" fill="none" stroke="${ink}" stroke-width="6.5" stroke-linecap="round" ${draw(130, 0.35)}/></g>
+  <path d="M60 66l12-14" stroke="${ink}" stroke-width="6" stroke-linecap="round" ${draw(20, 0.6)}/></svg>`;
 }
 
 const brandBug = (x, y, size, align = 'left') => `<div class="brandbug" style="${align === 'center' ? `left:0;right:0;justify-content:center` : `left:${x}px`};top:${y}px;font-size:${size}px;gap:${size * 0.5}px;${A(['fadeIn', 0.6, 0.1])}">${logoSvg(size * 1.6)}<span>${esc(BRAND)}</span></div>`;

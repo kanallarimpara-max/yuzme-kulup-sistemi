@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Sosyal medya: kit.mjs logosunu duzlestir, yeni profil fotografi, haftalik gonderi/mesaj paketi taslagi
+Haftalik sosyal medya paketi onayi bekleniyor; onaydan sonra 27 Kas gonderisi, takip ve kulup mesajlari
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Sosyal medya: kit.mjs logosunu duzlestir, yeni profil fotografi, haftalik gonder
 
 ## Son kayıtlar
 
+- 2026-11-26: Sosyal medya kiti yeni duz logo ve uygulamayla ayni sade tasarimla yeniden uretildi (kit.mjs, motor.mjs logoSvg duz); Instagram profil fotografi yeni logoyla degisti; haftalik paket taslagi docs/sosyal-medya-haftalik-paket.md
 - 2026-11-26: Tasarim yenilendi (unslop): duz yeni logo ve tum ikonlar, IBM Plex Sans/Mono yazi tipleri (pakete gomulu), notr koyu/acik palet tek camgobegi vurgu, parlama/gradyan/bulaniklik kaldirildi, menude sakin secili durum, rakamlar mono, rozetler etiket, panel basligi gunun tarihi, tanitimda kulvar ve canli sonuc karti. Duzen ve islevler ayni; 82 test gecti, web yayinda
 - 2026-11-26: Gorsel iyilestirme (yalniz styles.css): yeni token'lar (--field, --line-strong, --label, --accent-soft, --radius*, --shadow-*), acik temada beyaz form alanlari ve guclu kenarlik, kartlara olculu golge; menude secili sayfa dolu vurgu yerine yumusak ton (ana eylem one cikar); govde satir yuksekligi 1.5, sabit baslik olcegi (h1 1.75/1.5rem, h2 1.125rem), etiketler daha okunur; buton/alan hover-active-focus-hata durumlari, tablo basligi ve satir vurgusu, secim/imlec/kaydirma cubugu marka renginde. Yerlesim, kirilim, bosluk olculeri degismedi. 82 test gecti, web yayinda
 - 2026-11-26: 26 kulubun resmi Instagram hesabina deneme programi mesaji gonderildi (kullanici onayli metin); liste docs/sosyal-medya-profili.md
