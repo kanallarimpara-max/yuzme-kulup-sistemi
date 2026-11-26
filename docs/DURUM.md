@@ -39,6 +39,7 @@ Heybeliada yanit taslagi kullanici onayinda
 
 ## Son kayıtlar
 
+- 2026-11-26: Tum platformlar kaydedildi: web yayinda, GitHub surumu surum-2026-11-26 (Android APK + Windows exe, commit 5f98af3), yerel kopya tanitim-videolari/uygulamalar/2026-11-26
 - 2026-11-26: Kulup ayarlari egitim modelleri: bilgi kutucuklari kaldirildi; model adinda ture gore koyu gri ornek metin, ogrenci sayisi bos baslar ve ornek sayi gosterir; denetim: bos/uzun/ayni ad, yalniz rakam, 1-100 tam sayi, cift tiklama ve kayit hatasi mesaji; duzenlemede ayni kurallar. Web yayinda
 - 2026-11-26: Canli sonuclar: yaris sonucuna basinca dogrudan TYF resmi listesi (PDF) gosterilir; uygulamanin kendi urettigi tablo, arama, Yalniz kulubum ve Resmi liste/Tabloya don dugmesi kaldirildi; PDF telefonda daha net cizilir. Web yayinda
 - 2026-11-26: Instagram haftalik paket basladi: biyografi guncellendi, 10 yeni kulube onayli deneme mesaji, 13 resmi hesap takip edildi (TYF dahil), gunluk 19:00 paylasim gorevi kuruldu; Heybeliada sunum istedi
