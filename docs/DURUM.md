@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Son sıraları ve platform paketlerini doğrula.
+28-29 Kas sonuclari gelince 3-4. gun ve genel sampiyonlar gonderisi (ayni betik)
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Son sıraları ve platform paketlerini doğrula.
 
 ## Son kayıtlar
 
+- 2026-11-27: Türkiye sıralaması yayında. Son aktarımda 1617 kaynaktan 1326'sı derece verdi, 79 kategori. 95 birim, 349 kural, 45 Worker testi. Android ve Windows açılış testleri ve surum-2026-11-27-siralama paket özetleri doğrulandı.
 - 2026-11-27: İki federasyon sporcusuna uyan maskeli canlı sonuç ayrı sporcu sayılmaz ve profile atanmaz. 95 test geçti.
 - 2026-11-27: Sıra numarası basılmayan TYF toplu sonuçlarında bayrak satırları da okunuyor; Niğde PDF'inde 78 takım derecesi doğrulandı.
 - 2026-11-27: TYF sıralamasının kaynak arşivi istemciye kapalı Firestore alanına alındı. GitHub sonuç önbelleği kaldırıldı.
