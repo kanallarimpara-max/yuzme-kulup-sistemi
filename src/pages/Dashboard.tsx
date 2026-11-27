@@ -4,6 +4,7 @@ import { salaryScope, studentScope } from '../lib/access';
 import { toIso } from '../lib/rules';
 import { money } from '../lib/format';
 import { ROLE_LABEL, type Branch, type Lesson, type LessonPay, type SalaryPayment, type Student } from '../lib/types';
+import { AthleteRank } from './NationalRanks';
 import OwnerDashboard from './super/OwnerDashboard';
 import SetupGuide from './admin/SetupGuide';
 
@@ -20,6 +21,8 @@ function ClubDashboard() {
   const branches = useCollection<Branch>('branches', scope);
   const salaries = useCollection<SalaryPayment>('salaries', salaryScope(user));
   const pay = useCollection<LessonPay>('lessonPay', user?.role === 'coach' ? { contains: ['coachIds', user.id] } : { skip: true });
+  const staffChildren = useCollection<Student>('students', user && ['admin','coach'].includes(user.role)
+    ? {clubId:user.clubId,eq:['parentId',user.id]} : {skip:true});
   if (!user) return null;
 
   const now = new Date();
@@ -47,6 +50,7 @@ function ClubDashboard() {
         <div>{club?.logoUrl && <img src={club.logoUrl} alt={`${club.name} logosu`} style={{ borderRadius: 10, height: 48, marginBottom: 8, width: 48, objectFit: 'cover' }} />}<h1>{now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' })}</h1><p className="page-meta">{ROLE_LABEL[user.role]} · {user.name}</p></div>
         <p className="muted">{club?.name}</p>
       </header>
+      {staffChildren.map(s=><div key={s.id}><h2>{s.firstName} {s.lastName}</h2><AthleteRank studentId={s.id}/></div>)}
       {user.role === 'admin' && club && <SetupGuide club={club} />}
       <section className="stats">
         <article><span>Bugünkü ders</span><strong>{todays.length}{!isParent && <small> · {todays.reduce((s, l) => s + countFor(l.id), 0)} kişi</small>}</strong></article>

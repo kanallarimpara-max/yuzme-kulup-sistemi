@@ -97,6 +97,13 @@ service cloud.firestore {
       allow update: if canWrite(['admin', 'secretary']);
     }
 
+    match /rankCatalog/{id} { allow read: if isSuper(); }
+    match /rankPages/{id} { allow read: if isSuper(); }
+    match /studentRanks/{id} {
+      function athlete() { return get(path('students', id)).data; }
+      allow get: if isSuper() || (signedIn() && inClub(athlete().clubId)
+        && me().role in ['parent', 'coach', 'admin'] && athlete().parentId == request.auth.uid);
+    }
     match /students/{id} {
       allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary'])
         || (signedIn() && resource.data.coachId == request.auth.uid) || (signedIn() && resource.data.parentId == request.auth.uid);

@@ -3,12 +3,8 @@
 // Yerel deneme (hiçbir şey yazmaz): node scripts/tyf-sonuclar.mjs --dosya sonuc.pdf
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { pathToFileURL } from 'node:url';
-import { createRequire } from 'node:module';
+import {pagesOf,jobClient} from './tyf-is.mjs';
 import { RESULT_LIST_URL, matchTopluEvents, parseResultList, parseTopluPages, poolFor } from '../src/lib/tyfToplu.ts';
-
-const require = createRequire(import.meta.url);
-const pdfjs = await import(pathToFileURL(require.resolve('pdfjs-dist/legacy/build/pdf.mjs')).href);
 
 const MAX_FILES = Number(process.env.MAX_DOSYA ?? 40);
 const MAX_BYTES = 40_000_000;
@@ -17,17 +13,6 @@ const CHUNK = 200;
 // Okuma kuralı değişince artırılır; daha önce okunamayan dosyalar da yeniden denenir.
 // 3: ara süreler (lap) de okunur; önceki dosyalar bir kez yeniden taranır.
 const PARSER_VERSION = 3;
-
-async function pagesOf(data) {
-  const doc = await pdfjs.getDocument({ data: new Uint8Array(data), verbosity: 0, isEvalSupported: false }).promise;
-  const pages = [];
-  for (let n = 1; n <= doc.numPages; n += 1) {
-    const { items } = await (await doc.getPage(n)).getTextContent();
-    pages.push(items.flatMap((i) => ('str' in i ? [{ x: i.transform[4], y: i.transform[5], text: i.str }] : [])));
-  }
-  await doc.cleanup?.();
-  return pages;
-}
 
 const local = process.argv.indexOf('--dosya');
 if (local > 0) {
@@ -38,18 +23,7 @@ if (local > 0) {
   process.exit(0);
 }
 
-const { ACTIONS_ID_TOKEN_REQUEST_URL: tokenUrl, ACTIONS_ID_TOKEN_REQUEST_TOKEN: tokenKey, WORKER_URL: worker } = process.env;
-if (!tokenUrl || !tokenKey || !worker) throw new Error('GitHub kimliği veya Worker adresi yok.');
-const id = await (await fetch(`${tokenUrl}&audience=yuzme-kulup-worker`, { headers: { Authorization: `Bearer ${tokenKey}` } })).json();
-const call = async (path, body) => {
-  const res = await fetch(`${worker.replace(/\/$/, '')}${path}`, {
-    method: 'POST', headers: { Authorization: `Bearer ${id.value}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body),
-  });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(`${path} başarısız: ${res.status} ${json.error ?? ''}`);
-  return json;
-};
-
+const call = await jobClient();
 const state = await call('/results/athletes', {});
 const done = new Map(state.done.map((f) => [f.id, f]));
 // Sporcu veya kulüp listesi değişirse eski dosyalar yeniden taranır; yeni kayıt olan sporcunun geçmiş dereceleri de gelir.

@@ -11,6 +11,9 @@ const env = await initializeTestEnvironment({
 
 const profile = (role, clubId) => ({ role, clubId, name: role, tag: `@${role}`, isPublic: false });
 const seed = {
+  rankCatalog: {current: {payload:'{}'}},
+  rankPages: {top: {payload:'[]'}},
+  studentRanks: {s1: {payload:'[]'}, s2: {payload:'[]'}},
   users: {
     super1: { role: 'super', name: 'super', tag: '@s', isPublic: false },
     admin1: profile('admin', 'c1'), sec1: profile('secretary', 'c1'), coach1: profile('coach', 'c1'), coach2: profile('coach', 'c1'),
@@ -149,6 +152,17 @@ const checks = [
   no('veli yarış günü programlarını listeleyemez', () => getDocs(q(A, 'raceDays', ['clubId', 'c1']))),
   ok('antrenör kendi yarışına özel duyuru gönderir', () => addDoc(collection(C, 'notices'), { clubId: 'c1', senderId: 'coach1', kind: 'yaris', raceDayId: 'c1_2026-9_coach1', title: 'Buluşma', body: '08.15', recipientIds: ['parentA'], readBy: [] })),
   no('başkasının yarış programına duyuru bağlanamaz', () => addDoc(collection(as('coach2'), 'notices'), { clubId: 'c1', senderId: 'coach2', kind: 'yaris', raceDayId: 'c1_2026-9_coach1', title: 'x', body: 'x', recipientIds: ['parentA'], readBy: [] })),
+  ok('sistem sahibi ulusal tabloyu okur', () => getDoc(doc(Z,'rankPages','top'))),
+  no('kulüp yöneticisi ulusal tabloyu okuyamaz', () => getDoc(doc(M,'rankPages','top'))),
+  no('antrenör kategori dizinini göremez', () => getDoc(doc(C,'rankCatalog','current'))),
+  no('veli özel sıralamaları listeleyemez', () => getDocs(collection(A,'studentRanks'))),
+  ok('veli kendi çocuğunun sırasını okur', () => getDoc(doc(A,'studentRanks','s1'))),
+  no('veli başka çocuğun sırasını göremez', () => getDoc(doc(A,'studentRanks','s2'))),
+  no('antrenör ebeveyni olmadığı sporcunun sırasını okuyamaz', () => getDoc(doc(C,'studentRanks','s1'))),
+  no('yönetici ebeveyni olmadığı sporcunun sırasını okuyamaz', () => getDoc(doc(M,'studentRanks','s1'))),
+  no('diğer kulüp sporcu sırasını göremez', () => getDoc(doc(X,'studentRanks','s1'))),
+  no('sekreter sporcu sırasını göremez', () => getDoc(doc(S,'studentRanks','s1'))),
+  no('istemci sırayı değiştiremez', () => setDoc(doc(Z,'studentRanks','s1'),{payload:'[]'})),
   ok('herkes TYF takvimini okur', () => getDoc(doc(U, 'tyfCalendar', 'current'))),
   no('kulüp yöneticisi TYF takvimini değiştiremez', () => setDoc(doc(M, 'tyfCalendar', 'current'), { payload: '[]' })),
   ok('antrenör kulüp takvimine yarış ekler', () => setDoc(doc(C, 'clubRaces', 'c1_yaris2'), race('coach1'))),

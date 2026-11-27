@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-28-29 Kas sonuclari gelince 3-4. gun ve genel sampiyonlar gonderisi (ayni betik)
+Sıralama yayınını ve ilk otomatik aktarımı doğrula.
 
 ## Modüller
 
@@ -39,6 +39,7 @@
 
 ## Son kayıtlar
 
+- 2026-11-27: Türkiye sıralaması: TYF canlı ve toplu sonuçlarından yıllık bireysel ve bayrak listeleri; tam tablo sistem sahibine, kişisel sıra ebeveyne özel. 94 birim, 348 kural, 45 Worker testi geçti.
 - 2026-11-27: Yakınlaştırmalı Android APK ve Windows EXE b25c37d kaydından üretildi, iki açılış testi geçti. surum-2026-11-27-yakinlastirma sürümü yayımlandı; yerel dosyalar ile sürüm SHA-256 özetleri eşleşti.
 - 2026-11-27: Canlı sonuçlarda iki parmakla yakınlaştırma web üzerinde yayınlandı; canlı JavaScript dosyası yerel derlemeyle birebir doğrulandı.
 - 2026-11-27: Canlı sonuç ve start listesi PDF'lerinde iki parmakla yakınlaştırma ve uzaklaştırma eklendi; dokunma benzetimi, 90 test ve derleme geçti.

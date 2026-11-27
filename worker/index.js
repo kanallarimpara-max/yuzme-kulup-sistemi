@@ -155,7 +155,7 @@ export default {
     if (request.method === 'POST' && url.pathname === '/calendar/publish') {
       return handleCalendar(request, env, json).catch(() => json({ error: 'İşlem tamamlanamadı.' }, 502));
     }
-    if (request.method === 'POST' && (url.pathname === '/results/athletes' || url.pathname === '/results/publish')) {
+    if (request.method === 'POST' && (url.pathname === '/results/athletes' || url.pathname === '/results/publish' || url.pathname === '/results/ranks')) {
       return handleResults(request, env, json, url.pathname).catch(() => json({ error: 'İşlem tamamlanamadı.' }, 502));
     }
     const uid = await verifyToken(request, env);

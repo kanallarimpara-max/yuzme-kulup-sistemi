@@ -72,18 +72,38 @@ export async function handleResults(request, env, json, path) {
       list(env, auth, 'clubs', ['name']),
       list(env, auth, 'students', ['clubId', 'parentId', 'firstName', 'lastName', 'birthYear', 'gender']),
       list(env, auth, 'tyfResultFiles', ['sig', 'unreadable']),
-      list(env, auth, 'tyfMeets', ['title', 'info', 'startDate', 'endDate']),
+      list(env, auth, 'tyfMeets', ['title', 'info', 'startDate', 'endDate', 'url', 'version']),
     ]);
     return json({
       clubs: clubs.filter((c) => c.name).map((c) => ({ id: c.id, name: c.name })),
       athletes: athletes.filter((a) => a.clubId && a.firstName && a.lastName && a.birthYear && a.gender),
       // Sporcu listesi değişince (imza farklıysa) dosya yeniden okunur; okunamayan dosya bir daha denenmez.
       done: files.map((f) => ({ id: f.id, sig: f.sig ?? '', unreadable: f.unreadable === 'evet' })),
-      meets: meets.map((m) => ({ title: m.title ?? '', info: m.info ?? '', startDate: m.startDate ?? '', endDate: m.endDate ?? '' })),
+      meets: meets.map((m) => ({ url: m.url, version: m.version, title: m.title ?? '', info: m.info ?? '', startDate: m.startDate ?? '', endDate: m.endDate ?? '' })),
     });
   }
 
   const body = await request.json().catch(() => null);
+  if (path === '/results/ranks') {
+    const groups = new Set(['rankPages', 'studentRanks', 'rankCatalog']);
+    const items = body?.items;
+    if (!Array.isArray(items) || !items.length || items.length > 100 || !groups.has(body.collection)
+      || !items.every(i => ID.test(i.id) && typeof i.payload === 'string' && i.payload.length <= 190000
+        && (body.collection !== 'rankCatalog' || i.id === 'current'))) return json({error:'Geçersiz sıralama.'}, 400);
+    const hashes = await Promise.all(items.map(async i => {
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(i.payload));
+      return Array.from(new Uint8Array(digest), n => n.toString(16).padStart(2,'0')).join('');
+    }));
+    const old = await batchGet(env, auth, body.collection, items.map(i=>i.id), ['hash']);
+    const writes = items.flatMap((i,k) => old[i.id]?.hash === hashes[k] ? [] : [{
+      update:{name:base(env)+'/'+body.collection+'/'+i.id, fields:typed({payload:i.payload,hash:hashes[k]})}
+    }]);
+    if (writes.length) {
+      const res = await fetch(api+'/'+base(env)+':commit',{method:'POST',headers:{...auth,'Content-Type':'application/json'},body:JSON.stringify({writes})});
+      if (!res.ok) return json({error:'Sıralama kaydedilemedi.'},502);
+    }
+    return json({written:writes.length});
+  }
   const file = body?.file;
   const results = Array.isArray(body?.results) ? body.results : null;
   if (!file || !ID.test(file.id ?? '') || typeof file.url !== 'string' || !file.url.startsWith('https://dosya.tyf.gov.tr/')

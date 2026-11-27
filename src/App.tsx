@@ -36,6 +36,7 @@ import Social from './pages/Social';
 import Finance from './pages/admin/Finance';
 import Staff from './pages/admin/Staff';
 import ParentHome from './pages/parent/ParentHome';
+import NationalRanks from './pages/NationalRanks';
 import Platform from './pages/super/Platform';
 import ResultUpload from './pages/super/ResultUpload';
 import CreditAdmin from './pages/super/CreditAdmin';
@@ -76,6 +77,7 @@ const NAV: NavItem[] = [
   { to: '/mesajlar', label: 'Mesajlar', icon: MessagesSquare, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
   { to: '/sosyal', label: 'Sosyal', icon: Camera, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
   { to: '/duyurular', label: 'Duyurular', icon: Bell, roles: ['admin', 'secretary', 'coach', 'parent'] },
+  { to: '/turkiye-siralamasi', label: 'Türkiye sıralamaları', icon: Medal, roles: ['super'] },
   { to: '/platform', label: 'Platform', icon: Building2, roles: ['super'] },
   { to: '/sonuc-yukle', label: 'Sonuç yükle', icon: FileUp, roles: ['super'] },
   { to: '/kredi-yonetimi', label: 'Kredi yönetimi', icon: Coins, roles: ['super'] },
@@ -179,6 +181,7 @@ export default function App() {
         <Route path="/finans" element={<Finance />} />
         <Route path="/personel" element={<Staff />} />
         <Route path="/sporcularim" element={<ParentHome />} />
+        <Route path="/turkiye-siralamasi" element={<NationalRanks />} />
         <Route path="/platform" element={<Platform />} />
         <Route path="/sonuc-yukle" element={<ResultUpload />} />
         <Route path="/kredi-yonetimi" element={<CreditAdmin />} />

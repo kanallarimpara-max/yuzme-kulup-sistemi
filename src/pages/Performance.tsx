@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { AthleteRank } from './NationalRanks';
 import { useSession } from '../lib/session';
 import { useCollection } from '../lib/store';
 import { athleteRecordScope, studentScope } from '../lib/access';
@@ -72,6 +73,7 @@ export default function Performance() {
         <div><h1>{student.firstName} {student.lastName}</h1><p className="page-meta">Performans raporu</p></div>
         {students.length > 1 && <label>Sporcu<select value={student.id} onChange={(e) => setPicked(e.target.value)}>{students.map((s) => <option key={s.id} value={s.id}>{s.firstName} {s.lastName}</option>)}</select></label>}
       </header>
+      {student.parentId === user?.id && <AthleteRank key={student.id} studentId={student.id} />}
       <section className="stats">
         <article><span>Derece</span><strong>{own.length}</strong></article>
         <article><span>Branş</span><strong>{analysis.trends.length}</strong></article>
