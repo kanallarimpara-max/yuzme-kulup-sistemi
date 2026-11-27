@@ -55,11 +55,13 @@ export function archiveRankMarks(pages: PdfItem[][], pool: Pool): RaceMark[] {
       if (/^Yarış\s+\d+/i.test(text)) { team = relay(text); continue; }
       if (!team) continue;
       if (/^\d{1,2}\.\d{1,2}\.\d{4}/.test(text)) { date=dateOf(text); continue; }
-      if (!date || !/^\d+\.?$/.test(cells[0].text.trim())) continue;
+      if (!date || /\b(?:DSQ|DNS|DNF|DQ)\b/i.test(text)) continue;
+      const first = /^\d+\.?$/.test(cells[0].text.trim()) ? 1 : 0;
       const time = cells.findIndex(c=>duration.test(c.text.trim()));
-      if (time < 2) continue;
-      const name = cells[1].text.trim();
-      const club = time>2 ? cells[time-1].text.trim() : name;
+      if (time < first+1 || cells[first].x > 160 || !/\p{L}/u.test(cells[first].text)) continue;
+      if (first===0 && (time<2 || cells[time].x<300)) continue;
+      const name = cells[first].text.trim();
+      const club = time>first+1 ? cells[time-1].text.trim() : name;
       const ms = parseSwimTime(cells[time].text);
       if (ms) marks.push({...team,name,club,year:0,date,pool,ms});
     }

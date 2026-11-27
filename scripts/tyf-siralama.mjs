@@ -21,6 +21,7 @@ for (let i=0;i<(manifest?.count ?? 0);i++) {
   chunks.push(Buffer.from(piece.payload,'base64'));
 }
 const cache = manifest ? JSON.parse(gunzipSync(Buffer.concat(chunks)).toString()) : {};
+const archiveVersion = 'archive-2';
 const sources = new Map();
 const digest = s => createHash('sha256').update(s).digest('hex');
 const get = url => fetch(url,{signal:AbortSignal.timeout(25000)});
@@ -50,7 +51,7 @@ for (const m of meets) {
 const now=Date.now();
 const queue=[...sources.entries()].filter(([key,s])=>{
   const prev=cache[key];
-  if (!prev || prev.version!==(s.event?.resultUrl ?? 'archive')) return true;
+  if (!prev || prev.version!==(s.event?.resultUrl ?? archiveVersion)) return true;
   return now-prev.checked > (s.archive ? 24 : 168)*3600000;
 }).sort(([a],[b])=>(cache[a]?.checked??0)-(cache[b]?.checked??0));
 let failures=0;
@@ -69,7 +70,7 @@ for(let i=0;i<queue.length && Date.now()<deadline;i+=3) {
       const dates=pages.flatMap(page=>page.flatMap(c=>[...c.text.matchAll(/\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/g)].map(m=>m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0'))));
       const pool=s.pool ?? poolFor(s.archive.title,dates,meets);
       const rows=pool ? (s.event ? liveRankMarks(pages,s.event,pool) : archiveRankMarks(pages,pool)) : [];
-      cache[key]={checked:now,version:s.event?.resultUrl ?? 'archive',hash,rows};
+      cache[key]={checked:now,version:s.event?.resultUrl ?? archiveVersion,hash,rows};
     } catch { failures++; }
   }));
 }

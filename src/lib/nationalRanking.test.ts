@@ -19,5 +19,7 @@ it('canlı bayrakta takım derecesini alır, bireysel ara süreyi almaz',()=>{
 });
 it('toplu dosyada bayrak takımını okur',()=>{
   const p=[[{x:40,y:750,text:'Yarış 2, Erkekler 4 x 50m Serbest'},{x:40,y:730,text:'5.07.2026'},{x:40,y:690,text:'1.'},{x:75,y:690,text:'Kurgu 1'},{x:270,y:690,text:'Kurgu'},{x:450,y:690,text:'2:11.15'}]];
-  expect(archiveRankMarks(p,'25m')).toEqual([expect.objectContaining({name:'Kurgu 1',ms:131150,legs:4,stroke:'serbest'})]);
+  for (const pages of [p,[p[0].filter(c=>c.text!=='1.')]]) {
+    expect(archiveRankMarks(pages,'25m')).toEqual([expect.objectContaining({name:'Kurgu 1',ms:131150,legs:4,stroke:'serbest'})]);
+  }
 });
