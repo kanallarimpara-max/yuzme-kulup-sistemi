@@ -75,6 +75,7 @@ Instagram kullanıcı adı **kulvar.360** olarak açıldı. Paylaşımlar Chrome
 | 27.11.2026 | Yeni tanıtım gönderisi (4:5) | Paylaşıldı (hikâye web'den paylaşılamadı) |
 | 27.11.2026 | Reels: Türkiye Finali, canlı sonuç ve "girişte bizi bul" (konum Ankara) | Paylaşıldı |
 | 27.11.2026 | TYF Pekin milli takım gönderisine beğeni ve tebrik yorumu | Yapıldı |
+| 27.11.2026 | Kaydırmalı: Türkiye Finali 1-2. gün şampiyonları (6 görsel, kulüp altın sıralaması; sporcu adı yok) | Paylaşıldı |
 
 Sıradaki: veli 1, sekreter 1, antrenör 2 (takvimin 2. haftası).
 

@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Hikayeleri kullanici telefondan paylasacak; erisim sonuclarina 24 saat sonra bak
+28-29 Kas sonuclari gelince 3-4. gun ve genel sampiyonlar gonderisi
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Hikayeleri kullanici telefondan paylasacak; erisim sonuclarina 24 saat sonra bak
 
 ## Son kayıtlar
 
+- 2026-11-27: Instagram: Turkiye Finali 1-2. gun sampiyonlari kaydirmali gonderi paylasildi (scripts/tanitim/final-sampiyonlar.mjs; TYF resmi sonuc PDF'lerinden 39 altin, kulup siralamasi, 11-12 yas oldugu icin sporcu adi yok; PDF'lerde rekor isareti yok)
 - 2026-11-27: Instagram buyume: Turkiye Finali Reels'i uretildi ve paylasildi (scripts/tanitim/final-reels.mjs, 15 sn, konum Ankara, #turkiyefinali), TYF gonderisine tebrik yorumu, telefondan paylasim icin 2 hikaye gorseli (tanitim-videolari/sosyal-medya/hikaye)
 - 2026-11-27: Instagram: 27 Kas yeni tanitim gonderisi paylasildi (profilde 11 gonderi). Kayseri Su Sporlari yanit verdi: musabakadalar, donunce iletisime gececekler
 - 2026-11-27: Surum surum-2026-11-27 yayinlandi (commit 9d81e12): Android APK + Windows exe GitHub surumunde, yerel kopya tanitim-videolari/uygulamalar/2026-11-27
