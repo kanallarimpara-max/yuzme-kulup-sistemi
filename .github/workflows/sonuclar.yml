@@ -29,20 +29,7 @@ jobs:
       - run: node scripts/tyf-sonuclar.mjs
         env:
           WORKER_URL: ${{ vars.VITE_WORKER_URL }}
-      - name: TYF sonuç önbelleğini al
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ runner.temp }}/tyf-siralama
-          key: rank-pdf-v1-${{ github.run_id }}
-          restore-keys: rank-pdf-v1-
       - name: Türkiye sıralamalarını güncelle
         run: node scripts/tyf-siralama.mjs
         env:
           WORKER_URL: ${{ vars.VITE_WORKER_URL }}
-          RANK_CACHE_DIR: ${{ runner.temp }}/tyf-siralama
-      - name: TYF sonuç önbelleğini sakla
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ runner.temp }}/tyf-siralama
-          key: rank-pdf-v1-${{ github.run_id }}

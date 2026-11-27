@@ -152,6 +152,7 @@ const checks = [
   no('veli yarış günü programlarını listeleyemez', () => getDocs(q(A, 'raceDays', ['clubId', 'c1']))),
   ok('antrenör kendi yarışına özel duyuru gönderir', () => addDoc(collection(C, 'notices'), { clubId: 'c1', senderId: 'coach1', kind: 'yaris', raceDayId: 'c1_2026-9_coach1', title: 'Buluşma', body: '08.15', recipientIds: ['parentA'], readBy: [] })),
   no('başkasının yarış programına duyuru bağlanamaz', () => addDoc(collection(as('coach2'), 'notices'), { clubId: 'c1', senderId: 'coach2', kind: 'yaris', raceDayId: 'c1_2026-9_coach1', title: 'x', body: 'x', recipientIds: ['parentA'], readBy: [] })),
+  no('kaynak arşivine istemciden erişilemez', () => getDoc(doc(Z,'rankSourceCache','2026-current'))),
   ok('sistem sahibi ulusal tabloyu okur', () => getDoc(doc(Z,'rankPages','top'))),
   no('kulüp yöneticisi ulusal tabloyu okuyamaz', () => getDoc(doc(M,'rankPages','top'))),
   no('antrenör kategori dizinini göremez', () => getDoc(doc(C,'rankCatalog','current'))),

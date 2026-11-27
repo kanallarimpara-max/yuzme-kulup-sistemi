@@ -84,6 +84,19 @@ export async function handleResults(request, env, json, path) {
   }
 
   const body = await request.json().catch(() => null);
+  if (path === '/results/rank-cache') {
+    if (!/^\d{4}-(current|[ab]-\d{1,5})$/.test(body?.id ?? '')) return json({error:'Geçersiz arşiv anahtarı.'},400);
+    const url = api+'/'+base(env)+'/rankSourceCache/'+body.id;
+    if (body.payload === undefined) {
+      const stored = await fetch(url,{headers:auth});
+      if (stored.status === 404) return json({payload:null});
+      if (!stored.ok) return json({error:'Arşiv okunamadı.'},502);
+      return json({payload:(await stored.json()).fields.payload.stringValue});
+    }
+    if (typeof body.payload !== 'string' || body.payload.length>480000) return json({error:'Arşiv parçası geçersiz.'},400);
+    const saved = await fetch(url,{method:'PATCH',headers:{...auth,'Content-Type':'application/json'},body:JSON.stringify({fields:typed({payload:body.payload})})});
+    return saved.ok ? json({saved:true}) : json({error:'Arşiv saklanamadı.'},502);
+  }
   if (path === '/results/ranks') {
     const groups = new Set(['rankPages', 'studentRanks', 'rankCatalog']);
     const items = body?.items;

@@ -1,7 +1,6 @@
 // Önbellekte yalnız TYF'nin yayımladığı sonuçlar bulunur; uygulamadaki öğrenci listesi bellekte kalır.
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { join } from 'node:path';
+
 import { gzipSync, gunzipSync } from 'node:zlib';
 import { pagesOf, jobClient } from './tyf-is.mjs';
 import { parseResultList, RESULT_LIST_URL, poolFor } from '../src/lib/tyfToplu.ts';
@@ -12,10 +11,16 @@ import { nationalRanks } from '../src/lib/nationalRanking.ts';
 const call = await jobClient();
 const state = await call('/results/athletes', {});
 const year = new Date().getUTCFullYear();
-const cacheDir = process.env.RANK_CACHE_DIR;
-mkdirSync(cacheDir,{recursive:true});
-const path = join(cacheDir, year+'.json.gz');
-const cache = existsSync(path) ? JSON.parse(gunzipSync(readFileSync(path)).toString()) : {};
+// Parçalar pasif yuvaya yazılır. Yalnız son yazım etkin yuvayı değiştirir.
+const cacheCall = (id,payload) => call('/results/rank-cache',{id:year+'-'+id,payload});
+const manifest = JSON.parse((await cacheCall('current')).payload ?? 'null');
+const chunks = [];
+for (let i=0;i<(manifest?.count ?? 0);i++) {
+  const piece = await cacheCall(manifest.slot+'-'+i);
+  if (!piece.payload) throw Error('Sonuç arşivinde parça eksik.');
+  chunks.push(Buffer.from(piece.payload,'base64'));
+}
+const cache = manifest ? JSON.parse(gunzipSync(Buffer.concat(chunks)).toString()) : {};
 const sources = new Map();
 const digest = s => createHash('sha256').update(s).digest('hex');
 const get = url => fetch(url,{signal:AbortSignal.timeout(25000)});
@@ -49,9 +54,9 @@ const queue=[...sources.entries()].filter(([key,s])=>{
   return now-prev.checked > (s.archive ? 24 : 168)*3600000;
 }).sort(([a],[b])=>(cache[a]?.checked??0)-(cache[b]?.checked??0));
 let failures=0;
-const budget=180;
-for(let i=0;i<Math.min(queue.length,budget);i+=3) {
-  await Promise.all(queue.slice(i,Math.min(i+3,budget)).map(async ([key,s])=>{
+const deadline = Date.now()+6*60000;
+for(let i=0;i<queue.length && Date.now()<deadline;i+=3) {
+  await Promise.all(queue.slice(i,i+3).map(async ([key,s])=>{
     try {
       const url=s.event?.resultUrl ?? key;
       const response=await get(url);
@@ -68,7 +73,13 @@ for(let i=0;i<Math.min(queue.length,budget);i+=3) {
     } catch { failures++; }
   }));
 }
-writeFileSync(path,gzipSync(JSON.stringify(cache)));
+const packed=gzipSync(JSON.stringify(cache));
+const partSize=330000;
+const slot=manifest?.slot==='a' ? 'b' : 'a';
+for(let i=0;i<packed.length;i+=partSize) {
+  await cacheCall(slot+'-'+(i/partSize),packed.subarray(i,i+partSize).toString('base64'));
+}
+await cacheCall('current',JSON.stringify({slot,count:Math.ceil(packed.length/partSize)}));
 const marks=[...sources.keys()].flatMap(k=>cache[k]?.rows ?? []).filter(r=>r.date.startsWith(year+'-'));
 if (!marks.length) throw Error('Sıralanabilir sonuç bulunamadı; mevcut yayın korundu.');
 const {boards,personal}=nationalRanks(marks,state.athletes,Object.fromEntries(state.clubs.map(c=>[c.id,c.name])));
