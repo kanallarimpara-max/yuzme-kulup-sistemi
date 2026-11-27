@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-28-29 Kas sonuclari gelince 3-4. gun ve genel sampiyonlar gonderisi (ayni betik)
+Android ve Windows yakınlaştırma paketlerini b25c37d derlemelerinden doğrula ve teslim et.
 
 ## Modüller
 
@@ -39,6 +39,7 @@
 
 ## Son kayıtlar
 
+- 2026-11-27: Canlı sonuçlarda iki parmakla yakınlaştırma web üzerinde yayınlandı; canlı JavaScript dosyası yerel derlemeyle birebir doğrulandı.
 - 2026-11-27: Canlı sonuç ve start listesi PDF'lerinde iki parmakla yakınlaştırma ve uzaklaştırma eklendi; dokunma benzetimi, 90 test ve derleme geçti.
 - 2026-11-27: Instagram: Turkiye Finali sampiyonlari gonderisi silindi, yeni tasarimla (8 gorsel: kapak, altin kursusu, kiz/erkek 11-12 yas kartlari, bayrak, kapanis) yeniden paylasildi; 15 kulup resmi hesabi aciklamada etiketli
 - 2026-11-27: Instagram: Turkiye Finali 1-2. gun sampiyonlari kaydirmali gonderi paylasildi (scripts/tanitim/final-sampiyonlar.mjs; TYF resmi sonuc PDF'lerinden 39 altin, kulup siralamasi, 11-12 yas oldugu icin sporcu adi yok; PDF'lerde rekor isareti yok)
