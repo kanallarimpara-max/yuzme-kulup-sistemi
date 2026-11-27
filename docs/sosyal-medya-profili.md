@@ -73,6 +73,8 @@ Instagram kullanıcı adı **kulvar.360** olarak açıldı. Paylaşımlar Chrome
 | 25.11.2026 | Reels: yönetici 1, panel ve ders programı | Paylaşıldı |
 | 25.11.2026 | Reels: antrenör 1, yoklama ve devam | Paylaşıldı |
 | 27.11.2026 | Yeni tanıtım gönderisi (4:5) | Paylaşıldı (hikâye web'den paylaşılamadı) |
+| 27.11.2026 | Reels: Türkiye Finali, canlı sonuç ve "girişte bizi bul" (konum Ankara) | Paylaşıldı |
+| 27.11.2026 | TYF Pekin milli takım gönderisine beğeni ve tebrik yorumu | Yapıldı |
 
 Sıradaki: veli 1, sekreter 1, antrenör 2 (takvimin 2. haftası).
 

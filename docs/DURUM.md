@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Haftalik paket devam; Kayseri'ye yanit kullanici onayinda
+Hikayeleri kullanici telefondan paylasacak; erisim sonuclarina 24 saat sonra bak
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Haftalik paket devam; Kayseri'ye yanit kullanici onayinda
 
 ## Son kayıtlar
 
+- 2026-11-27: Instagram buyume: Turkiye Finali Reels'i uretildi ve paylasildi (scripts/tanitim/final-reels.mjs, 15 sn, konum Ankara, #turkiyefinali), TYF gonderisine tebrik yorumu, telefondan paylasim icin 2 hikaye gorseli (tanitim-videolari/sosyal-medya/hikaye)
 - 2026-11-27: Instagram: 27 Kas yeni tanitim gonderisi paylasildi (profilde 11 gonderi). Kayseri Su Sporlari yanit verdi: musabakadalar, donunce iletisime gececekler
 - 2026-11-27: Surum surum-2026-11-27 yayinlandi (commit 9d81e12): Android APK + Windows exe GitHub surumunde, yerel kopya tanitim-videolari/uygulamalar/2026-11-27
 - 2026-11-27: Veri dinleyicisi izin hatasinda kalici bos kalmiyor: hesap yeni acildiginda veya hesap degistirildiginde yetki gec ulasirsa 1,5 / 4 / 10 sn sonra yeniden baglanir, sayfa kapaninca durur (emulatorde denendi). Web yayinda
