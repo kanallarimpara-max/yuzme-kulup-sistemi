@@ -75,7 +75,10 @@ Instagram kullanıcı adı **kulvar.360** olarak açıldı. Paylaşımlar Chrome
 | 27.11.2026 | Yeni tanıtım gönderisi (4:5) | Paylaşıldı (hikâye web'den paylaşılamadı) |
 | 27.11.2026 | Reels: Türkiye Finali, canlı sonuç ve "girişte bizi bul" (konum Ankara) | Paylaşıldı |
 | 27.11.2026 | TYF Pekin milli takım gönderisine beğeni ve tebrik yorumu | Yapıldı |
-| 27.11.2026 | Kaydırmalı: Türkiye Finali 1-2. gün şampiyonları (6 görsel, kulüp altın sıralaması; sporcu adı yok) | Paylaşıldı |
+| 27.11.2026 | Kaydırmalı: Türkiye Finali 1-2. gün şampiyonları (6 görsel) | Silindi, yerine yenisi |
+| 27.11.2026 | Kaydırmalı: Türkiye Finali 1-2. gün şampiyonları, yeni tasarım (8 görsel: kapak, altın kürsüsü, 4 yaş grubu, bayrak, kapanış); 15 kulüp etiketli | Paylaşıldı |
+
+Etiketlenen kulüp hesapları (Türkiye Finali): enkask, dragos_sporkulubu, ortakcisporkulubu, tedmersinkolejisk, egeoceanswimming, itu_sporkulubu, manavgatyuzmeakademisi, tedkolejlilersk, yildizsusporlari, albatrosyuzmeakademisi, antalyasporyuzmeokullari, corlubelediyesisporkulubu, kinaliadasusporlari, toroslaryuzmesporkulubu, uludagoksijenspor. goztepe_yuzme etikete izin vermiyor. Hesabı kesin bulunamayan: Denizli Kumsal SK, Denizyıldızları SK, Ferdi, Vamos SK.
 
 Sıradaki: veli 1, sekreter 1, antrenör 2 (takvimin 2. haftası).
 

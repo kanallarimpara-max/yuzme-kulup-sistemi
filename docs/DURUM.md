@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-28-29 Kas sonuclari gelince 3-4. gun ve genel sampiyonlar gonderisi
+28-29 Kas sonuclari gelince 3-4. gun ve genel sampiyonlar gonderisi (ayni betik)
 
 ## Modüller
 
@@ -39,6 +39,7 @@
 
 ## Son kayıtlar
 
+- 2026-11-27: Instagram: Turkiye Finali sampiyonlari gonderisi silindi, yeni tasarimla (8 gorsel: kapak, altin kursusu, kiz/erkek 11-12 yas kartlari, bayrak, kapanis) yeniden paylasildi; 15 kulup resmi hesabi aciklamada etiketli
 - 2026-11-27: Instagram: Turkiye Finali 1-2. gun sampiyonlari kaydirmali gonderi paylasildi (scripts/tanitim/final-sampiyonlar.mjs; TYF resmi sonuc PDF'lerinden 39 altin, kulup siralamasi, 11-12 yas oldugu icin sporcu adi yok; PDF'lerde rekor isareti yok)
 - 2026-11-27: Instagram buyume: Turkiye Finali Reels'i uretildi ve paylasildi (scripts/tanitim/final-reels.mjs, 15 sn, konum Ankara, #turkiyefinali), TYF gonderisine tebrik yorumu, telefondan paylasim icin 2 hikaye gorseli (tanitim-videolari/sosyal-medya/hikaye)
 - 2026-11-27: Instagram: 27 Kas yeni tanitim gonderisi paylasildi (profilde 11 gonderi). Kayseri Su Sporlari yanit verdi: musabakadalar, donunce iletisime gececekler
