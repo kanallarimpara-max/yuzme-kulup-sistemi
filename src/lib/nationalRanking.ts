@@ -25,6 +25,7 @@ export function nationalRanks(marks: RaceMark[], athletes: TopluAthlete[], clubs
     let name = r.name;
     if (r.legs === 1 && name.includes('*')) {
       const matches = [...(known.get(personKey(r)) ?? [])].filter(n => maskedNameMatches(name, n));
+      if (matches.length > 1) continue;
       if (matches.length === 1) name = matches[0];
     }
     const group: RankGroup = { year: Number(r.date.slice(0, 4)), gender: r.gender, pool: r.pool, legs: r.legs, distance: r.distance, stroke: r.stroke, ageGroup: r.ageGroup ?? '' };

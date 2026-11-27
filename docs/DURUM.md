@@ -2,7 +2,7 @@
 
 ## Sıradaki tek görev
 
-Yeni ayrıştırıcıyla Türkiye listelerini güncelle.
+Son sıraları ve platform paketlerini doğrula.
 
 ## Modüller
 
@@ -39,6 +39,7 @@ Yeni ayrıştırıcıyla Türkiye listelerini güncelle.
 
 ## Son kayıtlar
 
+- 2026-11-27: İki federasyon sporcusuna uyan maskeli canlı sonuç ayrı sporcu sayılmaz ve profile atanmaz. 95 test geçti.
 - 2026-11-27: Sıra numarası basılmayan TYF toplu sonuçlarında bayrak satırları da okunuyor; Niğde PDF'inde 78 takım derecesi doğrulandı.
 - 2026-11-27: TYF sıralamasının kaynak arşivi istemciye kapalı Firestore alanına alındı. GitHub sonuç önbelleği kaldırıldı.
 - 2026-11-27: Türkiye sıralaması: TYF canlı ve toplu sonuçlarından yıllık bireysel ve bayrak listeleri; tam tablo sistem sahibine, kişisel sıra ebeveyne özel. 94 birim, 348 kural, 45 Worker testi geçti.

@@ -13,6 +13,12 @@ it('tekil olmayan kayıtlı sporcuya rozet vermez',()=>{
   const a={id:'s',clubId:'c',firstName:'Ada',lastName:'Kurgu',birthYear:2014,gender:'K' as const};
   expect(nationalRanks([{...base,name:'A** K***u'}],[a,{...a,id:'t'}],{c:'Kurgu SK'}).personal.size).toBe(0);
 });
+it('iki tam ada uyan maskeli sonucu üçüncü sporcu saymaz ve kimseye atamaz',()=>{
+  const a={id:'s',clubId:'c',firstName:'Ada',lastName:'Kurgu',birthYear:2014,gender:'K' as const};
+  const {boards,personal}=nationalRanks([base,{...base,name:'Ala Kurgu',ms:28000},{...base,name:'A** K***u',ms:25000}],[a],{c:'Kurgu SK'});
+  expect(boards[0].rows).toHaveLength(2);
+  expect(personal.get('s')?.[0].rank).toBe(2);
+});
 it('canlı bayrakta takım derecesini alır, bireysel ara süreyi almaz',()=>{
   const p=[[{x:220,y:800,text:'26.11.2026'},{x:42,y:679,text:'1'},{x:119,y:683,text:'Kurgu SK'},{x:454,y:679,text:'2:14.48'},{x:454,y:655,text:'33.22'}]];
   expect(liveRankMarks(p,{gender:'Karma',name:'4 x 50m Karışık',no:'1',age:'Açık',round:'Final',startUrl:'',resultUrl:''},'50m')).toEqual([expect.objectContaining({name:'Kurgu SK',ms:134480,legs:4,gender:'Karma'})]);
