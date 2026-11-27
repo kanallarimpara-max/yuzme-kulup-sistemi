@@ -500,8 +500,9 @@ input[type='color'] { cursor: pointer; min-height: 42px; padding: 4px; }
 .live-search { align-items: center; display: flex; flex: 1 1 220px; gap: 8px; }
 .live-table tr.ours td { background: color-mix(in srgb, var(--accent) 18%, transparent); }
 .live-table td small { white-space: normal; }
-.live-pdf { display: grid; gap: 10px; }
-.live-pdf canvas { background: #fff; border-radius: 6px; display: block; height: auto; max-width: 100%; }
+.live-pdf-viewport { width: 100%; min-width: 0; max-height: 75dvh; overflow: auto; touch-action: pan-x pan-y; }
+.live-pdf { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.live-pdf canvas { width: 100%; background: #fff; border-radius: 6px; display: block; height: auto; max-width: 100%; }
 .live-table { min-width: 0; table-layout: auto; width: 100%; }
 .live-table th, .live-table td { white-space: normal; }
 .live-table th:first-child, .live-table td:first-child { width: 44px; }

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { useCollection } from '../lib/store';
 import { toIso } from '../lib/rules';
+import { enablePdfZoom } from './livePdfZoom';
 import { drawPdf } from '../lib/tyf';
 import { normalizeMeetUrl, type LiveEvent, type LiveMeet } from '../lib/tyfLinks';
 import { liveMeet, meetPdf, workerEnabled } from '../lib/worker';
@@ -67,16 +68,18 @@ export default function LiveResults() {
   // Sonuç ve start listesi federasyonun resmi PDF'i olarak gösterilir; uygulama kendi tablosunu üretmez.
   // PDF adresindeki sürüm değişince seçili yarış kendiliğinden yeniden çizilir.
   useEffect(() => {
-    if (!pdfUrl) return;
+    const host = pdfHost.current;
+    const viewport = host?.parentElement;
+    if (!pdfUrl || !host || !viewport) return;
+    const stopZoom = enablePdfZoom(viewport, host);
     let alive = true;
     setBusy(true);
-    if (pdfHost.current) pdfHost.current.replaceChildren();
+    host.replaceChildren();
     (async () => {
       try {
         const data = await meetPdf(pdfUrl);
-        if (!alive || !pdfHost.current) return;
-        pdfHost.current.replaceChildren();
-        await drawPdf(data, pdfHost.current);
+        if (!alive) return;
+        await drawPdf(data, host);
         if (alive) setError('');
       } catch {
         if (alive) setError('Resmi liste gösterilemedi.');
@@ -84,7 +87,7 @@ export default function LiveResults() {
         if (alive) setBusy(false);
       }
     })();
-    return () => { alive = false; };
+    return () => { alive = false; stopZoom(); };
   }, [pdfUrl]);
 
   const openMeet = (url: string) => {
@@ -158,7 +161,9 @@ export default function LiveResults() {
         </div>}
         {!both && !showingResult && <p className="muted">Bu yarışın sonucu henüz yayınlanmadı, start listesi gösteriliyor.</p>}
         {busy && <p className="muted" role="status">{showingResult ? 'Sonuçlar yükleniyor…' : 'Start listesi yükleniyor…'}</p>}
-        <div className="live-pdf" ref={pdfHost} aria-label={showingResult ? 'Resmi sonuç listesi' : 'Resmi start listesi'} />
+        <div className="live-pdf-viewport" key={pdfUrl}>
+          <div className="live-pdf" ref={pdfHost} aria-label={showingResult ? 'Resmi sonuç listesi' : 'Resmi start listesi'} />
+        </div>
       </section>}
     </div>
   );
