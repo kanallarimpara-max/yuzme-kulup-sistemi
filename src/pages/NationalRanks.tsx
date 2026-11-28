@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useCollection, type Row } from '../lib/store';
 import { STROKE_LABEL } from '../lib/format';
+import { studentScope } from '../lib/access';
+import { useSession } from '../lib/session';
+import type { Student } from '../lib/types';
 import { formatSwimTime } from '../lib/rules';
 import type { PersonalPlace, RankGroup, RankLine } from '../lib/nationalRanking';
 
@@ -19,6 +22,23 @@ export function AthleteRank({studentId}:{studentId:string}) {
       : <p className="muted">Bu sporcu için eşleşen Türkiye sıralaması henüz yok.</p>}</section>;
 }
 export default function NationalRanks() {
+  const { user } = useSession();
+  return user?.role === 'super' ? <FullRanks /> : <StudentRanks key={user?.id} />;
+}
+
+function StudentRanks() {
+  const { user } = useSession();
+  const students = useCollection<Student>('students', studentScope(user));
+  const [picked, setPicked] = useState('');
+  const student = students.find(s=>s.id===picked) ?? students[0];
+  return <div className="page"><header className="page-head"><h1>Türkiye sıralamaları</h1></header>
+    {student ? <><label>Sporcu<select value={student.id} onChange={e=>setPicked(e.target.value)}>
+      {students.map(s=><option key={s.id} value={s.id}>{s.firstName} {s.lastName}</option>)}
+    </select></label><AthleteRank key={student.id} studentId={student.id}/></>
+      : <p className="muted">Görüntülenecek sporcu yok.</p>}</div>;
+}
+
+function FullRanks() {
   const catalogDoc=useCollection<Packed>('rankCatalog',{id:'current'})[0];
   const catalog:Catalog|undefined=catalogDoc && JSON.parse(catalogDoc.payload);
   const [category,setCategory]=useState('');

@@ -1,22 +1,26 @@
 name: TYF Sonuclari
 
-# Her gün Türkiye saatiyle 07:00'de TYF "Yüzme / Sonuçlar" sayfasındaki yeni toplu sonuçları okur,
-# kulüplerin sporcularının yarış derecelerini kendiliğinden kaydeder. Anahtar saklanmaz; kimlik GitHub'ın imzalı belgesidir.
 on:
   schedule:
     - cron: '15 */2 * * *'
+    - cron: '13,43 * * * *'
   workflow_dispatch:
+    inputs:
+      kisa_test:
+        description: 'Dakika döngüsünü üç dakika çalıştırıp doğrula'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
   id-token: write
 
-concurrency:
-  group: tyf-sonuclari
-  cancel-in-progress: false
-
 jobs:
   aktar:
+    if: github.event.schedule != '13,43 * * * *'
+    concurrency:
+      group: tyf-sonuclari
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -29,7 +33,24 @@ jobs:
       - run: node scripts/tyf-sonuclar.mjs
         env:
           WORKER_URL: ${{ vars.VITE_WORKER_URL }}
-      - name: Türkiye sıralamalarını güncelle
-        run: node scripts/tyf-siralama.mjs
+
+  siralama:
+    if: github.event.schedule != '15 */2 * * *'
+    concurrency:
+      group: tyf-ulusal-siralama
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Türkiye sıralamasını dakikada bir kontrol et
+        run: node scripts/tyf-siralama.mjs --watch
+        timeout-minutes: 40
         env:
           WORKER_URL: ${{ vars.VITE_WORKER_URL }}
+          RANK_WATCH_MINUTES: ${{ inputs.kisa_test && '3' || '30' }}

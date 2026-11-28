@@ -77,7 +77,7 @@ const NAV: NavItem[] = [
   { to: '/mesajlar', label: 'Mesajlar', icon: MessagesSquare, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
   { to: '/sosyal', label: 'Sosyal', icon: Camera, roles: ['super', 'admin', 'secretary', 'coach', 'parent'] },
   { to: '/duyurular', label: 'Duyurular', icon: Bell, roles: ['admin', 'secretary', 'coach', 'parent'] },
-  { to: '/turkiye-siralamasi', label: 'Türkiye sıralamaları', icon: Medal, roles: ['super'] },
+  { to: '/turkiye-siralamasi', label: 'Türkiye sıralamaları', icon: Medal, roles: ['super','admin','coach','parent'] },
   { to: '/platform', label: 'Platform', icon: Building2, roles: ['super'] },
   { to: '/sonuc-yukle', label: 'Sonuç yükle', icon: FileUp, roles: ['super'] },
   { to: '/kredi-yonetimi', label: 'Kredi yönetimi', icon: Coins, roles: ['super'] },

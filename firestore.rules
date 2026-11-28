@@ -102,7 +102,9 @@ service cloud.firestore {
     match /studentRanks/{id} {
       function athlete() { return get(path('students', id)).data; }
       allow get: if isSuper() || (signedIn() && inClub(athlete().clubId)
-        && me().role in ['parent', 'coach', 'admin'] && athlete().parentId == request.auth.uid);
+        && (me().role == 'admin'
+          || (me().role == 'coach' && athlete().coachId == request.auth.uid)
+          || (me().role in ['parent','coach'] && athlete().parentId == request.auth.uid)));
     }
     match /students/{id} {
       allow read: if isSuper() || hasRole(resource.data.clubId, ['admin', 'secretary'])

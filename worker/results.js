@@ -67,6 +67,14 @@ export async function handleResults(request, env, json, path) {
   if (!env.FIREBASE_SERVICE_ACCOUNT) return json({ error: 'Servis ayarlanmadı.' }, 503);
   const auth = { Authorization: `Bearer ${await firestoreToken(env)}` };
 
+  if (path === '/results/rank-version') {
+    // Yarış keşfi ve sonuç sürümleri aynı indeks belgesine atomik yazılır.
+    const index = await fetch(api+'/'+base(env)+'/tyfIndex/meets?mask.fieldPaths=revision', {headers:auth});
+    if (!index.ok) return json({error:'Canlı sonuç sürümü okunamadı.'},502);
+    const {updateTime} = await index.json();
+    return updateTime ? json({version:updateTime}) : json({error:'Canlı sonuç sürümü eksik.'},502);
+  }
+
   if (path === '/results/athletes') {
     const [clubs, athletes, files, meets] = await Promise.all([
       list(env, auth, 'clubs', ['name']),
